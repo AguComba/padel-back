@@ -1,1 +1,2 @@
-export const { PORT = 3000 } = process.env
+process.loadEnvFile()
+export const { PORT } = process.env
