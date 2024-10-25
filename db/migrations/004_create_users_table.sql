@@ -12,6 +12,5 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
     created_at TIMESTAMP NOT NULL DEFAULT (NOW())
-    -- Agregar llave foranea
-    -- FOREIGN KEY (id_city) REFERENCES cities(id)
+    FOREIGN KEY (id_city) REFERENCES cities(id)
 )

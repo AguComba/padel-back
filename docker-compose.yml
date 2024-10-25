@@ -1,12 +1,12 @@
 services:
-    mysql_tickeala:
+    mysql_padel:
         image: mysql:lts
         # restart: always
         environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: tickeala
-            MYSQL_USER: tickeala
-            MYSQL_PASSWORD: tickeala
+            MYSQL_ROOT_PASSWORD: PadelRoot 
+            MYSQL_DATABASE: padel 
+            MYSQL_USER: padeldb 
+            MYSQL_PASSWORD: Padel2024 
         volumes:
             - ./mysql:/var/lib/mysql
             - ./database/db.sql:/docker-entrypoint-initdb.d/db.sql
@@ -16,7 +16,9 @@ services:
         image: phpmyadmin/phpmyadmin
         # restart: always
         environment:
-            PMA_HOST: mysql_tickeala
+            PMA_HOST: mysql_padel
             PMA_PORT: 3306
         ports:
             - '8080:80'
+        depends_on:
+            - mysql_padel
