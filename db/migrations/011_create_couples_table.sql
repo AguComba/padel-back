@@ -5,7 +5,7 @@ CREATE TABLE couples(
     id_club INT NOT NULL,
     points INT NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
-    created_at TIMESTAMP NOT NULL DEFAULT (NOW())
+    created_at TIMESTAMP NOT NULL DEFAULT (NOW()),
     FOREIGN KEY (id_player1) REFERENCES players(id),
     FOREIGN KEY (id_player2) REFERENCES players(id),
     FOREIGN KEY (id_club) REFERENCES clubs(id)

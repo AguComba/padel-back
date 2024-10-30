@@ -11,6 +11,6 @@ CREATE TABLE users (
     id_city INT NOT NULL,
     password VARCHAR(255) NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
-    created_at TIMESTAMP NOT NULL DEFAULT (NOW())
+    created_at TIMESTAMP NOT NULL DEFAULT (NOW()),
     FOREIGN KEY (id_city) REFERENCES cities(id)
 )

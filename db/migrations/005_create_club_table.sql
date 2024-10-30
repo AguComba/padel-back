@@ -9,8 +9,8 @@ CREATE TABLE clubs(
     courts INT NOT NULL,
     id_administrator INT NOT NULL,
     FOREIGN KEY (id_federation) REFERENCES federations(id),
-    FOREIGN KEY (id_city) REFERENCES cities(id)
-    FOREIGN KEY (user_created) REFERENCES users(id)
+    FOREIGN KEY (id_city) REFERENCES cities(id),
+    FOREIGN KEY (user_created) REFERENCES users(id),
     FOREIGN KEY (id_administrator) REFERENCES users(id)
 )
 

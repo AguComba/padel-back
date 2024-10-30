@@ -1,6 +1,5 @@
-import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
-dotenv.config()
+import jwt from "jsonwebtoken"
+process.loadEnvFile()
 
 export const validateToken = (req, res, next) => {
     const token = req.cookies.access_token

@@ -6,7 +6,7 @@ import {
     DB_PORT,
     DB_SCHEMA,
     DB_USER,
-} from "./app.config"
+} from "./app.config.js"
 
 const config = {
     host: ENVAIROMENT === "produccion" ? DB_HOST : "localhost",

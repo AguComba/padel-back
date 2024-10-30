@@ -9,6 +9,6 @@ CREATE TABLE tournaments(
     status TINYINT(1) NOT NULL DEFAULT 1,
     afiliation_required BOOLEAN NOT NULL DEFAULT TRUE,
     type_tournament ENUM('PARTICULAR', 'FEDERADO', 'MASTER'),
-    created_at TIMESTAMP NOT NULL DEFAULT (NOW())
+    created_at TIMESTAMP NOT NULL DEFAULT (NOW()),
     FOREIGN KEY (id_federation) REFERENCES federations(id)
 )
