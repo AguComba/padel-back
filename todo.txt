@@ -23,3 +23,8 @@ type_profile
 
 Analizar el tema ranking del torneo. 
 Ver si generamos una tabla para cada torneo con el ranking de parejas (un ranking por tournament_categories)
+
+PARA VER CON POCHI
+
+Cantidad minima de parejas requeridas para un torneo
+Pedir el libro para ver como se forman la zonas
