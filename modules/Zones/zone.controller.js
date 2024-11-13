@@ -40,37 +40,66 @@ function calcularZonas(parejas) {
     }
 }
 
-function generarZonas(parejas) {
-    const zonas = []
-    const zonasPermitidas = "ABCDEFGHIJKLMNOP".split("")
-    const { zonasDe3, zonasDe4, totalZonas } = calcularZonas(parejas.length)
-
-    // Ordeno las parejas por puntos de mayor a menor
-    parejas.sort((a, b) => b.puntos - a.puntos)
-    // Separo las parejas cabeza de serie
-    const cabezaDeSerie = parejas.slice(0, totalZonas)
-    const segundasParejas = parejas.slice(totalZonas, totalZonas * 2)
-    const tercerasParejas = parejas.slice(totalZonas * 2, totalZonas * 3)
-
-    let cuartasParejas
-    if (zonasDe4 > 0) {
-        cuartasParejas = parejas.slice(totalZonas * 3, totalZonas + zonasDe4)
-    }
-
-    // Valido que la cantidad de parejas sea correcta
-    if (
+function isValidNumberOfCouples(
+    cabezaDeSerie,
+    segundasParejas,
+    tercerasParejas
+) {
+    return (
         cabezaDeSerie.length !== totalZonas ||
         segundasParejas.length !== totalZonas ||
         tercerasParejas.length !== totalZonas
+    )
+}
+
+function orderCouples(parejas) {
+    return parejas.sort((a, b) => b.puntos - a.puntos)
+}
+
+function searchTopCouples(parejas, totalZonas) {
+    return parejas.slice(0, totalZonas)
+}
+
+function searchSecondCouples(parejas, totalZonas) {
+    return parejas.slice(totalZonas, totalZonas * 2)
+}
+
+function searchThirdCouples(parejas, totalZonas) {
+    return parejas.slice(totalZonas * 2, totalZonas * 3)
+}
+
+function searchFourthCouples(parejas, totalZonas, zonasDe4) {
+    return parejas.slice(totalZonas * 3, totalZonas + zonasDe4)
+}
+
+function generarZonas(parejas) {
+    const zonas = []
+    const zonasPermitidas = "ABCDEFGHIJKLMNOP".split("")
+
+    const { zonasDe3, zonasDe4, totalZonas } = calcularZonas(parejas.length)
+
+    orderCouples(parejas)
+    // Separo las parejas cabeza de serie
+    const cabezaDeSerie = searchTopCouples(parejas, totalZonas)
+    const segundasParejas = searchSecondCouples(parejas, totalZonas)
+    const tercerasParejas = searchThirdCouples(parejas, totalZonas)
+
+    let cuartasParejas
+    if (zonasDe4 > 0) {
+        cuartasParejas = searchFourthCouples(parejas, totalZonas, zonasDe4)
+    }
+
+    if (
+        !isValidNumberOfCouples(cabezaDeSerie, segundasParejas, tercerasParejas)
     ) {
-        return "Error en la cantidad de parejas"
+        return "La cantidad de parejas no es correcta"
     }
 
     // Genero todas las zonas
     // Las zonas se forman de arriba abajo, la primera de la cabeza de serie a la primer zona contra la ultima de las segundas parejas
     for (let i = 0; i < totalZonas; i++) {
         const segundaPareja = segundasParejas.length - 1 - i
-        console.log(segundaPareja)
+
         const zona = {
             nombre: zonasPermitidas[i],
             parejas: [
@@ -80,6 +109,7 @@ function generarZonas(parejas) {
             ],
             partidos: [],
         }
+
         zonas.push(zona)
     }
 

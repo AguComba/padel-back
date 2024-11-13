@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken"
 
 export const login = (req, res) => {
-    console.log(process.env.SECRET_JWT_KEY)
     try {
         const { username, id, role } = req.body
         // Simulamos que pasa el login y generamos el jwt

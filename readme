@@ -1,0 +1,2 @@
+Los metodos find en el caso de que no encuentren lo esperado lanzan una excepcion.
+Los metodos search en el caso de que no encuentren lo esperado retornan vacio.
