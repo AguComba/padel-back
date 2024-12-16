@@ -1,45 +1,42 @@
 {
-    "name": "back-padel",
-    "version": "1.0.0",
-    "main": "app.js",
-    "type": "module",
-    "scripts": {
-        "start": "node app.js",
-        "dev": "node --watch app.js",
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "dbinit": "node scripts/init-db.js"
-    },
-    "author": "",
-    "license": "ISC",
-    "description": "",
-    "dependencies": {
-        "cookie-parser": "^1.4.7",
-        "cors": "^2.8.5",
-        "express": "^4.21.1",
-        "jsonwebtoken": "^9.0.2",
-        "mysql2": "^3.11.3",
-        "zod": "^3.23.8"
-    },
-    "devDependencies": {
-        "standard": "17.1.2"
-    },
-    "eslintConfig": {
-        "extends": "standard",
-        "rules": {
-            "indent": [
-                "error",
-                4
-            ],
-            "space-before-function-paren": [
-                "error",
-                "never"
-            ],
-            "eslint-plugin-vue/custom-event-name-casing": false
-        }
-    },
-    "prettier": {
-        "semi": false,
-        "tabWidth": 4,
-        "spaceBeforeFunctionParen": true
+  "name": "back-padel",
+  "version": "1.0.0",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dbinit": "node scripts/init-db.js",
+    "seeders": "node scripts/seeders.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.3",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "standard": "17.1.2"
+  },
+  "eslintConfig": {
+    "extends": "standard",
+    "rules": {
+      "indent": [
+        "error",
+        4
+      ],
+      "space-before-function-paren": [
+        "error",
+        "never"
+      ],
+      "eslint-plugin-vue/custom-event-name-casing": false
     }
+  }
 }

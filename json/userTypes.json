@@ -1,0 +1,24 @@
+{
+  "user_types": [
+    {
+      "name": "Jugador",
+      "description": "Usauario regular",
+      "status": 1
+    },
+    {
+      "name": "Admin",
+      "description": "Usuario administrativo del sistema",
+      "status": 1
+    },
+    {
+      "name": "Fiscal",
+      "description": "Usuario encargado de la fiscalización de los partidos",
+      "status": 1
+    },
+    {
+      "name": "Largador de partidos",
+      "description": "Usuario encargado de cargar los resultados de los partidos",
+      "status": 1
+    }
+  ]
+}
