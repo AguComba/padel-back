@@ -6,8 +6,10 @@ CREATE TABLE ranking(
     id_category INT NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
     year INT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT (NOW()),
-    updated_at TIMESTAMP NOT NULL DEFAULT (NOW()),
+    user_updated INT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_updated) REFERENCES users(id),
     FOREIGN KEY (id_player) REFERENCES players(id),
     FOREIGN KEY (id_federation) REFERENCES federations(id),
     FOREIGN KEY (id_category) REFERENCES categories(id)

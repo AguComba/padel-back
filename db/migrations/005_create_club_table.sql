@@ -4,7 +4,7 @@ CREATE TABLE clubs(
     id_city INT NOT NULL,
     id_federation INT NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
-    created_at TIMESTAMP NOT NULL DEFAULT (NOW()),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     user_created INT NOT NULL,
     courts INT NOT NULL,
     id_administrator INT NOT NULL,

@@ -12,6 +12,8 @@ CREATE TABLE users (
     status TINYINT(1) NOT NULL DEFAULT 1,
     type_user INT NOT NULL DEFAULT 1,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_updated INT,
+    updated_at TIMESTAMP,
     FOREIGN KEY (type_user) REFERENCES type_users(id),
     FOREIGN KEY (id_city) REFERENCES cities(id)
-)
+);

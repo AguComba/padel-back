@@ -9,6 +9,12 @@ CREATE TABLE result_match(
     winner_couple BIGINT NOT NULL,
     result_string VARCHAR(50) NOT NULL,
     id_match BIGINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_created INT NOT NULL,
+    user_updated INT NOT NULL,
     FOREIGN KEY (id_match) REFERENCES matches(id),
-    FOREIGN KEY (winner_couple) REFERENCES couples_zone(id)
+    FOREIGN KEY (winner_couple) REFERENCES couples_zone(id),
+    FOREIGN KEY (user_created) REFERENCES users(id),
+    FOREIGN KEY (user_updated) REFERENCES users(id)
 );

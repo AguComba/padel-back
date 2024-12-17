@@ -1,13 +1,15 @@
-import jwt from "jsonwebtoken"
+import jwt from 'jsonwebtoken'
 process.loadEnvFile()
 
 export const validateToken = (req, res, next) => {
-    const token = req.cookies.access_token
-    req.session = { user: null }
-    try {
-        const data = jwt.verify(token, process.env.SECRET_JWT_KEY)
-        req.session.user = data
-    } catch (error) {}
+  const token = req.cookies.access_token
+  req.session = { user: null }
+  try {
+    const data = jwt.verify(token, process.env.SECRET_JWT_KEY)
+    req.session.user = data
+  } catch (error) {
+    console.error('Error validating token:', error.message)
+  }
 
-    next()
+  next()
 }

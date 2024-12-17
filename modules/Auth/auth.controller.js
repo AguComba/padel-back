@@ -45,15 +45,14 @@ const buildUserLoginResponse = (userResult) => {
 export const login = async (req, res) => {
   try {
     const user = req.body
-
     const userValidate = validateUser(user)
 
-    const userResult = await AuthModel.loginUser(userValidate.data.email)
+    const userResult = await AuthModel.loginUser(userValidate.email)
     if (!userResult) {
       throw new Error('InvalidCredentials')
     }
 
-    await verifyPassword(userValidate.data.password, userResult.password)
+    await verifyPassword(userValidate.password, userResult.password)
 
     const userResponse = buildUserLoginResponse(userResult)
 

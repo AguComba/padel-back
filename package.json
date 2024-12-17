@@ -7,7 +7,7 @@
     "start": "node app.js",
     "dev": "node --watch app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dbinit": "node scripts/init-db.js",
+    "migrations": "node scripts/init-db.js",
     "seeders": "node scripts/seeders.js"
   },
   "author": "",

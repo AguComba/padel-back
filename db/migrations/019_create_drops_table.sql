@@ -7,8 +7,13 @@ CREATE TABLE drops(
     position_earned INT NOT NULL,
     round INT NOT NULL,
     id_match BIGINT,
-    created_at TIMESTAMP NOT NULL DEFAULT (NOW()),
+    user_created INT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    user_updated INT NOT NULL,
     FOREIGN KEY (id_match) REFERENCES matches(id),
     FOREIGN KEY (zone1) REFERENCES zones(id),
-    FOREIGN KEY (zone2) REFERENCES zones(id)
+    FOREIGN KEY (zone2) REFERENCES zones(id),
+    FOREIGN KEY (user_created) REFERENCES users(id),
+    FOREIGN KEY (user_updated) REFERENCES users(id)
 )
