@@ -1,13 +1,9 @@
-import { acceptsAllUsers, hasRole, isAdmin, isFiscal } from '../../middlewares/permisions.js'
+import { acceptsAllUsers, hasRole, isAdmin } from '../../middlewares/permisions.js'
 import { City } from '../../schemas/City.schema.js'
 import { CitiesModel } from './cities.model.js'
 
 const getAllCities = async (req, res) => {
   try {
-    const { user = false } = req.session
-    if (!acceptsAllUsers(user)) {
-      throw new Error('No tiene permisos para ver todas las ciudades')
-    }
     const cities = await CitiesModel.getAllCities()
     res.status(200).json(cities)
   } catch (error) {

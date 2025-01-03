@@ -8,7 +8,7 @@ export const validateToken = (req, res, next) => {
     const data = jwt.verify(token, process.env.SECRET_JWT_KEY)
     req.session.user = data
   } catch (error) {
-    console.error('Error validating token:', error.message)
+    return res.status(401).json({ message: 'Invalid token' })
   }
 
   next()

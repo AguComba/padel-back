@@ -3,7 +3,7 @@ import { connection } from '../../config/db.config.js'
 export class CitiesModel {
   static async getAllCities() {
     try {
-      const [cities] = await connection.query('SELECT * FROM cities')
+      const [cities] = await connection.query('SELECT * FROM cities where status = 1')
       return cities
     } catch (error) {
       throw new Error('Error getting cities: ' + error.message)
