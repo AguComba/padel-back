@@ -1,6 +1,7 @@
 CREATE TABLE clubs(
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
+    img VARCHAR(255),
     id_city INT NOT NULL,
     id_federation INT NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,

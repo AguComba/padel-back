@@ -1,4 +1,4 @@
-import { acceptsAllUsers } from '../../middlewares/permisions.js'
+import { isAcceptedUser } from '../../middlewares/permisions.js'
 import { ProvincesModel } from './provinces.model.js'
 
 const getProvinces = async (req, res) => {
@@ -13,7 +13,7 @@ const getProvinces = async (req, res) => {
 const getProvinceById = async (req, res) => {
   try {
     const { user = false } = req.session
-    if (!acceptsAllUsers(user)) {
+    if (!isAcceptedUser(user)) {
       throw new Error('No tiene permisos para ver una ciudad')
     }
     const id = req.params.id

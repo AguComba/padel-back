@@ -7,6 +7,7 @@ const hasRole = (user, roles) => {
     admin: 2,
     fiscal: 3,
     dropper: 4,
+    superAdmin: 5,
   }
   const requiredRoles = roles.map((role) => dictionary[role])
   return requiredRoles.includes(user?.typeUser)
@@ -28,8 +29,8 @@ const isDropper = (user) => {
   return user?.typeUser === 4
 }
 
-const acceptsAllUsers = (user) => {
-  return user?.typeUser === 1 || user?.typeUser === 2 || user?.typeUser === 3 || user?.typeUser === 4
+const isAcceptedUser = (user) => {
+  return user?.typeUser === 1 || user?.typeUser === 2 || user?.typeUser === 3 || user?.typeUser === 4 || user?.typeUser === 5
 }
 
-export { isPlayer, isAdmin, isFiscal, isDropper, acceptsAllUsers, hasRole }
+export { isPlayer, isAdmin, isFiscal, isDropper, isAcceptedUser, hasRole }
