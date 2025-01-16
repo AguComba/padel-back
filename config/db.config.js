@@ -9,6 +9,11 @@ const config = {
   database: DB_SCHEMA,
 }
 
-const connection = await mysql.createConnection(config)
+let connection
+try {
+  connection = await mysql.createConnection(config)
+} catch (error) {
+  console.error('Error al conectar con la base de datos', error)
+}
 
 export { connection }

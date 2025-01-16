@@ -3,3 +3,4 @@ node_modules
 mysql
 rest
 todo.txt
+.vscode
