@@ -1,6 +1,8 @@
 import fs from 'fs'
 import { connection } from '../config/db.config.js'
 import bcrypt from 'bcrypt'
+import path from 'path'
+const __dirname = path.resolve()
 
 const runProvincesSeeder = async (filePath) => {
   const rawData = fs.readFileSync(filePath, 'utf-8')
@@ -125,19 +127,19 @@ const runUsersSeeder = async (filePath) => {
 }
 
 const runSeeders = async () => {
-  const seederFile = 'C:/Users/agust/padel-back/json/provincias.json'
+  const seederFile = `${__dirname}/json/provincias.json`
   await runProvincesSeeder(seederFile)
 
-  const locationsSeederFile = 'C:/Users/agust/padel-back/json/localidades.json'
+  const locationsSeederFile = `${__dirname}json/localidades.json`
   await runLocationsSeeder(locationsSeederFile)
 
-  const userTypesSeederFile = 'C:/Users/agust/padel-back/json/userTypes.json'
+  const userTypesSeederFile = `${__dirname}json/userTypes.json`
   await runUserTypesSeeder(userTypesSeederFile)
 
-  const categoriesSeederFile = 'C:/Users/agust/padel-back/json/categories.json'
+  const categoriesSeederFile = `${__dirname}json/categories.json`
   await runCategoriesSeeder(categoriesSeederFile)
 
-  const userSeederFile = 'C:/Users/agust/padel-back/json/users.json'
+  const userSeederFile = `${__dirname}json/users.json`
   await runUsersSeeder(userSeederFile)
 
   await connection.end()
