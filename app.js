@@ -9,7 +9,6 @@ import { federationsRoutes } from './modules/Federations/federations.routes.js'
 import { clubsRoutes } from './modules/Club/club.routes.js'
 import { categoriesRoutes } from './modules/Categories/categories.routes.js'
 import { playersRouter } from './modules/Player/player.routes.js'
-process.loadEnvFile()
 
 const app = express()
 
