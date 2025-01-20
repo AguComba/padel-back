@@ -130,16 +130,16 @@ const runSeeders = async () => {
   const seederFile = `${__dirname}/json/provincias.json`
   await runProvincesSeeder(seederFile)
 
-  const locationsSeederFile = `${__dirname}json/localidades.json`
+  const locationsSeederFile = `${__dirname}/json/localidades.json`
   await runLocationsSeeder(locationsSeederFile)
 
-  const userTypesSeederFile = `${__dirname}json/userTypes.json`
+  const userTypesSeederFile = `${__dirname}/json/userTypes.json`
   await runUserTypesSeeder(userTypesSeederFile)
 
-  const categoriesSeederFile = `${__dirname}json/categories.json`
+  const categoriesSeederFile = `${__dirname}/json/categories.json`
   await runCategoriesSeeder(categoriesSeederFile)
 
-  const userSeederFile = `${__dirname}json/users.json`
+  const userSeederFile = `${__dirname}/json/users.json`
   await runUsersSeeder(userSeederFile)
 
   await connection.end()
