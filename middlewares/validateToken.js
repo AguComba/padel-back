@@ -8,7 +8,7 @@ export const validateToken = (req, res, next) => {
     const data = jwt.verify(token, SECRET_JWT_KEY)
     req.session.user = data
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid token' })
+    return res.status(498).json({ message: 'Invalid token' })
   }
 
   next()
