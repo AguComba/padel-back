@@ -4,7 +4,7 @@ import { validateToken } from '../../middlewares/validateToken.js'
 
 const provincesRoutes = Router()
 
-provincesRoutes.get('/', getProvinces)
+provincesRoutes.get('/', validateToken, getProvinces)
 provincesRoutes.get('/:id', validateToken, getProvinceById)
 
 export { provincesRoutes }
