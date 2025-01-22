@@ -9,6 +9,7 @@ import { federationsRoutes } from './modules/Federations/federations.routes.js'
 import { clubsRoutes } from './modules/Club/club.routes.js'
 import { categoriesRoutes } from './modules/Categories/categories.routes.js'
 import { playersRouter } from './modules/Player/player.routes.js'
+import { rankingRouter } from './modules/Ranking/ranking.routes.js'
 
 const app = express()
 
@@ -26,6 +27,7 @@ app.use('/federations', federationsRoutes)
 app.use('/clubs', clubsRoutes)
 app.use('/categories', categoriesRoutes)
 app.use('/players', playersRouter)
+app.use('/ranking', rankingRouter)
 
 app.listen(PORT, () => {
   console.log(`Server is running on PORT: ${PORT}`)
