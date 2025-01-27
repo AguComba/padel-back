@@ -19,6 +19,14 @@ export class CitiesModel {
         }
     }
 
+    // static async getCityByProvince(id_province){
+    //     try {
+    //         const city = await executeQuery('SELECT * FROM cities WHERE id_province = ?', [id_province])
+    //     } catch (error) {
+
+    //     }
+    // }
+
     static async addCity(city) {
         try {
             const cityResult = await executeQuery('INSERT INTO cities (name, zip_code, id_province) VALUES (?, ?, ?)', [
