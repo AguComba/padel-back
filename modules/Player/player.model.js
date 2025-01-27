@@ -1,5 +1,4 @@
-import { executeQuery } from '../../config/db.config.js'
-
+import { executeQuery } from '../../utils/executeQuery.js'
 export class PlayerModel {
     static async search() {
         try {
