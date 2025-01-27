@@ -1,17 +1,14 @@
 import fs from 'fs'
 import path from 'path'
-import { connection } from '../config/db.config.js'
+import { executeQuery } from '../utils/executeQuery.js'
 const __dirname = path.resolve()
 
 const runSQLFile = async (filePath) => {
     const query = fs.readFileSync(filePath, 'utf-8')
     try {
-        await connection.query(query)
+        await executeQuery(query)
     } catch (error) {
         console.error(`Error running ${filePath}:`, error)
-    } finally {
-        await connection.end()
-        console.log(`Successfully ran ${filePath}`)
     }
 }
 

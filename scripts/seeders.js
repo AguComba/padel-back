@@ -1,7 +1,7 @@
 import fs from 'fs'
-import { connection } from '../config/db.config.js'
 import bcrypt from 'bcrypt'
 import path from 'path'
+import { executeQuery } from '../utils/executeQuery.js'
 const __dirname = path.resolve()
 
 const runProvincesSeeder = async (filePath) => {
@@ -9,15 +9,13 @@ const runProvincesSeeder = async (filePath) => {
     const data = JSON.parse(rawData)
 
     try {
-        await connection.connect()
-
         // Iterar sobre las provincias y realizar las inserciones
         for (const provincia of data.provincias) {
             const nombre = provincia.nombre
             const sql = 'INSERT INTO provinces (name, status, created_at) VALUES (?, ?, NOW())'
             const values = [nombre, 1]
 
-            await connection.query(sql, values)
+            await executeQuery(sql, values)
             console.log(`Provincia ${nombre} insertada`)
         }
 
@@ -32,15 +30,13 @@ const runUserTypesSeeder = async (filePath) => {
     const data = JSON.parse(rawData)
 
     try {
-        await connection.connect()
-
         // Iterar sobre los tipos de usuarios y realizar las inserciones
         for (const userType of data.user_types) {
             const { name, description, status } = userType
             const sql = 'INSERT INTO type_users (name, description, status, created_at) VALUES (?, ?, ?, NOW())'
             const values = [name, description, status]
 
-            await connection.query(sql, values)
+            await executeQuery(sql, values)
             console.log(`Tipo de usuario ${name} insertado`)
         }
     } catch (error) {
@@ -53,8 +49,6 @@ const runCategoriesSeeder = async (filePath) => {
     const data = JSON.parse(rawData)
 
     try {
-        await connection.connect()
-
         if (!Array.isArray(data.categories)) {
             throw new TypeError('data.categories is not an array')
         }
@@ -65,7 +59,7 @@ const runCategoriesSeeder = async (filePath) => {
             const sql = 'INSERT INTO categories (name, status, created_at) VALUES (?, ?, NOW())'
             const values = [name, status]
 
-            await connection.query(sql, values)
+            await executeQuery(sql, values)
             console.log(`Categoría ${name} insertada`)
         }
     } catch (error) {
@@ -78,8 +72,6 @@ const runLocationsSeeder = async (filePath) => {
     const data = JSON.parse(rawData)
 
     try {
-        await connection.connect()
-
         if (!Array.isArray(data.locations)) {
             throw new TypeError('data.locations is not an array')
         }
@@ -91,7 +83,7 @@ const runLocationsSeeder = async (filePath) => {
                 'INSERT INTO cities (name, zip_code, id_province, status, created_at) VALUES (?, ?, ?, ?, NOW())'
             const values = [name, zip_code, id_province, status]
 
-            await connection.query(sql, values)
+            await executeQuery(sql, values)
             console.log(`Localidad ${name} insertada`)
         }
     } catch (error) {
@@ -105,8 +97,6 @@ const runUsersSeeder = async (filePath) => {
     const data = JSON.parse(rawData)
 
     try {
-        await connection.connect()
-
         if (!Array.isArray(data.users)) {
             throw new TypeError('data.users is not an array')
         }
@@ -143,7 +133,7 @@ const runUsersSeeder = async (filePath) => {
                 status,
                 type_user
             ]
-            await connection.query(sql, values)
+            await executeQuery(sql, values)
             console.log(`Usuario ${email} insertado`)
         }
     } catch (error) {
@@ -167,8 +157,6 @@ const runSeeders = async () => {
 
     const userSeederFile = `${__dirname}/json/users.json`
     await runUsersSeeder(userSeederFile)
-
-    await connection.end()
 }
 
 runSeeders()
