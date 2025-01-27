@@ -86,3 +86,7 @@ export const register = async (req, res) => {
     res.status(500).send(error.message)
   }
 }
+
+export const logout = (req, res) => {
+  res.clearCookie('access_token').send('Logout')
+}

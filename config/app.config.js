@@ -7,5 +7,3 @@ try {
 }
 
 export const { PORT, ENVAIROMENT, DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_SCHEMA, SECRET_JWT_KEY } = process.env
-
-console.log(DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_SCHEMA, PORT, ENVAIROMENT)

@@ -1,6 +1,20 @@
 // Aca van las funciones para los permisos de los diferentes roles de usuario. Se usan dentro de los controladores de los modulos.
 // Obtienen el rol del usuario en base a la sesion y el token, y devuelven true o false segun el permiso que tenga.
 
+/**
+ * Verifica si un usuario tiene uno de los roles requeridos.
+ *
+ * @param {Object} user - El objeto del usuario que contiene información del usuario.
+ * @param {Array<string>} roles - Una lista de roles requeridos.
+ * @returns {boolean} - Retorna true si el usuario tiene uno de los roles requeridos, de lo contrario false.
+ *
+ * Roles admitidos y sus valores numéricos:
+ * - player: 1
+ * - admin: 2
+ * - fiscal: 3
+ * - dropper: 4
+ * - superAdmin: 5
+ */
 const hasRole = (user, roles) => {
   const dictionary = {
     player: 1,

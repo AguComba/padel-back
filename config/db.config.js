@@ -16,4 +16,12 @@ try {
   console.error('Error al conectar con la base de datos', error)
 }
 
-export { connection }
+let pool
+try {
+  pool = mysql.createPool(config) // Crea un pool de conexiones
+  console.log('Conexión a la base de datos establecida')
+} catch (error) {
+  console.error('Error al conectar con la base de datos', error)
+}
+
+export { connection, pool }
