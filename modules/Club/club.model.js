@@ -1,4 +1,4 @@
-import { executeQuery } from '../../utils/executeQuery'
+import { executeQuery } from '../../utils/executeQuery.js'
 
 export class ClubModel {
     static async getClubs() {
