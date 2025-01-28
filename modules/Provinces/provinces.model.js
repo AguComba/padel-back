@@ -3,7 +3,7 @@ import { executeQuery } from '../../utils/executeQuery.js'
 export class ProvincesModel {
     static async getProvinces() {
         try {
-            const rows = await executeQuery('SELECT * FROM provinces')
+            const rows = await executeQuery('SELECT * FROM provinces ORDER BY name')
             return rows
         } catch (error) {
             throw new Error('Error getting provinces: ' + error.message)
