@@ -7,7 +7,7 @@
     "node": "22.*"
   },
   "scripts": {
-    "start": "node app.js",
+    "start": "node --run migrations && node --run seeders && node app.js",
     "dev": "node --watch app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrations": "node scripts/init-db.js",
