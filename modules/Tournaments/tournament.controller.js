@@ -1,11 +1,21 @@
-import { ZodError } from 'zod'
 import { hasRole } from '../../middlewares/permisions.js'
 import { TournamentSchema } from '../../schemas/Tournament.schema.js'
 import { TournamentModel } from './tournament.model.js'
+import { parse } from '@formkit/tempo'
 
 const parseDate = (dateString) => {
   const [day, month, year] = dateString.split('/')
   return new Date(`${year}-${month}-${day}`)
+}
+
+const parseDateTempo = (dateString, time = false) => {
+  let data = null
+  if (time) {
+    data = parse(dateString, 'DD/MM/YYYY HH:mm:ss', 'es')
+    return data
+  }
+  data = parse(dateString, 'DD/MM/YYYY', 'es')
+  return data
 }
 
 export const createTournament = async (req, res) => {
@@ -16,9 +26,9 @@ export const createTournament = async (req, res) => {
       return res.status(401).json({ message: 'No tienes permisos para acceder a este recurso' })
     }
 
-    tournament.date_start = parseDate(tournament.date_start)
-    tournament.date_inscription_start = parseDate(tournament.date_inscription_start)
-    tournament.date_inscription_end = parseDate(tournament.date_inscription_end)
+    tournament.date_start = parseDateTempo(tournament.date_start)
+    tournament.date_inscription_start = parseDateTempo(tournament.date_inscription_start, true)
+    tournament.date_inscription_end = parseDateTempo(tournament.date_inscription_end, true)
 
     const validTournament = TournamentSchema.parse(tournament)
     validTournament.user_created = user.id

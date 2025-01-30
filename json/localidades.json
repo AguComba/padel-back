@@ -1,10 +1,28 @@
 {
-  "locations": [
-    {
-      "name": "Morteros",
-      "zip_code": "2421",
-      "id_province": 21,
-      "status": 1
-    }
-  ]
+    "locations": [
+        {
+            "name": "Morteros",
+            "zip_code": "2421",
+            "id_province": 21,
+            "status": 1
+        },
+        {
+            "name": "Brinkmann",
+            "zip_code": "2419",
+            "id_province": 21,
+            "status": 1
+        },
+        {
+            "name": "Porteña",
+            "zip_code": "2415",
+            "id_province": 21,
+            "status": 1
+        },
+        {
+            "name": "San Guillermo",
+            "zip_code": "2347",
+            "id_province": 4,
+            "status": 1
+        }
+    ]
 }

@@ -1,17 +1,43 @@
 {
-  "users": [
-    {
-      "name": "admin",
-      "last_name": "admin",
-      "cell_phone": "123456789",
-      "email": "admin@pymba.com.ar",
-      "type_document": "DNI",
-      "number_document": "12345678",
-      "gender": "M",
-      "id_city": 1,
-      "password": "pymbaAdmin",
-      "status": 1,
-      "type_user": 2
-    }
-  ]
+    "users": [
+        {
+            "name": "admin",
+            "last_name": "admin",
+            "cell_phone": "123456789",
+            "email": "admin@pymba.com.ar",
+            "type_document": "DNI",
+            "number_document": "12345678",
+            "gender": "M",
+            "id_city": 1,
+            "password": "pymbaAdmin",
+            "status": 1,
+            "type_user": 2
+        },
+        {
+            "name": "Tiro",
+            "last_name": "Federal",
+            "cell_phone": "123456789",
+            "email": "tirofederal@pymba.com.ar",
+            "type_document": "DNI",
+            "number_document": "1",
+            "gender": "O",
+            "id_city": 1,
+            "password": "clubAdmin",
+            "status": 1,
+            "type_user": 4
+        },
+        {
+            "name": "Nueve",
+            "last_name": "de Julio",
+            "cell_phone": "123456789",
+            "email": "nuevedejulio@pymba.com.ar",
+            "type_document": "DNI",
+            "number_document": "2",
+            "gender": "O",
+            "id_city": 1,
+            "password": "clubAdmin",
+            "status": 1,
+            "type_user": 4
+        }
+    ]
 }

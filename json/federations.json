@@ -1,0 +1,10 @@
+{
+    "federations": [
+        {
+            "name":"Asociacion Padel Club",
+            "nickname": "APC",
+            "id_province": 21,
+            "status": 1
+        }
+    ]
+}

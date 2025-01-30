@@ -7,7 +7,7 @@
     "node": "22.*"
   },
   "scripts": {
-    "start": "node app.js",
+    "start": "node --run migrations && node --run seeders && node app.js",
     "dev": "node --watch app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrations": "node scripts/init-db.js",
@@ -17,6 +17,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@formkit/tempo": "^0.1.2",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",

@@ -39,6 +39,9 @@ const buildUserLoginResponse = (userResult) => {
     id: userResult.id,
     email: userResult.email,
     typeUser: userResult.type_user,
+    name: userResult.name,
+    last_name: userResult.last_name,
+    gender: userResult.gender,
   }
 }
 
