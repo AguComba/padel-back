@@ -142,6 +142,55 @@ const runUsersSeeder = async (filePath) => {
     }
 }
 
+const runFederationsSeeder = async (filePath) => {
+    const rawData = fs.readFileSync(filePath, 'utf-8')
+    const data = JSON.parse(rawData)
+
+    try {
+        if (!Array.isArray(data.federations)) {
+            throw new TypeError('data.federations is not an array')
+        }
+
+        // Iterar sobre las localidades y realizar las inserciones
+        for (const location of data.federations) {
+            const { name, nickname, id_province, status } = location
+            const sql =
+                'INSERT INTO federations (name, nickname, id_province, status, created_at) VALUES (?, ?, ?, ?, NOW())'
+            const values = [name, nickname, id_province, status]
+
+            await executeQuery(sql, values)
+            console.log(`Federacion ${name} insertada`)
+        }
+    } catch (error) {
+        console.error('Error reading locations file:', error)
+        return { error: 'Error reading locations file' }
+    }
+}
+
+const runClubsSeeder = async (filePath) => {
+    const rawData = fs.readFileSync(filePath, 'utf-8')
+    const data = JSON.parse(rawData)
+
+    try {
+        if (!Array.isArray(data.clubs)) {
+            throw new TypeError('data.locations is not an array')
+        }
+
+        // Iterar sobre las localidades y realizar las inserciones
+        for (const location of data.clubs) {
+            const { name, id_city, id_federation, courts, id_administrator } = location
+            const sql =
+                'INSERT INTO clubs (name, id_city, id_federation, courts, id_administrator, user_created) VALUES (?, ?, ?, ?, ?, 1)'
+            const values = [name, id_city, id_federation, courts, id_administrator]
+
+            await executeQuery(sql, values)
+            console.log(`Club ${name} insertada`)
+        }
+    } catch (error) {
+        console.error('Error reading locations file:', error)
+        return { error: 'Error reading locations file' }
+    }
+}
 const runSeeders = async () => {
     const seederFile = `${__dirname}/json/provincias.json`
     await runProvincesSeeder(seederFile)
@@ -157,6 +206,12 @@ const runSeeders = async () => {
 
     const userSeederFile = `${__dirname}/json/users.json`
     await runUsersSeeder(userSeederFile)
+
+    const federationsSeederFile = `${__dirname}/json/federations.json`
+    await runFederationsSeeder(federationsSeederFile)
+
+    const clubsSeederFile = `${__dirname}/json/clubs.json`
+    await runClubsSeeder(clubsSeederFile)
 }
 
 runSeeders()

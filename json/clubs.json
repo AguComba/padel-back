@@ -1,0 +1,25 @@
+{
+    "clubs": [
+        {
+            "name": "Tiro Federal y Deportivo Morteros",
+            "id_city": 1,
+            "id_federation": 1,
+            "courts": 4,
+            "id_administrator": 2
+        },
+        {
+            "name": "Asociacion Deportiva 9 de Julio",
+            "id_city": 1,
+            "id_federation": 1,
+            "courts": 5,
+            "id_administrator": 3
+        },
+        {
+            "name": "Libre",
+            "id_city": 1,
+            "id_federation": 1,
+            "courts": 0,
+            "id_administrator": 1
+        }
+    ]
+}

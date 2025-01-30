@@ -2,27 +2,43 @@
   "categories": [
     {
       "name": "Suma 6",
-      "status": 1
+      "status": 1,
+      "show_player": 0
+    },
+    {
+      "name": "2da",
+      "status": 1,
+      "show_player": 1
+    },
+    {
+      "name": "3ra",
+      "status": 1,
+      "show_player": 1
     },
     {
       "name": "4ta",
-      "status": 1
+      "status": 1,
+      "show_player": 1
     },
     {
       "name": "5ta",
-      "status": 1
+      "status": 1,
+      "show_player": 1
     },
     {
       "name": "6ta",
-      "status": 1
+      "status": 1,
+      "show_player": 1
     },
     {
       "name": "7ma",
-      "status": 1
+      "status": 1,
+      "show_player": 1
     },
     {
       "name": "8va",
-      "status": 1
+      "status": 1,
+      "show_player": 1
     }
   ]
 }
