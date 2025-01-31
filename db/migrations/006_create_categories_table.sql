@@ -3,6 +3,7 @@ CREATE TABLE categories(
     name VARCHAR(150) NOT NULL,
     show_player TINYINT NOT NULL DEFAULT 1,
     status TINYINT(1) NOT NULL DEFAULT 1,
+    level INT NOT NULL 
     user_updated INT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP,
