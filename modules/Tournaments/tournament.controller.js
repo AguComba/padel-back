@@ -1,4 +1,4 @@
-import { hasRole } from '../../middlewares/permisions.js'
+import { hasRole, isAcceptedUser } from '../../middlewares/permisions.js'
 import { TournamentSchema } from '../../schemas/Tournament.schema.js'
 import { TournamentModel } from './tournament.model.js'
 import { parse } from '@formkit/tempo'
@@ -34,5 +34,32 @@ export const createTournament = async (req, res) => {
         res.status(200).json(tournamentCreated)
     } catch (error) {
         return res.status(400).json(error.message)
+    }
+}
+
+export const getTournaments = async (req, res) => {
+    try {
+        const { user = false } = req.session
+        if (!isAcceptedUser(user)) {
+            return res.status(401).message('Usuario invalido')
+        }
+        const tournament = await TournamentModel.search()
+        const categories = await getCatigoriesByTournament(tournament.id)
+
+        res.status(200).json({ tournament, categories })
+    } catch (error) {
+        res.status(500).json(error.message)
+    }
+}
+
+const getCatigoriesByTournament = async (tournament_id) => {
+    try {
+        if (!tournament_id) {
+            throw new Error('No se envio el id del torneo')
+        }
+        const categories = await TournamentModel.searchCategories(tournament_id)
+        return categories
+    } catch (error) {
+        throw new Error(error.message)
     }
 }
