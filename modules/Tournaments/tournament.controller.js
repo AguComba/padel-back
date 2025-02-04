@@ -44,7 +44,7 @@ export const getTournaments = async (req, res) => {
             return res.status(401).message('Usuario invalido')
         }
         const tournament = await TournamentModel.search()
-        const categories = await getCatigoriesByTournament(tournament.id)
+        const categories = await getCatigoriesByTournament(tournament?.id)
 
         res.status(200).json({ tournament, categories })
     } catch (error) {

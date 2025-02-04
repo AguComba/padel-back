@@ -18,5 +18,7 @@ export const createCouple = async (req, res) => {
   if (!hasRole(user, ['player', 'admin', 'superAdmin'])) {
     return res.status(403).json({ message: 'You do not have permission to perform this action' })
   }
+
+  
   console.log(couple)
 }

@@ -5,7 +5,7 @@ import { AuthModel } from './auth.model.js'
 
 const createToken = (user) => {
     return jwt.sign(user, process.env.SECRET_JWT_KEY, {
-        expiresIn: '1h'
+        expiresIn: '4h'
     })
 }
 

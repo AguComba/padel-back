@@ -1,0 +1,52 @@
+{
+    "categories_restrictions": [
+        {
+            "id_category": 1,
+            "id_authorized_category": 2
+        },
+        {
+            "id_category": 1,
+            "id_authorized_category": 3
+        },
+        {
+            "id_category": 1,
+            "id_authorized_category": 4
+        },
+        {
+            "id_category": 4,
+            "id_authorized_category": 4
+        },
+        {
+            "id_category": 4,
+            "id_authorized_category": 5
+        },
+        {
+            "id_category": 5,
+            "id_authorized_category": 5
+        },
+        {
+            "id_category": 5,
+            "id_authorized_category": 6
+        },
+        {
+            "id_category": 6,
+            "id_authorized_category": 6
+        },
+        {
+            "id_category": 6,
+            "id_authorized_category": 7
+        },
+        {
+            "id_category": 7,
+            "id_authorized_category": 7
+        },
+        {
+            "id_category": 7,
+            "id_authorized_category": 8
+        },
+        {
+            "id_category": 8,
+            "id_authorized_category": 8
+        }
+    ]
+}

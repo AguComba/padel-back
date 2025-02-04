@@ -23,6 +23,24 @@
             "zip_code": "2347",
             "id_province": 4,
             "status": 1
+        },
+        {
+            "name": "Villa Trinidad",
+            "zip_code": "2345",
+            "id_province": 4,
+            "status": 1
+        },
+        {
+            "name": "Suardi",
+            "zip_code": "2349",
+            "id_province": 4,
+            "status": 1
+        },
+        {
+            "name": "La Paquita",
+            "zip_code": "2416",
+            "id_province": 21,
+            "status": 1
         }
     ]
 }
