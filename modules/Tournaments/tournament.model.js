@@ -100,4 +100,21 @@ export class TournamentModel {
             throw new Error(error)
         }
     }
+
+    static async searchTournamentByCategoryPlayer(category) {
+        try {
+            const tournament = await executeQuery(
+                `SELECT t.id, t.name, date_start, date_end, date_inscription_start, date_inscription_end, t.max_couples,
+                    t.gender, club.name as club, c.name as ciudad
+                    FROM tournaments t
+                    INNER JOIN tournament_clubs t_club ON t_club.id_tournament = t.id
+                    INNER JOIN tournament_categories t_cat ON t_cat.id_tournament = t.id
+                    INNER JOIN categories cat ON cat.id = t_cat.id_category
+                    INNER JOIN clubs club ON t_club.id_club = club.id
+                    INNER JOIN cities c ON club.id_city = c.id
+                    WHERE t.status = 1 AND t_club.main_club = 1 AND cat.level = 
+                `
+            )
+        } catch (error) {}
+    }
 }

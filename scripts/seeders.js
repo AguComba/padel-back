@@ -55,9 +55,9 @@ const runCategoriesSeeder = async (filePath) => {
 
         // Iterar sobre las categorías y realizar las inserciones
         for (const category of data.categories) {
-            const { name, status } = category
-            const sql = 'INSERT INTO categories (name, status, created_at) VALUES (?, ?, NOW())'
-            const values = [name, status]
+            const { name, status, level } = category
+            const sql = 'INSERT INTO categories (name, status,level, created_at) VALUES (?, ?, ?,NOW())'
+            const values = [name, status, level]
 
             await executeQuery(sql, values)
             console.log(`Categoría ${name} insertada`)
@@ -191,6 +191,31 @@ const runClubsSeeder = async (filePath) => {
         return { error: 'Error reading locations file' }
     }
 }
+
+const runCategoriesRestrictionsSeeder = async (filePath) => {
+    const rawData = fs.readFileSync(filePath, 'utf-8')
+    const data = JSON.parse(rawData)
+
+    try {
+        if (!Array.isArray(data.categories_restrictions)) {
+            throw new TypeError('data.cateogories_restrictions is not an array')
+        }
+
+        // Iterar sobre las localidades y realizar las inserciones
+        for (const category_restriction of data.categories_restrictions) {
+            const { id_category, id_authorized_category } = category_restriction
+            const sql = 'INSERT INTO category_restrictions (id_category, id_authorized_category) VALUES (?, ?)'
+            const values = [id_category, id_authorized_category]
+
+            await executeQuery(sql, values)
+            console.log(`Category_restriction ${id_category} insertada`)
+        }
+    } catch (error) {
+        console.error('Error reading locations file:', error)
+        return { error: 'Error reading locations file' }
+    }
+}
+
 const runSeeders = async () => {
     const seederFile = `${__dirname}/json/provincias.json`
     await runProvincesSeeder(seederFile)
@@ -212,6 +237,9 @@ const runSeeders = async () => {
 
     const clubsSeederFile = `${__dirname}/json/clubs.json`
     await runClubsSeeder(clubsSeederFile)
+
+    const category_restrictionSeederFile = `${__dirname}/json/categories_restrictions.json`
+    await runCategoriesRestrictionsSeeder(category_restrictionSeederFile)
 }
 
 runSeeders()
