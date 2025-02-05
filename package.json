@@ -7,7 +7,7 @@
     "node": "22.*"
   },
   "scripts": {
-    "start": "node --run migrations && node --run seeders && node app.js",
+    "start": "node app.js",
     "dev": "node --watch app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrations": "node scripts/init-db.js",
@@ -24,6 +24,7 @@
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.3",
+    "resend": "^4.1.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {

@@ -28,11 +28,11 @@ export const createTournament = async (req, res) => {
 
         const validTournament = TournamentSchema.parse(tournament)
         validTournament.user_created = user.id
-        console.log(validTournament)
 
         const tournamentCreated = await TournamentModel.create(validTournament)
         res.status(200).json(tournamentCreated)
     } catch (error) {
+        console.log(error)
         return res.status(400).json(error.message)
     }
 }

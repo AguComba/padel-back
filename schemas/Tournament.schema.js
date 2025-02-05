@@ -11,6 +11,8 @@ export const TournamentSchema = z.object({
     afiliation_required: z.number({ message: 'La afiliación no es válida' }),
     type_tournament: z.enum(['PARTICULAR', 'FEDERADO', 'MASTER']),
     gender: z.enum(['M', 'F', 'O']),
+    amount: z.number().positive({ message: 'El numero debe ser positivo' }),
+    type_amount: z.enum(['AFILIACION', 'INSCRIPCION']),
     categories: z.array(
         z.object({
             id_category: z.number()

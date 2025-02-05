@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { UserLogin, UserRegister } from '../../schemas/User.schema.js'
 import { AuthModel } from './auth.model.js'
+import { Resend } from 'resend'
 
 const createToken = (user) => {
     return jwt.sign(user, process.env.SECRET_JWT_KEY, {
@@ -45,6 +46,21 @@ const buildUserLoginResponse = (userResult) => {
     }
 }
 
+const resend = new Resend('re_Ti4c2orp_HUc5JymHW9jLz1w5ujZ18REb')
+const sendEmailUser = async (email) => {
+    const { data, error } = await resend.emails.send({
+        from: 'Acme <onboarding@resend.dev>',
+        to: [email],
+        subject: 'Activar cuenta de APC',
+        html: '<strong>Para activar la cuenta hace click aca</strong>'
+    })
+    if (error) {
+        console.log(error)
+        throw new Error(error.message)
+    }
+    return data
+}
+
 export const login = async (req, res) => {
     try {
         const user = req.body
@@ -82,8 +98,12 @@ export const register = async (req, res) => {
         userValidate.data.password = await AuthModel.hashPassword(userValidate.data.password)
         // Llamamos a la función de registro
         const userResult = await AuthModel.registerUser(userValidate.data)
+        if (userResult) {
+            const sendMail = await sendEmailUser(userValidate.data.email)
+        }
         res.status(200).json(userResult)
     } catch (error) {
+        console.log(sendEmailUser)
         res.status(500).send(error.message)
     }
 }
