@@ -1,10 +1,11 @@
 import { Router } from 'express'
-import { login, logout, register } from './auth.controller.js'
+import { login, logout, register, sendEmailUser } from './auth.controller.js'
 
 const routes = Router()
 
 routes.post('/login', login)
 routes.post('/logout', logout)
+routes.post('/email', sendEmailUser)
 
 routes.post('/register', register)
 

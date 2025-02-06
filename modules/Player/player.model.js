@@ -66,8 +66,8 @@ export class PlayerModel {
         try {
             const rows = await executeQuery(
                 `SELECT p.id, p.possition, p.hand, cat.name as category, u.name, u.last_name FROM users u 
-                inner join categories cat on p.id_category = cat.id 
                 inner join players p on p.id_user = u.id 
+                inner join categories cat on p.id_category = cat.id 
                 WHERE u.number_document = ?
             `,
                 [dni]

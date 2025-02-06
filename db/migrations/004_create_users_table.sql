@@ -5,7 +5,7 @@ CREATE TABLE users (
     cell_phone CHAR(11) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     type_document ENUM('LE', 'DNI', 'CI') NOT NULL,
-    number_document CHAR(9) NOT NULL,
+    number_document CHAR(9) NOT NULL UNIQUE,
     gender ENUM('M', 'F', 'O') NOT NULL,
     id_city INT NOT NULL,
     password VARCHAR(255) NOT NULL,

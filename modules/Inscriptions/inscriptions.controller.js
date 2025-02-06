@@ -1,4 +1,5 @@
-import { hasRole } from '../../middlewares/permisions.js'
+import { hasRole, isPlayer } from '../../middlewares/permisions.js'
+import { InscriptionSchema } from '../../schemas/Inscription.schema.js'
 import { PlayerModel } from '../Player/player.model.js'
 import { TournamentModel } from '../Tournaments/tournament.model.js'
 
@@ -10,26 +11,35 @@ import { TournamentModel } from '../Tournaments/tournament.model.js'
 //     }
 // }
 
-export const validUserInscription = async (req, res) => {
+const isValidPlayer = async (id_user, id_tournament) => {
+    const player = await PlayerModel.searchByIdUser(id_user)
+    const aceptedTournament = await TournamentModel.searchTournamentByCategoryPlayer(player.id_cat, id_tournament)
+    return !!aceptedTournament
+}
+
+export const createInscriptionCouple = async (req, res) => {
     try {
-        const { id_tournament = false } = req.body
-        const { user = null } = req.session
-        if (!hasRole(user, ['player', 'admin', 'superAdmin'])) {
-            return res.status(403).json({ message: 'You do not have permission to perform this action' })
-        }
-        if (!id_tournament) {
-            return res.status(400).json({ message: 'No se recibio el id del torneo.' })
-        }
-
-        //Validar que el usuario no este inscripto antes
-
-        if (user.typeUser !== 1) {
-            return res.status(403).json({ message: 'El usuario debe ser un jugador para poder inscribirse' })
+        const inscription = req.body
+        const { user = false } = req.session
+        if (!isPlayer(user)) {
+            return res.status(403).json({ message: 'El usuario debe ser un jugador para inscribirse' })
         }
         const player = await PlayerModel.searchByIdUser(user.id)
-        const aceptedTournament = await TournamentModel.searchTournamentByCategoryPlayer(player.id_cat, id_tournament)
-        return res.status(200).json(aceptedTournament)
+        if (!(await isValidPlayer(user.id, inscription.id_tournament))) {
+            return res.status(401).json({
+                message: 'El usuario que esta realizando la inscripcion no califica para jugar ningun torneo vigente'
+            })
+        }
+        inscription.id_player_1 = player.id
+
+        const validInscription = InscriptionSchema.safeParse(inscription)
+        if (!validInscription.success) {
+            return res.status(400).json(validInscription.error.errors)
+        }
+
+        return res.status(200).json(validInscription.data)
     } catch (error) {
-        console.log(error)
+        console.error(error)
+        return res.status(500).json({ message: 'Ocurrio un error inesperado' })
     }
 }

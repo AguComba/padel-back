@@ -46,6 +46,26 @@ export const getPlayersByCategory = async (req, res) => {
     }
 }
 
+export const getPlayerByDni = async (req, res) => {
+    try {
+        const { user = false } = req.session
+        const { dni = null } = req.params
+        if (!isAcceptedUser(user)) {
+            return res.status(401).json({ message: 'No tienes permisos para acceder a este recurso' })
+        }
+
+        const player = await PlayerModel.searchByDni(dni)
+        if (!player) {
+            return res.status(400).json({ message: 'No se encontro ningun jugador con ese dni' })
+        }
+
+        return res.status(200).json(player)
+    } catch (error) {
+        console.error(error.message)
+        return res.status(500).json({ message: 'Ocurrio un error interno' })
+    }
+}
+
 const exisistPlayer = async (id_user) => {
     const player = await PlayerModel.searchByIdUser(id_user)
     return !!player
