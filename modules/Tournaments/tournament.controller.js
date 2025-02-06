@@ -1,4 +1,4 @@
-import { hasRole, isAcceptedUser } from '../../middlewares/permisions.js'
+import { hasRole, isAcceptedUser, isPlayer } from '../../middlewares/permisions.js'
 import { TournamentSchema } from '../../schemas/Tournament.schema.js'
 import { TournamentModel } from './tournament.model.js'
 import { parse } from '@formkit/tempo'
@@ -43,7 +43,11 @@ export const getTournaments = async (req, res) => {
         if (!isAcceptedUser(user)) {
             return res.status(401).message('Usuario invalido')
         }
+
         const tournament = await TournamentModel.search()
+        if (!tournament) {
+            return res.status(404).json({ message: 'No se encontraron torneos vigentes' })
+        }
         const categories = await getCatigoriesByTournament(tournament?.id)
 
         res.status(200).json({ tournament, categories })
@@ -61,5 +65,35 @@ const getCatigoriesByTournament = async (tournament_id) => {
         return categories
     } catch (error) {
         throw new Error(error.message)
+    }
+}
+
+export const tournementAceptedByPlayer = async (req, res) => {
+    try {
+        const { id_tournament = false } = req.body
+        const { user = null } = req.session
+        if (!hasRole(user, ['player', 'admin', 'superAdmin'])) {
+            return res.status(403).json({ message: 'You do not have permission to perform this action' })
+        }
+        if (!id_tournament) {
+            return res.status(400).json({ message: 'No se recibio el id del torneo.' })
+        }
+
+        //Validar que el usuario no este inscripto antes
+
+        if (!isPlayer(user)) {
+            return res.status(403).json({ message: 'El usuario debe ser un jugador para poder inscribirse' })
+        }
+
+        const player = await PlayerModel.searchByIdUser(user.id)
+        const aceptedTournament = await TournamentModel.searchTournamentByCategoryPlayer(player.id_cat, id_tournament)
+        if (!aceptedTournament) {
+            return res.status(400).json({ message: 'El jugador no califica para ninguno de los torneos vigentes' })
+        }
+
+        return res.status(200).json(aceptedTournament)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ message: 'Ocurrio un error inesperado' })
     }
 }

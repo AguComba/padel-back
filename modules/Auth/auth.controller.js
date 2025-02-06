@@ -47,18 +47,25 @@ const buildUserLoginResponse = (userResult) => {
 }
 
 const resend = new Resend('re_Ti4c2orp_HUc5JymHW9jLz1w5ujZ18REb')
-const sendEmailUser = async (email) => {
-    const { data, error } = await resend.emails.send({
-        from: 'Acme <onboarding@resend.dev>',
-        to: [email],
-        subject: 'Activar cuenta de APC',
-        html: '<strong>Para activar la cuenta hace click aca</strong>'
-    })
-    if (error) {
-        console.log(error)
-        throw new Error(error.message)
+export const sendEmailUser = async (req, res) => {
+    const { email } = req.body
+
+    try {
+        const { data, error } = await resend.emails.send({
+            from: 'APC  <noresponder@apcpadel.com.ar>',
+            to: [email],
+            subject: 'Activar cuenta de APC',
+            html: '<strong>Para activar la cuenta hace click aca</strong>'
+        })
+        if (error) {
+            console.log(error)
+            throw new Error(error.message)
+        }
+        res.status(200).json(data)
+        return data
+    } catch (error) {
+        res.status(500).json(error.message)
     }
-    return data
 }
 
 export const login = async (req, res) => {
@@ -99,7 +106,7 @@ export const register = async (req, res) => {
         // Llamamos a la función de registro
         const userResult = await AuthModel.registerUser(userValidate.data)
         if (userResult) {
-            const sendMail = await sendEmailUser(userValidate.data.email)
+            // const sendMail = await sendEmailUser(userValidate.data.email)
         }
         res.status(200).json(userResult)
     } catch (error) {

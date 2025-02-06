@@ -90,6 +90,7 @@ export class TournamentModel {
                     INNER JOIN clubs club ON t_club.id_club = club.id
                     INNER JOIN cities c ON club.id_city = c.id
                     WHERE t.status = 1 AND t_club.main_club = 1
+                    AND CURDATE() <= t.date_end
                 `)
             return rows.shift()
         } catch (error) {
