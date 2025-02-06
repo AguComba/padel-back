@@ -65,6 +65,15 @@ export class TournamentModel {
             if (rowsTournamentClub.affectedRows === 0) {
                 throw new Error('No se pudieron crear los clubes del torneo')
             }
+
+            const [rowsTournamentAmoutn] = await connection.query(
+                `INSERT INTO amounts(type_amount, amount, id_tournament) VALUES (?,?,?)`,
+                [tournamentData.type_amount, tournamentData.amount, idTournament]
+            )
+
+            if (rowsTournamentAmoutn.affectedRows === 0) {
+                throw new Error('No se pudieron crear los clubes del torneo')
+            }
             // Retornar el torneo creado con sus categorías.
             return { id: idTournament, ...tournament, categories, clubs }
         })
@@ -74,12 +83,14 @@ export class TournamentModel {
         try {
             const rows =
                 await executeQuery(`SELECT t.id, t.name, date_start, date_end, date_inscription_start, date_inscription_end, t.max_couples,
-                    t.gender, club.name as club, c.name as ciudad
+                    t.gender, club.name as club, c.name as ciudad, a.amount
                     FROM tournaments t
+                    INNER JOIN amounts a ON a.id_tournament = t.id
                     INNER JOIN tournament_clubs t_club ON t_club.id_tournament = t.id
                     INNER JOIN clubs club ON t_club.id_club = club.id
                     INNER JOIN cities c ON club.id_city = c.id
                     WHERE t.status = 1 AND t_club.main_club = 1
+                    AND CURDATE() <= t.date_end
                 `)
             return rows.shift()
         } catch (error) {
@@ -99,5 +110,26 @@ export class TournamentModel {
         } catch (error) {
             throw new Error(error)
         }
+    }
+
+    static async searchTournamentByCategoryPlayer(category, tournament_id) {
+        try {
+            const tournament = await executeQuery(
+                `SELECT t.id, t.name, date_start, date_end, date_inscription_start, date_inscription_end, t.max_couples,
+                    t.gender, club.name as club, c.name as ciudad, cat.id as id_categoy, cat.name as categoria
+                    FROM tournaments t
+                    INNER JOIN tournament_clubs t_club ON t_club.id_tournament = t.id
+                    INNER JOIN tournament_categories t_cat ON t_cat.id_tournament = t.id
+                    INNER JOIN category_restrictions cat_res ON cat_res.id_category = t_cat.id_category
+                    INNER join categories cat on cat.id = cat_res.id_category
+                    INNER JOIN clubs club ON t_club.id_club = club.id
+                    INNER JOIN cities c ON club.id_city = c.id
+                    WHERE t.status = 1 AND t_club.main_club = 1 AND cat_res.id_authorized_category = ? AND t.id = ?
+                `,
+                [category, tournament_id]
+            )
+            console.log(tournament)
+            return tournament.shift()
+        } catch (error) {}
     }
 }

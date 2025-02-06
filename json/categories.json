@@ -3,41 +3,49 @@
     {
       "name": "Suma 6",
       "status": 1,
+      "level": 3,
       "show_player": 0
     },
     {
       "name": "2da",
       "status": 1,
+      "level": 2,
       "show_player": 1
     },
     {
       "name": "3ra",
       "status": 1,
+      "level": 3,
       "show_player": 1
     },
     {
       "name": "4ta",
       "status": 1,
+      "level": 4,
       "show_player": 1
     },
     {
       "name": "5ta",
       "status": 1,
+      "level": 5,
       "show_player": 1
     },
     {
       "name": "6ta",
       "status": 1,
+      "level": 6,
       "show_player": 1
     },
     {
       "name": "7ma",
       "status": 1,
+      "level": 7,
       "show_player": 1
     },
     {
       "name": "8va",
       "status": 1,
+      "level": 8,
       "show_player": 1
     }
   ]

@@ -12,6 +12,7 @@ import { playersRouter } from './modules/Player/player.routes.js'
 import { rankingRouter } from './modules/Ranking/ranking.routes.js'
 import { tournamentRouter } from './modules/Tournaments/tournament.routes.js'
 import { inscriptionsRouter } from './modules/Inscriptions/inscriptions.routes.js'
+import { userRoutes } from './modules/Users/user.routes.js'
 import {paymentRouter} from './modules/Payment/payment.routes.js'
 
 const app = express()
@@ -34,6 +35,7 @@ app.use('/players', playersRouter)
 app.use('/ranking', rankingRouter)
 app.use('/tournaments', tournamentRouter)
 app.use('/inscriptions', inscriptionsRouter)
+app.use('/users', userRoutes)
 
 app.listen(4000, () => {
   console.log(`Server is running on PORT: ${4000}`)
