@@ -24,6 +24,7 @@ export const createInscriptionCouple = async (req, res) => {
         if (!isPlayer(user)) {
             return res.status(403).json({ message: 'El usuario debe ser un jugador para inscribirse' })
         }
+
         const player = await PlayerModel.searchByIdUser(user.id)
         if (!(await isValidPlayer(user.id, inscription.id_tournament))) {
             return res.status(401).json({
