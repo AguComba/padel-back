@@ -17,6 +17,11 @@ const isValidPlayer = async (player, id_tournament) => {
     return !!aceptedTournament
 }
 
+const isInscriptedPlayer = async (player, id_tournament) => {
+    const inscriptionStatus = await InscriptionModel.searchInscriptionByPlayerId(player.id, id_tournament)
+    return inscriptionStatus || false
+}
+
 export const createInscriptionCouple = async (req, res) => {
     try {
         const inscription = req.body
@@ -35,6 +40,18 @@ export const createInscriptionCouple = async (req, res) => {
                 message: 'Usted no califica para jugar ningun torneo vigente'
             })
         }
+
+        const statusInscriptionPlayer = await isInscriptedPlayer(player, inscription.id_tournament)
+        if (statusInscriptionPlayer) {
+            return res.status(400).json({
+                message: `Usted ya es encuentra inscripto con ${
+                    statusInscriptionPlayer.id_titular == player.id
+                        ? statusInscriptionPlayer.companero
+                        : statusInscriptionPlayer.titular
+                }`
+            })
+        }
+
         inscription.id_player_1 = player.id
         inscription.id_club = player.id_club
         inscription.user_created = user.id
@@ -45,7 +62,6 @@ export const createInscriptionCouple = async (req, res) => {
         )
 
         inscription.id_category = categoryTournamentPlayer1.id_category
-        console.log(inscription)
         const validInscription = InscriptionSchema.safeParse(inscription)
         if (!validInscription.success) {
             return res.status(400).json(validInscription.error.errors)
@@ -62,6 +78,16 @@ export const createInscriptionCouple = async (req, res) => {
             })
         }
 
+        const statusInscriptionPlayer2 = await isInscriptedPlayer(player2, inscription.id_tournament)
+        if (statusInscriptionPlayer2) {
+            return res.status(400).json({
+                message: `Su compañero ya es encuentra inscripto con ${
+                    statusInscriptionPlayer2.id_titular == player2.id
+                        ? statusInscriptionPlayer2.companero
+                        : statusInscriptionPlayer2.titular
+                }`
+            })
+        }
         const categoryTournamentPlayer2 = await TournamentModel.searchTournamentByCategoryPlayer(
             player2.id_cat,
             validInscription.data.id_tournament
@@ -69,7 +95,7 @@ export const createInscriptionCouple = async (req, res) => {
 
         if (categoryTournamentPlayer1.id_category !== categoryTournamentPlayer2.id_category) {
             return res.status(400).json({
-                message: `Useted califica para jugar en ${categoryTournamentPlayer1.categoria} y su compañero en ${categoryTournamentPlayer2.categoria}. No pueden jugar juntos.`
+                message: `Usted califica para jugar en ${categoryTournamentPlayer1.categoria} y su compañero en ${categoryTournamentPlayer2.categoria}. No pueden jugar juntos.`
             })
         }
         const inscriptionCrated = await InscriptionModel.create(validInscription.data)

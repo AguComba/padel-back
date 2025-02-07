@@ -2,8 +2,21 @@ import { executeQuery } from '../../utils/executeQuery.js'
 import { handleTransaction } from '../../utils/transactions.js'
 
 export class InscriptionModel {
-    static async searchInscriptionByUserID(id) {
-        executeQuery('SELECT * FROM inscriptions')
+    static async searchInscriptionByPlayerId(id_player, id_tournament) {
+        const player = await executeQuery(
+            `
+            SELECT concat(u1.name, " ", u1.last_name) as titular, p1.id as id_titular,
+            concat(u2.name, " ", u2.last_name) as companero, p2.id as id_companero FROM inscriptions i
+            INNER JOIN couples c ON c.id = i.id_couple
+            INNER JOIN players p1 ON c.id_player1 = p1.id
+            INNER JOIN players p2 ON c.id_player2 = p2.id
+            INNER JOIN users u1 ON p1.id_user = u1.id
+            INNER JOIN users u2 ON p2.id_user = u2.id
+            WHERE i.status = 1 AND i.status_payment = "PAID" AND c.id_player1 = ? OR c.id_player2 = ? AND i.id_tournament = ?
+            `,
+            [id_player, id_player, id_tournament]
+        )
+        return player.shift()
     }
 
     static async searchInscriptionByCategoryAndTournament(id_tournament, id_category) {
