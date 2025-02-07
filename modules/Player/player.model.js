@@ -29,11 +29,26 @@ export class PlayerModel {
             throw new Error(error)
         }
     }
+    static async searchByIdUserAfiliated(id) {
+        try {
+            const rows = await executeQuery(
+                `SELECT p.id, p.possition, p.hand, cat.id as id_cat,cat.name as category, c.name as club, u.name, u.last_name FROM players p
+         inner join categories cat on p.id_category = cat.id 
+         inner join users u on p.id_user = u.id 
+         inner join clubs c on p.id_club = c.id
+         where u.id = ? AND afiliation = 1`,
+                [id]
+            )
+            return rows.shift()
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
 
     static async searchByIdUser(id) {
         try {
             const rows = await executeQuery(
-                `SELECT p.id, p.possition, p.hand, cat.id as id_cat,cat.name as category, c.name as club, u.name, u.last_name FROM players p
+                `SELECT p.id, p.possition, p.hand, cat.id as id_cat,cat.name as category, c.id as id_club, c.name as club, u.name, u.last_name FROM players p
          inner join categories cat on p.id_category = cat.id 
          inner join users u on p.id_user = u.id 
          inner join clubs c on p.id_club = c.id
