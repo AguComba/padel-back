@@ -5,7 +5,7 @@ export class PaymentModel{
     static async create(data) {
         try {
             const rows = await executeQuery(
-                `INSERT INTO payments (id_user, amount, type, status, entity) VALUES (?, ?, ?, ?, ?, ?)`,
+                `INSERT INTO payments (id_user, amount, type, status, entity) VALUES (?, ?, ?, ?, ?)`,
                 [data.id_user, data.amount, data.type, data.status, data.entity]
             )
             const type = data.type === "AFILIACION" ? "AF" : "IN"
