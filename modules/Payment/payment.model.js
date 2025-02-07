@@ -1,3 +1,5 @@
+import { executeQuery } from '../../utils/executeQuery.js'
+
 export class PaymentModel{
 
     static async create(data) {
