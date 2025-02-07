@@ -13,7 +13,7 @@ export const playersRouter = Router()
 
 playersRouter.get('/', validateToken, getPlayers)
 playersRouter.get('/:id', validateToken, getPlayersById)
-playersRouter.get('/user/:id', validateToken, getPlayersByIdUser)
+playersRouter.get('/user', validateToken, getPlayersByIdUser)
 playersRouter.get('/category/:id', validateToken, getPlayersByCategory)
 playersRouter.get('/dni/:dni', validateToken, getPlayerByDni)
 
