@@ -81,7 +81,7 @@ export const createInscriptionCouple = async (req, res) => {
         const statusInscriptionPlayer2 = await isInscriptedPlayer(player2, inscription.id_tournament)
         if (statusInscriptionPlayer2) {
             return res.status(400).json({
-                message: `Su compañero ya es encuentra inscripto con ${
+                message: `Su compañero ya se encuentra inscripto con ${
                     statusInscriptionPlayer2.id_titular == player2.id
                         ? statusInscriptionPlayer2.companero
                         : statusInscriptionPlayer2.titular
