@@ -2,6 +2,7 @@ import { hasRole, isPlayer } from '../../middlewares/permisions.js'
 import { InscriptionSchema } from '../../schemas/Inscription.schema.js'
 import { PlayerModel } from '../Player/player.model.js'
 import { TournamentModel } from '../Tournaments/tournament.model.js'
+import { InscriptionModel } from './inscriptions.model.js'
 
 // const existInscription = async () => {
 //     try {
@@ -31,14 +32,18 @@ export const createInscriptionCouple = async (req, res) => {
                 message: 'El usuario que esta realizando la inscripcion no califica para jugar ningun torneo vigente'
             })
         }
+        console.log(player)
         inscription.id_player_1 = player.id
+        inscription.id_club = player.id_club
+        inscription.user_created = user.id
 
         const validInscription = InscriptionSchema.safeParse(inscription)
         if (!validInscription.success) {
             return res.status(400).json(validInscription.error.errors)
         }
+        const inscriptionCrated = await InscriptionModel.create(validInscription.data)
 
-        return res.status(200).json(validInscription.data)
+        res.status(200).json(inscription)
     } catch (error) {
         console.error(error)
         return res.status(500).json({ message: 'Ocurrio un error inesperado' })
