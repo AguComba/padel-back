@@ -37,6 +37,6 @@ app.use('/tournaments', tournamentRouter)
 app.use('/inscriptions', inscriptionsRouter)
 app.use('/users', userRoutes)
 
-app.listen(4000, () => {
-  console.log(`Server is running on PORT: ${4000}`)
+app.listen(PORT, () => {
+  console.log(`Server is running on PORT: ${PORT}`)
 })
