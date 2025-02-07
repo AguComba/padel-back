@@ -1,6 +1,6 @@
 import pkg from "pluspagos-aes-encryption"
 import { isAcceptedUser } from "../../middlewares/permisions.js"
-import {PaymentModel} from "./payment.model.js"
+import { PaymentModel } from "./payment.model.js"
 
 export const payment = async (req, res) => {
   try {
@@ -13,7 +13,7 @@ export const payment = async (req, res) => {
     const payment = req.body
     payment.id_user = user.id
     const transaction_id = await PaymentModel.create(payment)
-    if(!transaction_id){
+    if (!transaction_id) {
       return res.status(500).json({ message: "Error al crear el pago" })
     }
     const { amount, type } = payment
@@ -43,5 +43,17 @@ export const payment = async (req, res) => {
 }
 
 export const paymentStatus = async (req, res) => {
-  res.status(200).json({ message: "Pago exitoso" })
+  try {
+    const data = req.body
+    const dataDb = {
+      transaction_id: data.TransaccionComercioId,
+      status: data.Estado === "REALIZADA" ? 1 : 2,
+      message: data.Detalle,
+      external_id: data.TransaccionPlataformaId
+    }
+    await PaymentModel.update(dataDb)
+    res.status(200).json({ message: "Pago procesado" })
+  } catch (e) {
+    res.status(500).json({ message: "Error en el servidor: " + e.message })
+  }
 }
