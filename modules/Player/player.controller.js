@@ -32,9 +32,15 @@ export const getPlayersByIdUser = async (req, res) => {
 export const getPlayersById = async (req, res) => {
     try {
         const { user = false } = req.session
-        const { id } = req.params
+        let { id } = req.params
+        id = parseInt(id)
         if (!isAcceptedUser(user)) {
             return res.status(401).json({ message: 'No tienes permisos para acceder a este recurso' })
+        }
+        if (!Number.isInteger(id)) {
+            return res.status(400).json({
+                message: 'Ocurrio un error. El id debe ser un numero'
+            })
         }
 
         const players = await PlayerModel.searchById(id)
