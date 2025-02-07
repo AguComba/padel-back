@@ -1,6 +1,8 @@
 import { Router } from 'express'
-import {payment} from './payment.controller.js'
+import {payment, paymentStatus} from './payment.controller.js'
+import {validateToken} from '../../middlewares/validateToken.js'
 
 export const paymentRouter = Router()
 
-paymentRouter.get('/', payment)
+paymentRouter.post('/', validateToken, payment)
+paymentRouter.post('/estado', paymentStatus) // Esta ruta es pública para que Macro pueda notificar el estado del pago
