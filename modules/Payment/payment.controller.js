@@ -1,6 +1,6 @@
 import pkg from "pluspagos-aes-encryption"
-import { isAcceptedUser } from "../../middlewares/permisions"
-import {PaymentModel} from "./payment.model"
+import { isAcceptedUser } from "../../middlewares/permisions.js"
+import {PaymentModel} from "./payment.model.js"
 
 export const payment = async (req, res) => {
   try {
