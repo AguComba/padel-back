@@ -38,6 +38,8 @@ export class PaymentModel {
           )
         }
         return payment
+      }else{
+        return data
       }
     } catch (error) {
       throw new Error(error)
