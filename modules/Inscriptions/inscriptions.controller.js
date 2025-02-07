@@ -32,11 +32,16 @@ export const createInscriptionCouple = async (req, res) => {
                 message: 'El usuario que esta realizando la inscripcion no califica para jugar ningun torneo vigente'
             })
         }
-        console.log(player)
         inscription.id_player_1 = player.id
         inscription.id_club = player.id_club
         inscription.user_created = user.id
 
+        const categoryTournament = await TournamentModel.searchTournamentByCategoryPlayer(
+            player.id_cat,
+            inscription.id_tournament
+        )
+        console.log(categoryTournament)
+        return res.status(200).json(categoryTournament)
         const validInscription = InscriptionSchema.safeParse(inscription)
         if (!validInscription.success) {
             return res.status(400).json(validInscription.error.errors)

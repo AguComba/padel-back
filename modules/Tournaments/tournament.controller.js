@@ -1,5 +1,7 @@
 import { hasRole, isAcceptedUser, isPlayer } from '../../middlewares/permisions.js'
 import { TournamentSchema } from '../../schemas/Tournament.schema.js'
+import { InscriptionModel } from '../Inscriptions/inscriptions.model.js'
+import { PlayerModel } from '../Player/player.model.js'
 import { TournamentModel } from './tournament.model.js'
 import { parse } from '@formkit/tempo'
 
@@ -90,6 +92,12 @@ export const tournementAceptedByPlayer = async (req, res) => {
         if (!aceptedTournament) {
             return res.status(400).json({ message: 'El jugador no califica para ninguno de los torneos vigentes' })
         }
+        console.log(aceptedTournament)
+        const inscriptionsGenerated = await InscriptionModel.searchInscriptionByCategoryAndTournament(
+            aceptedTournament.id,
+            aceptedTournament.id_category
+        )
+        aceptedTournament.couples_inscripted = inscriptionsGenerated.couples_inscripted
 
         return res.status(200).json(aceptedTournament)
     } catch (error) {
