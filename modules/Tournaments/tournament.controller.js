@@ -92,7 +92,6 @@ export const tournementAceptedByPlayer = async (req, res) => {
         if (!aceptedTournament) {
             return res.status(400).json({ message: 'El jugador no califica para ninguno de los torneos vigentes' })
         }
-        console.log(aceptedTournament)
         const inscriptionsGenerated = await InscriptionModel.searchInscriptionByCategoryAndTournament(
             aceptedTournament.id,
             aceptedTournament.id_category

@@ -17,7 +17,7 @@ export class PlayerModel {
     static async searchById(id) {
         try {
             const rows = await executeQuery(
-                `SELECT p.id, p.possition, p.hand, cat.name as category, c.name as club, u.name, u.last_name FROM players p
+                `SELECT p.id, p.possition, p.hand, cat.id as id_cat ,cat.name as category, c.id as id_club ,c.name as club, u.name, u.last_name, p.afiliation FROM players p
          inner join categories cat on p.id_category = cat.id 
          inner join users u on p.id_user = u.id 
          inner join clubs c on p.id_club = c.id
@@ -32,7 +32,7 @@ export class PlayerModel {
     static async searchByIdUserAfiliated(id) {
         try {
             const rows = await executeQuery(
-                `SELECT p.id, p.possition, p.hand, cat.id as id_cat,cat.name as category, c.name as club, u.name, u.last_name FROM players p
+                `SELECT p.id, p.possition, p.hand, cat.id as id_cat,cat.name as category, c.id as id_club, c.name as club, u.name, u.last_name FROM players p
          inner join categories cat on p.id_category = cat.id 
          inner join users u on p.id_user = u.id 
          inner join clubs c on p.id_club = c.id
@@ -48,7 +48,7 @@ export class PlayerModel {
     static async searchByIdUser(id) {
         try {
             const rows = await executeQuery(
-                `SELECT p.id, p.possition, p.hand, cat.id as id_cat,cat.name as category, c.id as id_club, c.name as club, u.name, u.last_name FROM players p
+                `SELECT p.id, p.possition, p.hand, cat.id as id_cat,cat.name as category, c.id as id_club, c.name as club, u.name, u.last_name, p.afiliation FROM players p
          inner join categories cat on p.id_category = cat.id 
          inner join users u on p.id_user = u.id 
          inner join clubs c on p.id_club = c.id
@@ -80,7 +80,7 @@ export class PlayerModel {
     static async searchByDni(dni) {
         try {
             const rows = await executeQuery(
-                `SELECT p.id, p.possition, p.hand, cat.name as category, u.name, u.last_name FROM users u 
+                `SELECT p.id, p.possition, p.hand, p.afiliation,cat.name as category, u.name, u.last_name FROM users u 
                 inner join players p on p.id_user = u.id 
                 inner join categories cat on p.id_category = cat.id 
                 WHERE u.number_document = ?
