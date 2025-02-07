@@ -13,6 +13,7 @@ import { rankingRouter } from './modules/Ranking/ranking.routes.js'
 import { tournamentRouter } from './modules/Tournaments/tournament.routes.js'
 import { inscriptionsRouter } from './modules/Inscriptions/inscriptions.routes.js'
 import { userRoutes } from './modules/Users/user.routes.js'
+import {paymentRouter} from './modules/Payment/payment.routes.js'
 
 const app = express()
 
@@ -22,6 +23,7 @@ app.use(json())
 app.use(cookieParser())
 
 app.use('/auth', authRoutes)
+app.use('/payments', paymentRouter)
 
 // De aca para abajo, todas las rutas necesitan un token valido
 app.use('/provinces', provincesRoutes)
@@ -36,5 +38,5 @@ app.use('/inscriptions', inscriptionsRouter)
 app.use('/users', userRoutes)
 
 app.listen(PORT, () => {
-    console.log(`Server is running on PORT: ${PORT}`)
+  console.log(`Server is running on PORT: ${PORT}`)
 })
