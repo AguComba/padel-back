@@ -38,7 +38,7 @@ export const payment = async (req, res) => {
     }
     res.status(200).json(data)
   } catch (error) {
-    res.status(500).json({ message: "Error en el servidor" })
+    res.status(500).json({ message: "Error en el servidor: " + error.message })
   }
 }
 
