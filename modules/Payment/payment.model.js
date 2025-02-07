@@ -30,10 +30,11 @@ export class PaymentModel {
           `SELECT * FROM payments WHERE transaction_id = ?`,
           [data.transaction_id]
         )
-        if(row.shift().type === "AFILIACION") {
+        const payment = row.shift()
+        if(payment && payment.type === "AFILIACION") {
           await executeQuery(
             `UPDATE players SET afiliation = 1 WHERE id_user = ?`,
-            [row.shift().id_user]
+            [payment.id_user]
           )
         }
       }
