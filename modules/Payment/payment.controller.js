@@ -11,7 +11,7 @@ export const payment = async (req, res) => {
         .json({ message: "No tienes permisos para acceder a este recurso" })
     }
     const payment = req.body
-    payment.user_id = user.id
+    payment.id_user = user.id
     const transaction_id = await PaymentModel.create(payment)
     if(!transaction_id){
       return res.status(500).json({ message: "Error al crear el pago" })
