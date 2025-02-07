@@ -59,6 +59,9 @@ export const getPlayerByDni = async (req, res) => {
             return res.status(400).json({ message: 'No se encontro ningun jugador con ese dni' })
         }
 
+        if (!player.afiliation) {
+            return res.status(400).json({ message: 'El jugador no esta afiliado' })
+        }
         return res.status(200).json(player)
     } catch (error) {
         console.error(error.message)

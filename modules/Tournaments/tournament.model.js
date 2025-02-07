@@ -98,6 +98,24 @@ export class TournamentModel {
         }
     }
 
+    static async searchById(id_tournament) {
+        try {
+            const tournament =
+                await executeQuery(`SELECT t.id, t.name, date_start, date_end, date_inscription_start, date_inscription_end, t.max_couples,
+                    t.gender, club.name as club, c.name as ciudad, a.amount, t.afiliation_required
+                    FROM tournaments t
+                    INNER JOIN amounts a ON a.id_tournament = t.id
+                    INNER JOIN tournament_clubs t_club ON t_club.id_tournament = t.id
+                    INNER JOIN clubs club ON t_club.id_club = club.id
+                    INNER JOIN cities c ON club.id_city = c.id
+                    WHERE t.status = 1 AND t_club.main_club = 1 AND t.id = ?
+                    `)
+            return tournament.shift()
+        } catch (error) {
+            throw new Error()
+        }
+    }
+
     static async searchCategories(id) {
         try {
             const rows = await executeQuery(
