@@ -70,7 +70,7 @@ export const getPlayerByDni = async (req, res) => {
 }
 
 const exisistPlayer = async (id_user) => {
-    const player = await PlayerModel.searchByIdUser(id_user)
+    const player = await PlayerModel.searchByIdUserAfiliated(id_user)
     return !!player
 }
 
