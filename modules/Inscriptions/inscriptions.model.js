@@ -22,7 +22,16 @@ export class InscriptionModel {
 
     static async create(inscription) {
         return await handleTransaction(async (connection) => {
-            const { id_player_1, id_player_2, id_club, id_tournament, availablity_days, user_created } = inscription
+            const {
+                id_player_1,
+                id_player_2,
+                id_club,
+                id_tournament,
+                availablity_days,
+                user_created,
+                status,
+                id_category
+            } = inscription
             const [rowsCouple] = await connection.query(
                 `
                 INSERT INTO couples (id_player1, id_player2, id_club, points, status) 
@@ -37,10 +46,10 @@ export class InscriptionModel {
 
             const [rowsInscription] = await connection.query(
                 `
-                INSERT INTO inscriptions (id_tournament, id_couple, id_category_tournament, status, status_payment, user_created, user_updated)
-                VALUES(?, ?, ?, ?, ?, ?)
+                INSERT INTO inscriptions (id_tournament, id_couple, id_category, status, status_payment, user_created, user_updated)
+                VALUES(?, ?, ?, ?, ?, ?, ?)
                 `,
-                [id_tournament, idCouple, 1, 'PENDING', user_created, user_created]
+                [id_tournament, idCouple, id_category, status, 'PENDING', user_created, user_created]
             )
 
             if (rowsInscription.affectedRows === 0) {

@@ -45,6 +45,7 @@ export const createInscriptionCouple = async (req, res) => {
         )
 
         inscription.id_category = categoryTournamentPlayer1.id_category
+        console.log(inscription)
         const validInscription = InscriptionSchema.safeParse(inscription)
         if (!validInscription.success) {
             return res.status(400).json(validInscription.error.errors)
