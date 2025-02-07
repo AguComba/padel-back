@@ -4,14 +4,6 @@ import { PlayerModel } from '../Player/player.model.js'
 import { TournamentModel } from '../Tournaments/tournament.model.js'
 import { InscriptionModel } from './inscriptions.model.js'
 
-// const existInscription = async () => {
-//     try {
-
-//     } catch (error) {
-//         res.status(500).json({message: "Ocurrio un error al verificar la inscripcion"})
-//     }
-// }
-
 const isValidPlayer = async (player, id_tournament) => {
     const aceptedTournament = await TournamentModel.searchTournamentByCategoryPlayer(player.id_cat, id_tournament)
     return !!aceptedTournament
@@ -81,7 +73,7 @@ export const createInscriptionCouple = async (req, res) => {
         const statusInscriptionPlayer2 = await isInscriptedPlayer(player2, inscription.id_tournament)
         if (statusInscriptionPlayer2) {
             return res.status(400).json({
-                message: `Su compañero ya es encuentra inscripto con ${
+                message: `Su compañero ya se encuentra inscripto con ${
                     statusInscriptionPlayer2.id_titular == player2.id
                         ? statusInscriptionPlayer2.companero
                         : statusInscriptionPlayer2.titular
@@ -104,5 +96,42 @@ export const createInscriptionCouple = async (req, res) => {
     } catch (error) {
         console.error(error)
         return res.status(500).json({ message: 'Ocurrio un error inesperado' })
+    }
+}
+
+export const getInscriptions = async (req, res) => {
+    try {
+        const { user = false } = req.session
+        const { id_tournament = false } = req.params
+        const { category = false, suplentes = false } = req.query
+
+        if (hasRole(user, ['admin', 'superAdmin'])) {
+            return res.status(401).json({
+                message: 'El usuario no tiene permisos para acceder a este recurso'
+            })
+        }
+
+        const inscriptions = await InscriptionModel.search(id_tournament)
+        const filteredInscriptions = inscriptions.filter((inscription, index) => {
+            if (category && suplentes) {
+                return inscription.id_category == category && inscription.status == suplentes
+            }
+            if (category) {
+                return inscription.id_category == category
+            }
+            if (suplentes == 1) {
+                return inscription.status == suplentes
+            }
+            if (suplentes == 2) {
+                return inscription.status == suplentes
+            }
+            return inscription
+        })
+        return res.status(200).json(filteredInscriptions)
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            message: 'Ocurrio un error en el sistema'
+        })
     }
 }
