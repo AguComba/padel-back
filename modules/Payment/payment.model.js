@@ -25,7 +25,7 @@ export class PaymentModel {
         `UPDATE payments SET status = ?, message = ?, external_id = ? WHERE transaction_id = ?`,
         [data.status, data.message, data.external_id, data.transaction_id]
       )
-      if (data.status === "REALIZADA") {
+      if (data.status === 1) {
         const row = await executeQuery(
           `SELECT * FROM payments WHERE transaction_id = ?`,
           [data.transaction_id]

@@ -47,7 +47,7 @@ export const paymentStatus = async (req, res) => {
     const data = req.body
     const dataDb = {
       transaction_id: data.TransaccionComercioId,
-      status: data.Estado === "REALIZADA" ? 1 : 2,
+      status: data.Estado === "REALIZADA" && data.Tipo === "PAGO" ? 1 : 2,
       message: data.Detalle,
       external_id: data.TransaccionPlataformaId
     }
