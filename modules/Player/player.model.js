@@ -55,6 +55,7 @@ export class PlayerModel {
          where u.id = ?`,
                 [id]
             )
+            console.log(rows)
             return rows.shift()
         } catch (error) {
             throw new Error(error)
