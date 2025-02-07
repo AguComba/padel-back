@@ -23,7 +23,7 @@ app.use(json())
 app.use(cookieParser())
 
 app.use('/auth', authRoutes)
-app.use('/payment', paymentRouter)
+app.use('/payments', paymentRouter)
 
 // De aca para abajo, todas las rutas necesitan un token valido
 app.use('/provinces', provincesRoutes)
