@@ -112,7 +112,8 @@ export const getInscriptions = async (req, res) => {
         }
 
         const inscriptions = await InscriptionModel.search(id_tournament)
-        const filteredInscriptions = inscriptions.filter((inscription, index) => {
+
+        const filteredInscriptions = inscriptions.filter((inscription) => {
             if (category && suplentes) {
                 return inscription.id_category == category && inscription.status == suplentes
             }
@@ -127,6 +128,7 @@ export const getInscriptions = async (req, res) => {
             }
             return inscription
         })
+
         return res.status(200).json(filteredInscriptions)
     } catch (error) {
         console.error(error)

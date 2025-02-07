@@ -18,12 +18,11 @@ export const getPlayers = async (req, res) => {
 export const getPlayersByIdUser = async (req, res) => {
     try {
         const { user = false } = req.session
-        const { id } = req.params
         if (!isAcceptedUser(user)) {
             return res.status(401).json({ message: 'No tienes permisos para acceder a este recurso' })
         }
 
-        const players = await PlayerModel.searchByIdUser(id)
+        const players = await PlayerModel.searchByIdUser(user.id)
         res.status(200).json(players)
     } catch (error) {
         res.status(400).json({ message: error.message })
