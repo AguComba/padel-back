@@ -25,17 +25,21 @@ export class PaymentModel {
         `UPDATE payments SET status = ?, message = ?, external_id = ? WHERE transaction_id = ?`,
         [data.status, data.message, data.external_id, data.transaction_id]
       )
-      if (data.status === 1) {
+      if (parseInt(data.status) === 1) {
         const row = await executeQuery(
           `SELECT * FROM payments WHERE transaction_id = ?`,
           [data.transaction_id]
         )
-        if(row.shift().type === "AFILIACION") {
+        const payment = row.shift()
+        if(payment && payment.type === "AFILIACION") {
           await executeQuery(
             `UPDATE players SET afiliation = 1 WHERE id_user = ?`,
-            [row.shift().id_user]
+            [payment.id_user]
           )
         }
+        return payment
+      }else{
+        return data
       }
     } catch (error) {
       throw new Error(error)

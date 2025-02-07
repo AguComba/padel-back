@@ -51,8 +51,8 @@ export const paymentStatus = async (req, res) => {
       message: data.Detalle,
       external_id: data.TransaccionPlataformaId
     }
-    await PaymentModel.update(dataDb)
-    res.status(200).json({ message: "Pago procesado" })
+    const payment = await PaymentModel.update(dataDb)
+    res.status(200).json({ message: "Pago procesado", payment })
   } catch (e) {
     res.status(500).json({ message: "Error en el servidor: " + e.message })
   }
