@@ -6,6 +6,20 @@ export class InscriptionModel {
         executeQuery('SELECT * FROM inscriptions')
     }
 
+    static async searchInscriptionByCategoryAndTournament(id_tournament, id_category) {
+        console.log(id_tournament, id_category)
+        const result = await executeQuery(
+            `
+        SELECT COUNT(*) AS couples_inscripted FROM inscriptions
+        WHERE id_tournament = ? AND id_category = ? AND status = 1 AND status_payment = 'PAID'
+        `,
+            [id_tournament, id_category]
+        )
+
+        console.log(result)
+        return result.shift()
+    }
+
     static async create(inscription) {
         return await handleTransaction(async (connection) => {
             const { id_player_1, id_player_2, id_club, id_tournament, availablity_days, user_created } = inscription
@@ -23,7 +37,7 @@ export class InscriptionModel {
 
             const [rowsInscription] = await connection.query(
                 `
-                INSERT INTO inscriptions (id_tournament, id_couple, status, status_payment, user_created, user_updated)
+                INSERT INTO inscriptions (id_tournament, id_couple, id_category_tournament, status, status_payment, user_created, user_updated)
                 VALUES(?, ?, ?, ?, ?, ?)
                 `,
                 [id_tournament, idCouple, 1, 'PENDING', user_created, user_created]

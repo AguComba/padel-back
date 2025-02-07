@@ -134,7 +134,7 @@ export class TournamentModel {
         try {
             const tournament = await executeQuery(
                 `SELECT t.id, t.name, date_start, date_end, date_inscription_start, date_inscription_end, t.max_couples,
-                    t.gender, club.name as club, c.name as ciudad, cat.id as id_categoy, cat.name as categoria
+                    t.gender, club.name as club, c.name as ciudad, cat.id as id_category, cat.name as categoria
                     FROM tournaments t
                     INNER JOIN tournament_clubs t_club ON t_club.id_tournament = t.id
                     INNER JOIN tournament_categories t_cat ON t_cat.id_tournament = t.id
@@ -146,7 +146,6 @@ export class TournamentModel {
                 `,
                 [category, tournament_id]
             )
-            console.log(tournament)
             return tournament.shift()
         } catch (error) {}
     }
