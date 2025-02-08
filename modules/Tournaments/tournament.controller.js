@@ -50,11 +50,9 @@ export const getTournaments = async (req, res) => {
         if (!tournament) {
             return res.status(404).json({ message: 'No se encontraron torneos vigentes' })
         }
-        tournament.map(async (item) => {
-            const categories = await getCatigoriesByTournament(item.id)
-            item.categories = categories
-        })
-        res.status(200).json({ tournament })
+        const categories = await getCatigoriesByTournament(tournament?.id)
+
+        res.status(200).json({ tournament, categories })
     } catch (error) {
         res.status(500).json(error.message)
     }
