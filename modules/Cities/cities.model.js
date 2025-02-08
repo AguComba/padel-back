@@ -3,7 +3,7 @@ import { executeQuery } from '../../utils/executeQuery.js'
 export class CitiesModel {
     static async getAllCities() {
         try {
-            const cities = await executeQuery('SELECT * FROM cities where status = 1')
+            const cities = await executeQuery('SELECT * FROM cities where status = 1 ORDER BY name')
             return cities
         } catch (error) {
             throw new Error('Error getting cities: ' + error.message)
