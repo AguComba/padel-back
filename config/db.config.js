@@ -2,7 +2,7 @@ import mysql from 'mysql2/promise'
 import { ENVAIROMENT, DB_HOST, DB_PASS, DB_PORT, DB_SCHEMA, DB_USER } from './app.config.js'
 
 const config = {
-    host: ENVAIROMENT === 'produccion' ? DB_HOST : 'localhost',
+    host: ENVAIROMENT === 'produccion' ? DB_HOST : DB_HOST,
     port: DB_PORT,
     user: DB_USER,
     password: DB_PASS,

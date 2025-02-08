@@ -3,7 +3,8 @@ const ACCEPTED_ORIGINS = [
     'http://localhost:8080',
     'http://localhost:8081',
     'https://padel-front-production.up.railway.app',
-    'https://apcpadel.com.ar'
+    'https://apcpadel.com.ar',
+    'https://padel-front-desarrollo.up.railway.app'
 ]
 
 export const corsMiddleware = ({ acceptedOrigins = ACCEPTED_ORIGINS } = {}) =>
