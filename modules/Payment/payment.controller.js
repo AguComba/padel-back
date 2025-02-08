@@ -20,8 +20,8 @@ export const payment = async (req, res) => {
     const { encryptString } = pkg
     const secret = "ASOCIACIONPADELCLUB_77b704d8-e759-4d64-bd27-48bf3d95052c"
     const comercio = "8ff45ee1-1acc-4855-bcac-d277fc9a3ff7"
-    const success = "https://www.apcpadel.com.ar/pagoexitoso"
-    const failure = "https://www.apcpadel.com.ar/pagofallido"
+    const success = "https://apcpadel.com.ar/pagoexitoso"
+    const failure = "https://apcpadel.com.ar/pagofallido"
     const sucursal = ""
     const monto = parseInt(amount) * 100
     const information = type + " APC"
