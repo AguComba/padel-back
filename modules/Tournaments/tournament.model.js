@@ -92,7 +92,7 @@ export class TournamentModel {
                     WHERE t.status = 1 AND t_club.main_club = 1
                     AND CURDATE() <= t.date_end
                 `)
-            return rows.shift()
+            return rows
         } catch (error) {
             throw new Error(error)
         }
