@@ -33,7 +33,7 @@ export class InscriptionModel {
             INNER JOIN players p2 ON c.id_player2 = p2.id
             INNER JOIN users u1 ON p1.id_user = u1.id
             INNER JOIN users u2 ON p2.id_user = u2.id
-            WHERE i.status = 1 AND i.status_payment = "PAID" AND c.id_player1 = ? OR c.id_player2 = ? AND i.id_tournament = ?
+            WHERE i.status = 1 AND i.status_payment = "PAID" AND (c.id_player1 = ? OR c.id_player2 = ?) AND i.id_tournament = ?
             `,
             [id_player, id_player, id_tournament]
         )
