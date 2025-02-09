@@ -5,6 +5,7 @@ export class InscriptionModel {
     static async search(id_tournament) {
         const inscriptions = executeQuery(
             `SELECT 
+            i.id,
             cat.id as id_category,
             cat.name as categoria,
             concat(u1.name, " ", u1.last_name) as jugador1, 
@@ -16,8 +17,7 @@ export class InscriptionModel {
             INNER JOIN players p2 ON c.id_player2 = p2.id
             INNER JOIN users u1 ON p1.id_user = u1.id
             INNER JOIN users u2 ON p2.id_user = u2.id           
-            INNER JOIN tournament_categories tc ON tc.id_tournament = i.id_tournament
-            INNER JOIN categories cat ON tc.id_category = cat.id
+            INNER JOIN categories cat ON i.id_category = cat.id
             WHERE i.id_tournament = ?`,
             [id_tournament]
         )
