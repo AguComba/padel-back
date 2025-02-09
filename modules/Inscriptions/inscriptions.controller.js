@@ -105,7 +105,7 @@ export const getInscriptions = async (req, res) => {
         const { id_tournament = false } = req.params
         const { category = false, suplentes = false } = req.query
 
-        if (hasRole(user, ['admin', 'superAdmin'])) {
+        if (!hasRole(user, ['admin', 'superAdmin'])) {
             return res.status(401).json({
                 message: 'El usuario no tiene permisos para acceder a este recurso'
             })
