@@ -6,6 +6,7 @@ export const InscriptionSchema = z.object({
     id_player_1: z.number({ message: 'El id del jugador 1' }),
     id_club: z.number({ message: 'Club del jugador 1' }),
     id_category: z.number({ message: 'Id category' }),
+    observation: z.string({ message: 'La observacion debe ser string' }).max(250).optional(),
     availablity_days: z.array(z.enum(['L', 'M', 'X', 'J', 'V', 'S', 'D'])),
     user_created: z.number({ message: 'id de usuario' }),
     status: z.number({ message: 'falta status' })

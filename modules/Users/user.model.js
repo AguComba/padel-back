@@ -4,11 +4,13 @@ export class UserModel {
     static async searchAllUsers() {
         try {
             const users = await executeQuery(
-                'SELECT name, last_name, cell_phone, email, number_document, gender, type_user FROM users WHERE status = 1'
+                `SELECT name, last_name, cell_phone, email, number_document, gender, type_user, afiliation FROM users u
+                LEFT JOIN players p ON p.id_user = u.id
+                WHERE u.status = 1`
             )
             return users
         } catch (error) {
-            throw new Error()
+            throw new Error(error)
         }
     }
 
@@ -22,7 +24,6 @@ export class UserModel {
                 WHERE number_document = ?`,
                 [dni]
             )
-            console.log(users)
             return users
         } catch (error) {
             throw new Error()

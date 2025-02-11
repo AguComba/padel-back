@@ -3,10 +3,12 @@ export class PlayerModel {
     static async search() {
         try {
             const rows = await executeQuery(
-                `SELECT p.id, p.possition, p.hand, cat.name as category, c.name as club, u.name, u.last_name FROM players p
-         inner join categories cat on p.id_category = cat.id 
-         inner join users u on p.id_user = u.id 
-         inner join clubs c on p.id_club = c.id`
+                `SELECT u.id, p.possition, p.hand, cat.name as category, c.name as club, u.name, u.last_name, p.afiliation FROM players p
+                inner join categories cat on p.id_category = cat.id 
+                inner join users u on p.id_user = u.id 
+                inner join clubs c on p.id_club = c.id
+                GROUP BY u.id, p.possition, p.hand, cat.name, c.name, u.name, u.last_name, p.afiliation
+                `
             )
             return rows
         } catch (error) {
