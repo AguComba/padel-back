@@ -5,24 +5,25 @@ export class InscriptionModel {
     static async search(id_tournament) {
         const inscriptions = executeQuery(
             `SELECT 
-    i.id,
-    cat.id AS id_category,
-    cat.name AS categoria,
-    CONCAT(u1.name, " ", u1.last_name) AS jugador1, 
-    CONCAT(u2.name, " ", u2.last_name) AS jugador2,
-    i.status, 
-    i.status_payment,
-    GROUP_CONCAT(d.availablity_days ORDER BY d.availablity_days SEPARATOR ', ') AS dias_seleccionados
-FROM inscriptions i
-INNER JOIN couples c ON i.id_couple = c.id
-INNER JOIN players p1 ON c.id_player1 = p1.id
-INNER JOIN players p2 ON c.id_player2 = p2.id
-INNER JOIN users u1 ON p1.id_user = u1.id
-INNER JOIN users u2 ON p2.id_user = u2.id           
-INNER JOIN categories cat ON i.id_category = cat.id
-LEFT JOIN couple_game_days d ON d.id_inscription = i.id
-WHERE i.id_tournament = ?
-GROUP BY i.id, cat.id, cat.name, jugador1, jugador2, i.status, i.status_payment;`,
+            i.id,
+            cat.id AS id_category,
+            cat.name AS categoria,
+            CONCAT(u1.name, " ", u1.last_name) AS jugador1, 
+            CONCAT(u2.name, " ", u2.last_name) AS jugador2,
+            i.status, 
+            i.status_payment,
+            GROUP_CONCAT(d.availablity_days ORDER BY d.availablity_days SEPARATOR ', ') AS dias_seleccionados,
+            observation
+            FROM inscriptions i
+            INNER JOIN couples c ON i.id_couple = c.id
+            INNER JOIN players p1 ON c.id_player1 = p1.id
+            INNER JOIN players p2 ON c.id_player2 = p2.id
+            INNER JOIN users u1 ON p1.id_user = u1.id
+            INNER JOIN users u2 ON p2.id_user = u2.id           
+            INNER JOIN categories cat ON i.id_category = cat.id
+            LEFT JOIN couple_game_days d ON d.id_inscription = i.id
+            WHERE i.id_tournament = ?
+            GROUP BY i.id, cat.id, cat.name, jugador1, jugador2, i.status, i.status_payment;`,
             [id_tournament]
         )
         return inscriptions
@@ -68,7 +69,8 @@ GROUP BY i.id, cat.id, cat.name, jugador1, jugador2, i.status, i.status_payment;
                 availablity_days,
                 user_created,
                 status,
-                id_category
+                id_category,
+                observation
             } = inscription
             const [rowsCouple] = await connection.query(
                 `
@@ -84,10 +86,11 @@ GROUP BY i.id, cat.id, cat.name, jugador1, jugador2, i.status, i.status_payment;
 
             const [rowsInscription] = await connection.query(
                 `
-                INSERT INTO inscriptions (id_tournament, id_couple, id_category, status, status_payment, user_created, user_updated)
-                VALUES(?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO inscriptions (id_tournament, id_couple, id_category, status, 
+                status_payment, user_created, user_updated, observation)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?)
                 `,
-                [id_tournament, idCouple, id_category, status, 'PENDING', user_created, user_created]
+                [id_tournament, idCouple, id_category, status, 'PENDING', user_created, user_created, observation]
             )
 
             if (rowsInscription.affectedRows === 0) {

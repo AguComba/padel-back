@@ -4,6 +4,7 @@ CREATE TABLE inscriptions (
     id_couple INT NOT NULL,
     id_category INT NOT NULL, 
     status TINYINT(1) NOT NULL DEFAULT 1,
+    observation VARCHAR(250),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     user_created INT NOT NULL,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
