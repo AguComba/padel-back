@@ -5,20 +5,24 @@ export class InscriptionModel {
     static async search(id_tournament) {
         const inscriptions = executeQuery(
             `SELECT 
-            i.id,
-            cat.id as id_category,
-            cat.name as categoria,
-            concat(u1.name, " ", u1.last_name) as jugador1, 
-            concat(u2.name, " ", u2.last_name) as jugador2,
-            i.status, i.status_payment
-            FROM inscriptions i
-            INNER JOIN couples c ON c.id = i.id_couple
-            INNER JOIN players p1 ON c.id_player1 = p1.id
-            INNER JOIN players p2 ON c.id_player2 = p2.id
-            INNER JOIN users u1 ON p1.id_user = u1.id
-            INNER JOIN users u2 ON p2.id_user = u2.id           
-            INNER JOIN categories cat ON i.id_category = cat.id
-            WHERE i.id_tournament = ?`,
+    i.id,
+    cat.id AS id_category,
+    cat.name AS categoria,
+    CONCAT(u1.name, " ", u1.last_name) AS jugador1, 
+    CONCAT(u2.name, " ", u2.last_name) AS jugador2,
+    i.status, 
+    i.status_payment,
+    GROUP_CONCAT(d.availablity_days ORDER BY d.availablity_days SEPARATOR ', ') AS dias_seleccionados
+FROM inscriptions i
+INNER JOIN couples c ON i.id_couple = c.id
+INNER JOIN players p1 ON c.id_player1 = p1.id
+INNER JOIN players p2 ON c.id_player2 = p2.id
+INNER JOIN users u1 ON p1.id_user = u1.id
+INNER JOIN users u2 ON p2.id_user = u2.id           
+INNER JOIN categories cat ON i.id_category = cat.id
+LEFT JOIN couple_game_days d ON d.id_inscription = i.id
+WHERE i.id_tournament = ?
+GROUP BY i.id, cat.id, cat.name, jugador1, jugador2, i.status, i.status_payment;`,
             [id_tournament]
         )
         return inscriptions
