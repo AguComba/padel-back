@@ -86,14 +86,16 @@ export const tournementAceptedByPlayer = async (req, res) => {
             return res.status(400).json({ message: 'No se recibio el id del torneo.' })
         }
 
-        //Validar que el usuario no este inscripto antes
-
         if (!isPlayer(user)) {
             return res.status(403).json({ message: 'El usuario debe ser un jugador para poder inscribirse' })
         }
 
         const player = await PlayerModel.searchByIdUser(user.id)
-        const aceptedTournament = await TournamentModel.searchTournamentByCategoryPlayer(player.id_cat, id_tournament)
+        const aceptedTournament = await TournamentModel.searchTournamentByCategoryPlayer(
+            player.id_cat,
+            id_tournament,
+            user.gender
+        )
         if (!aceptedTournament) {
             return res.status(400).json({ message: 'El jugador no califica para ninguno de los torneos vigentes' })
         }

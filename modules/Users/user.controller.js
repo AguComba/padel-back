@@ -26,7 +26,6 @@ export const getAllUsers = async (req, res) => {
 export const getUserByDni = async (req, res) => {
     try {
         const { dni = false } = req.query
-        console.log(dni)
         if (!dni) {
             return res.status(400).json({ message: 'No se envio ningun dni' })
         }
