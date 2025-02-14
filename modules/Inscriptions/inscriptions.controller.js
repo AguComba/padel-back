@@ -69,13 +69,13 @@ export const createInscriptionCouple = async (req, res) => {
             return res.status(400).json({ message: 'Tu compañero no esta afiliado.' })
         }
 
-        if (!(await isValidPlayer(player2, validInscription.data.id_tournament))) {
+        if (!(await isValidPlayer(player2, validInscription.data.id_tournament, player2.gender))) {
             return res.status(401).json({
                 message: 'Tu compañero no califica para jugar ningun torneo vigente'
             })
         }
 
-        const statusInscriptionPlayer2 = await isInscriptedPlayer(player2, inscription.id_tournament, player2.gender)
+        const statusInscriptionPlayer2 = await isInscriptedPlayer(player2, inscription.id_tournament)
         if (statusInscriptionPlayer2) {
             return res.status(400).json({
                 message: `Su compañero ya se encuentra inscripto con ${
