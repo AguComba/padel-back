@@ -88,7 +88,7 @@ export const createInscriptionCouple = async (req, res) => {
         const categoryTournamentPlayer2 = await TournamentModel.searchTournamentByCategoryPlayer(
             player2.id_cat,
             validInscription.data.id_tournament,
-            player.gender
+            player2.gender
         )
 
         if (categoryTournamentPlayer1.id_category !== categoryTournamentPlayer2.id_category) {
