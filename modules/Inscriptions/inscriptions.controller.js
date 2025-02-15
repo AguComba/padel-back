@@ -4,8 +4,12 @@ import { PlayerModel } from '../Player/player.model.js'
 import { TournamentModel } from '../Tournaments/tournament.model.js'
 import { InscriptionModel } from './inscriptions.model.js'
 
-const isValidPlayer = async (player, id_tournament) => {
-    const aceptedTournament = await TournamentModel.searchTournamentByCategoryPlayer(player.id_cat, id_tournament)
+const isValidPlayer = async (player, id_tournament, gender) => {
+    const aceptedTournament = await TournamentModel.searchTournamentByCategoryPlayer(
+        player.id_cat,
+        id_tournament,
+        gender
+    )
     return !!aceptedTournament
 }
 
@@ -27,7 +31,7 @@ export const createInscriptionCouple = async (req, res) => {
             return res.status(401).json({ message: 'Usted no esta afilidado.' })
         }
 
-        if (!(await isValidPlayer(player, inscription.id_tournament))) {
+        if (!(await isValidPlayer(player, inscription.id_tournament, user.gender))) {
             return res.status(401).json({
                 message: 'Usted no califica para jugar ningun torneo vigente'
             })
@@ -50,7 +54,8 @@ export const createInscriptionCouple = async (req, res) => {
 
         const categoryTournamentPlayer1 = await TournamentModel.searchTournamentByCategoryPlayer(
             player.id_cat,
-            inscription.id_tournament
+            inscription.id_tournament,
+            user.gender
         )
 
         inscription.id_category = categoryTournamentPlayer1.id_category
@@ -64,7 +69,7 @@ export const createInscriptionCouple = async (req, res) => {
             return res.status(400).json({ message: 'Tu compañero no esta afiliado.' })
         }
 
-        if (!(await isValidPlayer(player2, validInscription.data.id_tournament))) {
+        if (!(await isValidPlayer(player2, validInscription.data.id_tournament, player2.gender))) {
             return res.status(401).json({
                 message: 'Tu compañero no califica para jugar ningun torneo vigente'
             })
@@ -82,7 +87,8 @@ export const createInscriptionCouple = async (req, res) => {
         }
         const categoryTournamentPlayer2 = await TournamentModel.searchTournamentByCategoryPlayer(
             player2.id_cat,
-            validInscription.data.id_tournament
+            validInscription.data.id_tournament,
+            player2.gender
         )
 
         if (categoryTournamentPlayer1.id_category !== categoryTournamentPlayer2.id_category) {
