@@ -64,3 +64,7 @@ export const UserDocument = z.object({
         .string({ message: 'Se debe enviar un número de documento' })
         .min(6, { message: 'El número de documento debe tener al menos 6 caracteres' })
 })
+
+export const UserEmail = z.object({
+    email: z.string({ message: 'El correo enviado no es valido' }).email({ message: 'Verifique el formato del correo' })
+})

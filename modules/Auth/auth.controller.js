@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
-import { UserLogin, UserRegister } from '../../schemas/User.schema.js'
+import crypto from 'crypto'
+import { UserEmail, UserLogin, UserRegister } from '../../schemas/User.schema.js'
 import { AuthModel } from './auth.model.js'
-import { Resend } from 'resend'
+import { sendEmailRecovery } from '../Mails/mails.controller.js'
 
 const createToken = (user) => {
     return jwt.sign(user, process.env.SECRET_JWT_KEY, {
@@ -43,28 +44,6 @@ const buildUserLoginResponse = (userResult) => {
         name: userResult.name,
         last_name: userResult.last_name,
         gender: userResult.gender
-    }
-}
-
-const resend = new Resend('re_Ti4c2orp_HUc5JymHW9jLz1w5ujZ18REb')
-export const sendEmailUser = async (req, res) => {
-    const { email } = req.body
-
-    try {
-        const { data, error } = await resend.emails.send({
-            from: 'APC  <noresponder@apcpadel.com.ar>',
-            to: [email],
-            subject: 'Activar cuenta de APC',
-            html: '<strong>Para activar la cuenta hace click aca</strong>'
-        })
-        if (error) {
-            console.log(error)
-            throw new Error(error.message)
-        }
-        res.status(200).json(data)
-        return data
-    } catch (error) {
-        res.status(500).json(error.message)
     }
 }
 
@@ -118,4 +97,48 @@ export const register = async (req, res) => {
 
 export const logout = (req, res) => {
     res.clearCookie('access_token').send('Logout')
+}
+
+export const recoveryPassword = async (req, res) => {
+    try {
+        const email = req.body
+
+        const emailValidate = UserEmail.safeParse(email)
+        if (!emailValidate.success) {
+            return res.status(400).json(emailValidate.error.errors)
+        }
+
+        const token = crypto.randomBytes(32).toString('hex')
+        const expiration = new Date(Date.now() + 3600000)
+
+        const result = await AuthModel.recoveryPassword(token, expiration, emailValidate.data.email)
+        if (result.affectedRows) {
+            sendEmailRecovery(emailValidate.data.email, token)
+        }
+
+        return res.json({ message: 'Se envio un correo para restablecer la contraseña.' })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Ocurrio un error inesperado' })
+    }
+}
+
+export const restorePassword = async (req, res) => {
+    try {
+        const { token = false } = req.query
+        if (!token) {
+            return res.status(400).json({ message: 'No se envio el token' })
+        }
+
+        const user = await AuthModel.searchUserByToken(token)
+        if (!user) {
+            return res.status(403).json({ message: 'Token invalido o expirado' })
+        }
+
+        const userResult = buildUserLoginResponse(user)
+        res.json(userResult)
+    } catch (error) {
+        console.error(error)
+        res.status(500).json('Ocurrio un error inesperado')
+    }
 }
