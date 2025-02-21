@@ -99,7 +99,10 @@ export class AuthModel {
     static async updatePassword(data) {
         try {
             const { id, password } = data
-            const updatedUser = await executeQuery('UPDATE users SET password = ? WHERE id = ?', [password, id])
+            const updatedUser = await executeQuery(
+                'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?',
+                [password, id]
+            )
             return updatedUser
         } catch (error) {
             throw new Error(error.message)

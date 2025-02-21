@@ -151,9 +151,9 @@ export const updatePassword = async (req, res) => {
             return res.status(400).json(validData.error.errors)
         }
 
-        validData.data.password = await AuthModel.hashPassword(userValidate.data.password)
+        validData.data.password = await AuthModel.hashPassword(validData.data.password)
 
-        const result = await AuthModel.updatePassword(validData)
+        const result = await AuthModel.updatePassword(validData.data)
         if (!result.affectedRows) {
             return res.status(500).json({ message: 'Ocurrio un error al actaulizar la contraseña' })
         }
