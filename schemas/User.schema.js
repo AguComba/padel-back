@@ -68,3 +68,13 @@ export const UserDocument = z.object({
 export const UserEmail = z.object({
     email: z.string({ message: 'El correo enviado no es valido' }).email({ message: 'Verifique el formato del correo' })
 })
+
+export const UpdatePassword = z.object({
+    id: z
+        .number({ message: 'Se debe enviar ID' })
+        .positive({ message: 'El ID debe ser positivo' })
+        .int({ message: 'El ID debe ser un número entero' }),
+    password: z
+        .string({ message: 'Se debe enviar una contraseña' })
+        .min(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
+})

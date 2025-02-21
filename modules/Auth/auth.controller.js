@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
-import { UserEmail, UserLogin, UserRegister } from '../../schemas/User.schema.js'
+import { UpdatePassword, UserEmail, UserLogin, UserRegister } from '../../schemas/User.schema.js'
 import { AuthModel } from './auth.model.js'
 import { sendEmailRecovery } from '../Mails/mails.controller.js'
 
@@ -140,5 +140,27 @@ export const restorePassword = async (req, res) => {
     } catch (error) {
         console.error(error)
         res.status(500).json('Ocurrio un error inesperado')
+    }
+}
+
+export const updatePassword = async (req, res) => {
+    try {
+        const updateData = req.body
+        const validData = UpdatePassword.safeParse(updateData)
+        if (!validData.success) {
+            return res.status(400).json(validData.error.errors)
+        }
+
+        validData.data.password = await AuthModel.hashPassword(userValidate.data.password)
+
+        const result = await AuthModel.updatePassword(validData)
+        if (!result.affectedRows) {
+            return res.status(500).json({ message: 'Ocurrio un error al actaulizar la contraseña' })
+        }
+
+        return res.status(200).json(result)
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json(error.message)
     }
 }

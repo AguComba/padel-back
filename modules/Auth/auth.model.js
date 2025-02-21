@@ -95,4 +95,14 @@ export class AuthModel {
         const hashedPassword = await bcrypt.hash(password, 10)
         return hashedPassword
     }
+
+    static async updatePassword(data) {
+        try {
+            const { id, password } = data
+            const updatedUser = await executeQuery('UPDATE users SET password = ? WHERE id = ?', [password, id])
+            return updatedUser
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
 }
