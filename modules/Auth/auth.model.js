@@ -66,9 +66,46 @@ export class AuthModel {
         }
     }
 
+    static async recoveryPassword(token, expiration, email) {
+        try {
+            const updatedUser = await executeQuery(
+                'UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE email = ?',
+                [token, expiration, email]
+            )
+            return updatedUser
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
+
+    static async searchUserByToken(token) {
+        try {
+            const user = await executeQuery(
+                "SELECT * FROM users WHERE reset_token = ? AND reset_token_expires > CONVERT_TZ(NOW(), '+00:00', '-03:00')",
+                token
+            )
+            return user.shift()
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
+
     static async hashPassword(password) {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10)
         return hashedPassword
+    }
+
+    static async updatePassword(data) {
+        try {
+            const { id, password } = data
+            const updatedUser = await executeQuery(
+                'UPDATE users SET password = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?',
+                [password, id]
+            )
+            return updatedUser
+        } catch (error) {
+            throw new Error(error.message)
+        }
     }
 }
