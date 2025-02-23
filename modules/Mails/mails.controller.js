@@ -24,7 +24,7 @@ export const sendEmailUser = async (req, res) => {
 }
 
 export const sendEmailRecovery = async (email, token) => {
-    const reset_link = ENVAIROMENT === 'local' ? `http://localhost:1420/auth/resetPassword?token=${token}` : FRONT_URL
+    const reset_link = ENVAIROMENT === 'local' ? `http://localhost:8080/cambiarclave/${token}` : `${FRONT_URL}cambiarclave/${token}`
     const { data, error } = await resend.emails.send({
         from: 'APC  <noresponder@apcpadel.com.ar>',
         to: [email],

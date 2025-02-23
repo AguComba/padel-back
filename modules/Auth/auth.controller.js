@@ -62,11 +62,10 @@ export const login = async (req, res) => {
         const userResponse = buildUserLoginResponse(userResult)
 
         const token = createToken(userResponse)
-
         res.cookie('access_token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            sameSite: process.env.SAMESITE || 'none',
             maxAge: 24 * 60 * 60 * 1000
         }).json(userResponse)
     } catch (error) {
