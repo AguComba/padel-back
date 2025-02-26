@@ -128,3 +128,20 @@ export const tournementAceptedByPlayer = async (req, res) => {
     return res.status(500).json({ message: 'Ocurrio un error inesperado' })
   }
 }
+
+export const getTournamentsByPlayer = async (req, res) => {
+  try {
+    const { user = false } = req.session
+    if (!isAcceptedUser(user)) {
+      return res.status(401).message('Usuario invalido')
+    }
+
+    const tournament = await TournamentModel.searchByPlayer(user.id)
+    if (!tournament) {
+      return res.status(404).json({ message: 'No se encontraron torneos vigentes' })
+    }
+    res.status(200).json({ tournament })
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+}

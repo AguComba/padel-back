@@ -152,4 +152,32 @@ export class TournamentModel {
       return tournament.shift()
     } catch (error) {}
   }
+
+  static async searchByPlayer(id_user) {
+    const rows = await executeQuery(
+      `SELECT 
+    t.name AS torneo, 
+    c2.name AS categoria, 
+    t.date_end, 
+    i.created_at AS "fecha inscripcion",
+    COALESCE(CONCAT(u_comp.name, ' ', u_comp.last_name), '') AS compañero
+FROM users u
+INNER JOIN players p ON p.id_user = u.id
+INNER JOIN couples c ON (c.id_player1 = p.id OR c.id_player2 = p.id)
+LEFT JOIN players p_comp ON (p_comp.id = c.id_player1 OR p_comp.id = c.id_player2) AND p_comp.id <> p.id
+LEFT JOIN users u_comp ON u_comp.id = p_comp.id_user
+INNER JOIN inscriptions i ON c.id = i.id_couple 
+INNER JOIN tournaments t ON t.id = i.id_tournament
+INNER JOIN tournament_categories tc ON tc.id_tournament = t.id 
+INNER JOIN category_restrictions cr ON tc.id_category = cr.id_category 
+INNER JOIN categories c2 ON cr.id_category = c2.id
+WHERE u.id = ?
+AND cr.id_authorized_category = p.id_category 
+AND cr.category_gender = t.gender 
+AND cr.authorized_category_gender = u.gender
+AND i.status_payment = 'PAID';`,
+      [id_user],
+    )
+    return rows
+  }
 }
