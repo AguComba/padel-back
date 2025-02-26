@@ -35,14 +35,24 @@ export class UserModel {
     return await handleTransaction(async (connection) => {
       const { id, name, last_name, cell_phone, id_club, possition, hand } = user
 
-      const userUpdate = { name, last_name, cell_phone }
-      const playerUpdate = { id_club, possition, hand }
+      // Filtrar solo los valores definidos (evita sobreescribir con null o undefined)
+      const userUpdate = Object.fromEntries(Object.entries({ name, last_name, cell_phone }).filter(([_, v]) => v !== undefined))
+      const playerUpdate = Object.fromEntries(Object.entries({ id_club, possition, hand }).filter(([_, v]) => v !== undefined))
 
-      const [rowsUser] = await connection.query(`UPDATE users SET ? WHERE id = ?`, [userUpdate, id])
+      let userUpdated = false
+      let playerUpdated = false
 
-      const [rowsPlayer] = await connection.query(`UPDATE players SET ? WHERE id_user =?`, [playerUpdate, id])
+      if (Object.keys(userUpdate).length > 0) {
+        const [rowsUser] = await connection.query(`UPDATE users SET ? WHERE id = ?`, [userUpdate, id])
+        userUpdated = rowsUser.affectedRows > 0
+      }
 
-      return rowsUser.affectedRows > 0 || rowsPlayer.affectedRows > 0
+      if (Object.keys(playerUpdate).length > 0) {
+        const [rowsPlayer] = await connection.query(`UPDATE players SET ? WHERE id_user = ?`, [playerUpdate, id])
+        playerUpdated = rowsPlayer.affectedRows > 0
+      }
+
+      return userUpdated || playerUpdated
     })
   }
 }

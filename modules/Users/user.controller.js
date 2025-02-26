@@ -46,6 +46,8 @@ export const getUserByDni = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const userData = req.body
+    userData.name = userData.name.toUpperCase()
+    userData.last_name = userData.last_name.toUpperCase()
     const { user = null } = req.session
     if (!isPlayer(user)) {
       return res.status(403).json({ message: 'You do not have permission to perform this action' })
