@@ -89,7 +89,6 @@ export const register = async (req, res) => {
         }
         res.status(200).json(userResult)
     } catch (error) {
-        console.log(sendEmailUser)
         res.status(500).send(error.message)
     }
 }
@@ -112,7 +111,7 @@ export const recoveryPassword = async (req, res) => {
 
         const result = await AuthModel.recoveryPassword(token, expiration, emailValidate.data.email)
         if (result.affectedRows) {
-            //sendEmailRecovery(emailValidate.data.email, token)
+            sendEmailRecovery(emailValidate.data.email, token)
         }
 
         return res.json({ message: 'Se envio un correo para restablecer la contraseña.' })
