@@ -112,7 +112,7 @@ export const recoveryPassword = async (req, res) => {
 
         const result = await AuthModel.recoveryPassword(token, expiration, emailValidate.data.email)
         if (result.affectedRows) {
-            sendEmailRecovery(emailValidate.data.email, token)
+            //sendEmailRecovery(emailValidate.data.email, token)
         }
 
         return res.json({ message: 'Se envio un correo para restablecer la contraseña.' })
