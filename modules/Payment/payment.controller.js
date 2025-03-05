@@ -29,7 +29,7 @@ export const payment = async (req, res) => {
     let montoTotal = monto
     const information = type + " APC"
     let recargo = 0
-    if(payment.type === "AFILIACION"){
+    if(payment.type === "INSCRIPCION"){
       recargo = monto * 0.1
       montoTotal += recargo
     }
