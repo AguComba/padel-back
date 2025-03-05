@@ -49,7 +49,7 @@ export const updateUser = async (req, res) => {
         userData.name = userData.name.toUpperCase()
         userData.last_name = userData.last_name.toUpperCase()
         const { user = null } = req.session
-        if (!isPlayer(user)) {
+        if (!isPlayer(user) && !isAdmin(user)) {
             return res.status(403).json({ message: 'You do not have permission to perform this action' })
         }
 
