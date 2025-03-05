@@ -18,8 +18,10 @@ export const payment = async (req, res) => {
     }
     const { amount, type } = payment
     const { encryptString } = pkg
-    const secret = "ASOCIACIONPADELCLUB_77b704d8-e759-4d64-bd27-48bf3d95052c"
-    const comercio = "8ff45ee1-1acc-4855-bcac-d277fc9a3ff7"
+    //const secret = "ASOCIACIONPADELCLUB_77b704d8-e759-4d64-bd27-48bf3d95052c"
+    const secret = "ASOCIACIONPADELCLUB_2ebe729a-13b7-414f-b9c9-fea0a392dac7"
+    //const comercio = "8ff45ee1-1acc-4855-bcac-d277fc9a3ff7"
+    const comercio = "4decf2db-3f8c-4060-b975-3b011f60e06d"
     const success = "https://apcpadel.com.ar/pagoexitoso"
     const failure = "https://apcpadel.com.ar/pagofallido"
     const sucursal = ""
