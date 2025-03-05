@@ -5,8 +5,9 @@ export class UserModel {
   static async searchAllUsers() {
     try {
       const users = await executeQuery(
-        `SELECT DISTINCT name, last_name, cell_phone, email, number_document, gender, type_user, afiliation FROM users u
+        `SELECT DISTINCT u.name, last_name, cell_phone, email, number_document, gender, type_user, afiliation, id_category, u.id, c.name as category FROM users u
                 LEFT JOIN players p ON p.id_user = u.id
+                LEFT JOIN categories c ON c.id = p.id_category
                 WHERE u.status = 1`,
       )
       return users
@@ -33,11 +34,11 @@ export class UserModel {
 
   static async updateUserAndPlayer(user) {
     return await handleTransaction(async (connection) => {
-      const { id, name, last_name, cell_phone, id_club, possition, hand } = user
+      const { id, name, last_name, cell_phone, id_club, possition, hand, id_category } = user
 
       // Filtrar solo los valores definidos (evita sobreescribir con null o undefined)
       const userUpdate = Object.fromEntries(Object.entries({ name, last_name, cell_phone }).filter(([_, v]) => v !== undefined))
-      const playerUpdate = Object.fromEntries(Object.entries({ id_club, possition, hand }).filter(([_, v]) => v !== undefined))
+      const playerUpdate = Object.fromEntries(Object.entries({ id_club, possition, hand, id_category }).filter(([_, v]) => v !== undefined))
 
       let userUpdated = false
       let playerUpdated = false

@@ -26,17 +26,24 @@ export const payment = async (req, res) => {
     const failure = "https://apcpadel.com.ar/pagofallido"
     const sucursal = ""
     const monto = parseInt(amount) * 100
+    let montoTotal = monto
     const information = type + " APC"
+    let recargo = 0
+    if(payment.type === "AFILIACION"){
+      recargo = monto * 0.1
+      montoTotal += recargo
+    }
     const data = {
       success: encryptString(success, secret),
       failure: encryptString(failure, secret),
       sucursal: encryptString(sucursal, secret),
-      monto_encrypt: encryptString(monto, secret),
+      monto_encrypt: encryptString(montoTotal, secret),
       monto,
       info: encryptString(information, secret),
       descripcion: information,
       comercio,
       transaction_id,
+      recargo
     }
     res.status(200).json(data)
   } catch (error) {
