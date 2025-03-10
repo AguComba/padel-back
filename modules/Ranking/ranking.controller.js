@@ -44,7 +44,7 @@ export const importRanking = async (req, res) => {
         }
 
         const __dirname = path.resolve()
-        const excel = await XlsxPopulate.fromFileAsync(`${__dirname}/archivos/IMPAR-CABALLEROS-7MA.xlsx`)
+        const excel = await XlsxPopulate.fromFileAsync(`${__dirname}/archivos/IMPAR CABALLEROS - SUMA 6.xlsx`)
         const values = excel.sheet('Jugadores').usedRange().value()
         const { id = false, puntos = false, estado = false } = getIndexColumns(values[0])
         const { gender = false, year = false, categoria = false } = req.body
@@ -81,7 +81,8 @@ export const importRanking = async (req, res) => {
 
         const resultDB = await RankingModel.import(dataToInsert)
 
-        return res.status(200).json(resultDB)
+        console.log(resultDB)
+        return res.status(200).json({ message: 'Ranking importado con exito' })
     } catch (error) {
         return res.status(400).json({ message: error.message })
     }

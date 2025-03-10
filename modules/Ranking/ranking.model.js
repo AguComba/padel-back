@@ -7,13 +7,13 @@ export class RankingModel {
             const currentYear = new Date().getFullYear()
             const queryParams = []
             let query = `
-            SELECT r.points, u.name, u.last_name, cat.name as category, c.name as club 
+            SELECT r.points, u.name, u.last_name, cat.name as category, c.name as club, r.status
             FROM ranking r
             INNER JOIN players p ON r.id_player = p.id
             INNER JOIN clubs c ON p.id_club = c.id
             INNER JOIN users u ON p.id_user = u.id
-            INNER JOIN categories cat ON p.id_category = cat.id
-            WHERE 1=1` // 1=1 permite agregar condiciones sin preocuparse por la sintaxis
+            INNER JOIN categories cat ON r.id_category = cat.id
+            WHERE true=true` // 1=1 permite agregar condiciones sin preocuparse por la sintaxis
 
             // Agregar año
             query += ' AND r.year = ?'
@@ -21,13 +21,13 @@ export class RankingModel {
 
             // Agregar filtro por categoría si está presente
             if (cat) {
-                query += ' AND cat.id = ?'
+                query += ' AND r.id_category = ?'
                 queryParams.push(cat)
             }
 
             // Agregar filtro por género si está presente
             if (gen) {
-                query += ' AND p.gender = ?'
+                query += ' AND r.gender = ?'
                 queryParams.push(gen)
             }
 
