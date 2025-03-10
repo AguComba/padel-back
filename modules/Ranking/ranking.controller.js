@@ -10,7 +10,12 @@ export const getRanking = async (req, res) => {
             return res.status(401).json({ message: 'No tienes permisos para acceder a este recurso' })
         }
 
-        const ranking = await RankingModel.search()
+        // Extraer los parámetros de la query
+        const { cat, gen, year } = req.query
+
+        // Llamar al modelo pasando los parámetros
+        const ranking = await RankingModel.search(cat || null, gen || null, year ? parseInt(year, 10) : null)
+
         res.status(200).json(ranking)
     } catch (error) {
         res.status(400).json({ message: error.message })
@@ -18,11 +23,17 @@ export const getRanking = async (req, res) => {
 }
 
 const getIndexColumns = (columns) => {
-    const claves = ['id', 'categoria', 'puntos', 'estado']
-    return claves.reduce((indices, clave) => {
-        indices[clave] = columns.findIndex((col) => col.toLowerCase() === clave.toLowerCase())
-        return indices
-    }, {})
+    try {
+        const claves = ['id', 'categoria', 'puntos', 'estado']
+        return claves.reduce((indices, clave) => {
+            indices[clave] = columns.findIndex((col) => col.toLowerCase() === clave.toLowerCase())
+            return indices
+        }, {})
+    } catch (error) {
+        throw new Error(
+            "Ocurrio un error al leer el nombre de las columnas. Se espera 'id', 'categoria', 'puntos', 'estado'"
+        )
+    }
 }
 
 export const importRanking = async (req, res) => {
@@ -33,11 +44,18 @@ export const importRanking = async (req, res) => {
         }
 
         const __dirname = path.resolve()
-        const excel = await XlsxPopulate.fromFileAsync(`${__dirname}/archivos/IMPAR-CABALLEROS-5TA.xlsx`)
+        const excel = await XlsxPopulate.fromFileAsync(`${__dirname}/archivos/IMPAR-CABALLEROS-7MA.xlsx`)
         const values = excel.sheet('Jugadores').usedRange().value()
-        const { id, puntos, estado } = getIndexColumns(values[0])
+        const { id = false, puntos = false, estado = false } = getIndexColumns(values[0])
         const { gender = false, year = false, categoria = false } = req.body
 
+        if (id === false || !puntos || !estado) {
+            return res
+                .status(400)
+                .json(
+                    "Ocurrio un error al leer el nombre de las columnas. Se espera 'id', 'categoria', 'puntos', 'estado'"
+                )
+        }
         if (!['F', 'X'].includes(gender)) {
             return res.status(400).json('Genero invalido')
         }

@@ -25,8 +25,9 @@
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.3",
-    "resend": "^4.1.2",
     "pluspagos-aes-encryption": "^1.0.0",
+    "resend": "^4.1.2",
+    "xlsx-populate": "^1.21.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

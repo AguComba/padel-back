@@ -6,6 +6,7 @@ CREATE TABLE ranking(
     id_category INT NOT NULL,
     status TINYINT(1) NOT NULL DEFAULT 1,
     year INT NOT NULL,
+    gender ENUM('F', 'X'),
     user_updated INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
