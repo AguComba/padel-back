@@ -1,3 +1,4 @@
+import { isAdmin } from '../../middlewares/permisions.js'
 import { CouplesModel } from '../Couples/couples.model.js'
 // import { parejas, parejas4, parejasSuma6 } from './couples.js'
 
@@ -175,10 +176,14 @@ function generateMatches(zone) {
 }
 
 export const generateByCategory = async (req, res) => {
-    const { id_tournament, id_category, gender } = req.body
-    const inscriptions = await CouplesModel.searchCouplesByTournamentAndCategory(id_tournament, id_category, gender)
-    //name puntos
     try {
+        const { user = false } = req.session
+        if (!isAdmin(user)) {
+            return res.status(403).json({ message: 'No tiene permisos para acceder a este recurso' })
+        }
+
+        const { id_tournament, id_category, gender } = req.body
+        const inscriptions = await CouplesModel.searchCouplesByTournamentAndCategory(id_tournament, id_category, gender)
         const zones = await generarZonas(inscriptions)
         return res.status(200).json({ count: inscriptions.length, zones: zones })
     } catch (error) {
