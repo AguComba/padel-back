@@ -18,23 +18,32 @@ export const payment = async (req, res) => {
     }
     const { amount, type } = payment
     const { encryptString } = pkg
-    const secret = "ASOCIACIONPADELCLUB_77b704d8-e759-4d64-bd27-48bf3d95052c"
-    const comercio = "8ff45ee1-1acc-4855-bcac-d277fc9a3ff7"
+    //const secret = "ASOCIACIONPADELCLUB_77b704d8-e759-4d64-bd27-48bf3d95052c"
+    const secret = "ASOCIACIONPADELCLUB_2ebe729a-13b7-414f-b9c9-fea0a392dac7"
+    //const comercio = "8ff45ee1-1acc-4855-bcac-d277fc9a3ff7"
+    const comercio = "4decf2db-3f8c-4060-b975-3b011f60e06d"
     const success = "https://apcpadel.com.ar/pagoexitoso"
     const failure = "https://apcpadel.com.ar/pagofallido"
     const sucursal = ""
     const monto = parseInt(amount) * 100
+    let montoTotal = monto
     const information = type + " APC"
+    let recargo = 0
+    if(payment.type === "INSCRIPCION"){
+      recargo = monto * 0.1
+      montoTotal += recargo
+    }
     const data = {
       success: encryptString(success, secret),
       failure: encryptString(failure, secret),
       sucursal: encryptString(sucursal, secret),
-      monto_encrypt: encryptString(monto, secret),
+      monto_encrypt: encryptString(montoTotal, secret),
       monto,
       info: encryptString(information, secret),
       descripcion: information,
       comercio,
       transaction_id,
+      recargo
     }
     res.status(200).json(data)
   } catch (error) {
