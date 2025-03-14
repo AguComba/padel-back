@@ -6,7 +6,11 @@ export class CouplesModel {
             `SELECT 
             CONCAT(u1.name, " ", u1.last_name) AS jugador1, 
             CONCAT(u2.name, " ", u2.last_name) AS jugador2,
-            COALESCE(r1.points, 0) + COALESCE(r2.points, 0) AS puntos_totales
+            COALESCE(r1.points, 0) + COALESCE(r2.points, 0) AS puntos_totales,
+            i.observation,
+                (SELECT GROUP_CONCAT(d.availablity_days ORDER BY d.availablity_days SEPARATOR ', ')
+                FROM couple_game_days d 
+                WHERE d.id_inscription = i.id) AS dias
         FROM inscriptions i
         INNER JOIN couples c ON i.id_couple = c.id
         INNER JOIN players p1 ON c.id_player1 = p1.id
