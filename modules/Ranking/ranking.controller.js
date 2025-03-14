@@ -5,11 +5,6 @@ import path from 'path'
 
 export const getRanking = async (req, res) => {
     try {
-        const { user = false } = req.session
-        if (!isAcceptedUser(user)) {
-            return res.status(401).json({ message: 'No tienes permisos para acceder a este recurso' })
-        }
-
         // Extraer los parámetros de la query
         const { cat, gen, year } = req.query
 
