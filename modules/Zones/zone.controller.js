@@ -185,7 +185,7 @@ export const generateByCategory = async (req, res) => {
         const { id_tournament, id_category, gender } = req.body
         const inscriptions = await CouplesModel.searchCouplesByTournamentAndCategory(id_tournament, id_category, gender)
         const zones = await generarZonas(inscriptions)
-        return res.status(200).json({ count: inscriptions.length, zones: zones })
+        return res.status(200).json({ count: inscriptions.length, zones: zones, couples: inscriptions })
     } catch (error) {
         return res.status(400).json({
             message: error.message
