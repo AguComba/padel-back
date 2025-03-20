@@ -1,5 +1,6 @@
 import { isAdmin } from '../../middlewares/permisions.js'
 import { CouplesModel } from '../Couples/couples.model.js'
+import { ZonesModel } from './zone.model.js'
 // import { parejas, parejas4, parejasSuma6 } from './couples.js'
 
 function calcularZonas(parejas) {
@@ -192,4 +193,35 @@ export const generateByCategory = async (req, res) => {
         })
     }
 }
-//console.log(JSON.stringify(zonas, null, 2))
+
+export const getZones = async (req, res) => {
+    try {
+        const { user = false } = req.session
+        if(!user){
+            return res.status(403).json({ message: 'No tiene permisos para acceder a este recurso' })
+        }
+        const { tournament, category } = req.query
+        const zones = await ZonesModel.getZones(tournament, category)
+        return res.status(200).json(zones)
+    } catch (error) {
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
+export const saveZones = async (req, res) => {
+    try {
+        const { user = false } = req.session
+        if (!isAdmin(user)) {
+            return res.status(403).json({ message: 'No tiene permisos para acceder a este recurso' })
+        }
+        const data = req.body
+        await ZonesModel.saveZones(data)
+        return res.status(200).json({ message: 'Zonas guardadas correctamente' })
+    } catch (error) {
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+}

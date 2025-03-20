@@ -4,8 +4,11 @@ export class CouplesModel {
     static async searchCouplesByTournamentAndCategory(id_tournament, category, gender) {
         const couples = await executeQuery(
             `SELECT 
+            id_couple,
             CONCAT(u1.name, " ", u1.last_name) AS jugador1, 
             CONCAT(u2.name, " ", u2.last_name) AS jugador2,
+            p1.id AS id_jugador1,
+            p2.id AS id_jugador2,
             COALESCE(r1.points, 0) + COALESCE(r2.points, 0) AS puntos_totales,
             i.observation,
                 (SELECT GROUP_CONCAT(d.availablity_days ORDER BY d.availablity_days SEPARATOR ', ')
