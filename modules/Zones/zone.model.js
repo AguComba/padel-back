@@ -53,4 +53,9 @@ export class ZonesModel {
     await executeQuery(query, [id_tournament, id_category])
     return true
   }
+  static async searchGeneratedZones(id_tournament, id_category) {
+    const query = `SELECT * FROM zones_matches WHERE id_tournament = ? AND id_category = ?`
+    const zones = await executeQuery(query, [id_tournament, id_category])
+    return zones
+  }
 }
