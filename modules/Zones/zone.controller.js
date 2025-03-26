@@ -1,5 +1,6 @@
 import { isAdmin } from '../../middlewares/permisions.js'
 import { CouplesModel } from '../Couples/couples.model.js'
+import { ZonesModel } from './zone.model.js'
 // import { parejas, parejas4, parejasSuma6 } from './couples.js'
 
 function calcularZonas(parejas) {
@@ -65,8 +66,9 @@ async function generarZonas(parejas) {
     const { zonasDe3, zonasDe4, totalZonas } = calcularZonas(parejas.length)
 
     // Ordenar parejas de mayor a menor
-    orderCouples(parejas)
-
+    if(parejas[0].ranked === 1){
+        orderCouples(parejas)
+    }
     // Separo las parejas cabeza de serie
     const cabezaDeSerie = searchTopCouples(parejas, totalZonas)
     const segundasParejas = searchSecondCouples(parejas, totalZonas)
@@ -119,6 +121,38 @@ async function generarZonas(parejas) {
         }
     }
     return zonas
+}
+
+async function ordenarZonasGeneradas(generateds, inscriptions) {
+    const zones = {}
+    for(let i = 0; i < generateds.length; i++){
+        const zone = generateds[i].zone
+        if(!zones[zone]){
+            zones[zone] = {
+                nombre: zone,
+                parejas: [],
+                partidos: []
+            }
+        }
+        const couple1 = inscriptions.find(couple => couple.id_couple === generateds[i].id_couple1 && generateds[i].match === 1)
+        const couple2 = inscriptions.find(couple => couple.id_couple === generateds[i].id_couple1 && generateds[i].match === 2)
+        const couple3 = inscriptions.find(couple => couple.id_couple === generateds[i].id_couple2 && generateds[i].match === 2)
+        const couple4 = inscriptions.find(couple => couple.id_couple === generateds[i].id_couple2 && generateds[i].match === 1)
+        if(couple1){
+            zones[zone].parejas[0] = couple1
+        }
+        if(couple2){
+            zones[zone].parejas[1] = couple2
+        }
+        if(couple3){
+            zones[zone].parejas[3] = zones[zone].parejas[2]
+            zones[zone].parejas[2] = couple3
+        }
+        if(couple4){
+            zones[zone].parejas[2] = couple4
+        }
+    }
+    return Object.values(zones)
 }
 
 //! SIN MODIFICACIONES
@@ -184,7 +218,8 @@ export const generateByCategory = async (req, res) => {
 
         const { id_tournament, id_category, gender } = req.body
         const inscriptions = await CouplesModel.searchCouplesByTournamentAndCategory(id_tournament, id_category, gender)
-        const zones = await generarZonas(inscriptions)
+        const generateds = await ZonesModel.searchGeneratedZones(id_tournament, id_category)
+        const zones = generateds.length > 0 ? await ordenarZonasGeneradas(generateds, inscriptions) : await generarZonas(inscriptions)
         return res.status(200).json({ count: inscriptions.length, zones: zones, couples: inscriptions })
     } catch (error) {
         return res.status(400).json({
@@ -192,4 +227,35 @@ export const generateByCategory = async (req, res) => {
         })
     }
 }
-//console.log(JSON.stringify(zonas, null, 2))
+
+export const getZones = async (req, res) => {
+    try {
+        const { user = false } = req.session
+        if(!user){
+            return res.status(403).json({ message: 'No tiene permisos para acceder a este recurso' })
+        }
+        const { tournament, category } = req.query
+        const zones = await ZonesModel.getZones(tournament, category)
+        return res.status(200).json(zones)
+    } catch (error) {
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
+export const saveZones = async (req, res) => {
+    try {
+        const { user = false } = req.session
+        if (!isAdmin(user)) {
+            return res.status(403).json({ message: 'No tiene permisos para acceder a este recurso' })
+        }
+        const data = req.body
+        await ZonesModel.saveZones(data)
+        return res.status(200).json({ message: 'Zonas guardadas correctamente' })
+    } catch (error) {
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+}
