@@ -39,10 +39,10 @@ export const importRanking = async (req, res) => {
         }
 
         const __dirname = path.resolve()
-        const excel = await XlsxPopulate.fromFileAsync(`${__dirname}/archivos/IMPAR CABALLEROS - SUMA 6.xlsx`)
+        const excel = await XlsxPopulate.fromFileAsync(`${__dirname}/archivos/7ma cab 2da fecha.xlsx`)
         const values = excel.sheet('Jugadores').usedRange().value()
         const { id = false, puntos = false, estado = false } = getIndexColumns(values[0])
-        const { gender = false, year = false, categoria = false } = req.body
+        const { gender = false, year = false, categoria = false, id_tournament = false } = req.body
 
         if (id === false || !puntos || !estado) {
             return res
@@ -61,6 +61,10 @@ export const importRanking = async (req, res) => {
         if (!year) {
             return res.status(400).json('Debe pasar el año')
         }
+
+        if (!id_tournament) {
+            return res.status(400).json('Debe pasar el torneo')
+        }
         // Comienzo a recorrer values despues de la primer fila
         // id player, puntos, federacion, categoria, estado, año, genero
         const dataToInsert = values.slice(1).map((row) => ({
@@ -71,7 +75,8 @@ export const importRanking = async (req, res) => {
             status: row[estado] === 'ASCENDIDO' ? 2 : 1,
             year: year,
             gender: gender,
-            user_updated: user.id
+            user_updated: user.id,
+            id_tournament: id_tournament
         }))
 
         const resultDB = await RankingModel.import(dataToInsert)
@@ -80,12 +85,5 @@ export const importRanking = async (req, res) => {
         return res.status(200).json({ message: 'Ranking importado con exito' })
     } catch (error) {
         return res.status(400).json({ message: error.message })
-    }
-}
-
-export const createRanking = async (req, res) => {
-    try {
-    } catch (error) {
-        res.status(400).json({ message: error.message })
     }
 }
