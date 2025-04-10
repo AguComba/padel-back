@@ -130,6 +130,9 @@ async function ordenarZonasGeneradas(generateds, inscriptions) {
         if (!zones[zone]) {
             zones[zone] = {
                 nombre: zone,
+                club: generateds[i].id_club,
+                hour: generateds[i].hour,
+                day: generateds[i].day,
                 parejas: [],
                 partidos: []
             }
@@ -226,6 +229,7 @@ export const generateByCategory = async (req, res) => {
 
         const { id_tournament, id_category, gender } = req.body
         const inscriptions = await CouplesModel.searchCouplesByTournamentAndCategory(id_tournament, id_category, gender)
+        console.log(inscriptions)
         const generateds = await ZonesModel.searchGeneratedZones(id_tournament, id_category)
         const zones =
             generateds.length > 0
