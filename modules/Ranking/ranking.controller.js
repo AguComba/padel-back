@@ -1,19 +1,30 @@
 import XlsxPopulate from 'xlsx-populate'
-import { isAcceptedUser, isAdmin, isPlayer } from '../../middlewares/permisions.js'
-import { RankingModel } from './ranking.model.js'
+import {isAcceptedUser, isAdmin, isPlayer} from '../../middlewares/permisions.js'
+import {RankingModel} from './ranking.model.js'
 import path from 'path'
 
 export const getRanking = async (req, res) => {
     try {
         // Extraer los parámetros de la query
-        const { cat, gen, year } = req.query
+        const {cat, gen, year} = req.query
 
         // Llamar al modelo pasando los parámetros
         const ranking = await RankingModel.search(cat || null, gen || null, year ? parseInt(year, 10) : null)
 
         res.status(200).json(ranking)
     } catch (error) {
-        res.status(400).json({ message: error.message })
+        res.status(400).json({message: error.message})
+    }
+}
+
+export const getRankingByPlayer = async (req, res) => {
+    try {
+        const {id, cat, gen, year} = req.query
+
+        const ranking = await RankingModel.searchByPlayer(id, cat || null, gen || null, year ? parseInt(year, 10) : null)
+        return res.status(200).json(ranking)
+    } catch (error) {
+        return res.status(400).json({message: error.message})
     }
 }
 
@@ -33,7 +44,7 @@ const getIndexColumns = (columns) => {
 
 export const importRanking = async (req, res) => {
     try {
-        const { user = false } = req.session
+        const {user = false} = req.session
         if (!isAdmin(user)) {
             return res.status(403).json('No esta autorizado para esto.')
         }
@@ -41,8 +52,8 @@ export const importRanking = async (req, res) => {
         const __dirname = path.resolve()
         const excel = await XlsxPopulate.fromFileAsync(`${__dirname}/archivos/7ma cab 2da fecha.xlsx`)
         const values = excel.sheet('Jugadores').usedRange().value()
-        const { id = false, puntos = false, estado = false } = getIndexColumns(values[0])
-        const { gender = false, year = false, categoria = false, id_tournament = false } = req.body
+        const {id = false, puntos = false, estado = false} = getIndexColumns(values[0])
+        const {gender = false, year = false, categoria = false, id_tournament = false} = req.body
 
         if (id === false || !puntos || !estado) {
             return res
@@ -82,8 +93,8 @@ export const importRanking = async (req, res) => {
         const resultDB = await RankingModel.import(dataToInsert)
 
         console.log(resultDB)
-        return res.status(200).json({ message: 'Ranking importado con exito' })
+        return res.status(200).json({message: 'Ranking importado con exito'})
     } catch (error) {
-        return res.status(400).json({ message: error.message })
+        return res.status(400).json({message: error.message})
     }
 }

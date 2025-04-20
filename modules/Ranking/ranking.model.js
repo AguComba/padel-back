@@ -1,5 +1,5 @@
-import { executeQuery } from '../../utils/executeQuery.js'
-import { handleTransaction } from '../../utils/transactions.js'
+import {executeQuery} from '../../utils/executeQuery.js'
+import {handleTransaction} from '../../utils/transactions.js'
 
 export class RankingModel {
     static async search(cat, gen, year) {
@@ -35,6 +35,49 @@ export class RankingModel {
             query += ' ORDER BY r.points DESC'
 
             const rows = await executeQuery(query, queryParams)
+            return rows
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    static async searchByPlayer(id, cat, gen, year) {
+        try {
+            const currentYear = new Date().getFullYear()
+            const yearParam = year || currentYear
+            const params = [cat, id, id, gen, yearParam, cat]
+            let query = `SELECT 
+                t.id AS tournament_id,
+                t.name AS tournament_name,
+                t.date_start,
+                COALESCE(MAX(CASE 
+                    WHEN c.id IS NOT NULL THEN c.points
+                    ELSE 0 
+                END), 0) AS player_points,
+                MAX(CASE 
+                    WHEN c.id IS NOT NULL THEN true 
+                    ELSE false 
+                END) AS participated
+                FROM tournaments t
+                LEFT JOIN inscriptions i 
+                ON i.id_tournament = t.id 
+                AND i.status = 1
+                AND i.status_payment = 'paid'
+                AND i.id_category = ?
+                LEFT JOIN couples c 
+                ON c.id = i.id_couple 
+                AND (c.id_player1 = ? OR c.id_player2 = ?)
+                WHERE t.gender = ? 
+                AND t.ranked = 1
+                AND YEAR(t.date_start) = ?
+                AND EXISTS (
+                    SELECT 1 
+                    FROM inscriptions ix 
+                    WHERE ix.id_tournament = t.id 
+                    AND ix.id_category = ?
+                )
+                GROUP BY t.id, t.name, t.date_start;`
+            const rows = await executeQuery(query, params)
             return rows
         } catch (error) {
             throw new Error(error)
