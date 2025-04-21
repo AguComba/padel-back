@@ -95,7 +95,7 @@ export const paymentTask = async (req, res) => {
     const yesterday = new Date(today)
     yesterday.setDate(today.getDate() - 1)
     const formattedDate = formatDate(yesterday)
-    const data = await axios.get(`https://botonpp.asjservicios.com.ar:8082/v1/transactions?FechaDesde=${formattedDate}&FechaHasta=${formattedDate}&EstadoTransaccion=3`, {
+    const {data} = await axios.get(`https://botonpp.asjservicios.com.ar:8082/v1/transactions?FechaDesde=${formattedDate}&FechaHasta=${formattedDate}&EstadoTransaccion=3`, {
       headers: {
         Authorization: header
       }})
