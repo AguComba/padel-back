@@ -31,21 +31,6 @@ export class PlayerModel {
             throw new Error(error)
         }
     }
-    static async searchByIdUserAfiliated(id) {
-        try {
-            const rows = await executeQuery(
-                `SELECT p.id, p.possition, p.hand, cat.id as id_cat,cat.name as category, c.id as id_club, c.name as club, u.name, u.last_name FROM players p
-         inner join categories cat on p.id_category = cat.id 
-         inner join users u on p.id_user = u.id 
-         inner join clubs c on p.id_club = c.id
-         where u.id = ? AND afiliation = 1`,
-                [id]
-            )
-            return rows.shift()
-        } catch (error) {
-            throw new Error(error)
-        }
-    }
 
     static async searchByIdUser(id) {
         try {
@@ -55,6 +40,22 @@ export class PlayerModel {
          inner join users u on p.id_user = u.id 
          inner join clubs c on p.id_club = c.id
          where u.id = ?`,
+                [id]
+            )
+            return rows.shift()
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    static async searchByIdUserAfiliated(id) {
+        try {
+            const rows = await executeQuery(
+                `SELECT p.id, p.possition, p.hand, cat.id as id_cat,cat.name as category, c.id as id_club, c.name as club, u.name, u.last_name FROM players p
+         inner join categories cat on p.id_category = cat.id 
+         inner join users u on p.id_user = u.id 
+         inner join clubs c on p.id_club = c.id
+         where u.id = ? AND afiliation = 1`,
                 [id]
             )
             return rows.shift()
@@ -103,6 +104,18 @@ export class PlayerModel {
             )
             const newPlayer = await executeQuery('SELECT * FROM players WHERE id = ?', [rows.insertId])
             return newPlayer.shift()
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    static async update(id, player) {
+        try {
+            const rows = await executeQuery(
+                `UPDATE players SET id_category = ?, possition = ?, hand = ?, afiliation = ?, id_club = ? WHERE id_user = ?`,
+                [player.id_cat, player.possition, player.hand, player.afiliation, player.id_club, id] 
+            ) 
+            return rows.affectedRows > 0 ? true : false
         } catch (error) {
             throw new Error(error)
         }
