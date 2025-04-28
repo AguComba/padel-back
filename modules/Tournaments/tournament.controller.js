@@ -1,9 +1,9 @@
-import { hasRole, isAcceptedUser, isPlayer } from '../../middlewares/permisions.js'
-import { TournamentSchema } from '../../schemas/Tournament.schema.js'
-import { InscriptionModel } from '../Inscriptions/inscriptions.model.js'
-import { PlayerModel } from '../Player/player.model.js'
-import { TournamentModel } from './tournament.model.js'
-import { parse } from '@formkit/tempo'
+import {hasRole, isAcceptedUser, isPlayer} from '../../middlewares/permisions.js'
+import {TournamentSchema} from '../../schemas/Tournament.schema.js'
+import {InscriptionModel} from '../Inscriptions/inscriptions.model.js'
+import {PlayerModel} from '../Player/player.model.js'
+import {TournamentModel} from './tournament.model.js'
+import {parse} from '@formkit/tempo'
 
 const parseDateTempo = (dateString, time = false) => {
   let data = null
@@ -17,10 +17,10 @@ const parseDateTempo = (dateString, time = false) => {
 
 export const createTournament = async (req, res) => {
   try {
-    const { user = false } = req.session
+    const {user = false} = req.session
     const tournament = req.body
     if (!hasRole(user, ['admin', 'superAdmin'])) {
-      return res.status(401).json({ message: 'No tienes permisos para acceder a este recurso' })
+      return res.status(401).json({message: 'No tienes permisos para acceder a este recurso'})
     }
 
     tournament.date_start = parseDateTempo(tournament.date_start)
@@ -41,23 +41,26 @@ export const createTournament = async (req, res) => {
 
 export const getTournaments = async (req, res) => {
   try {
-    const { user = false } = req.session
+    const {user = false} = req.session
     if (!isAcceptedUser(user)) {
       return res.status(401).message('Usuario invalido')
     }
 
     const tournament = await TournamentModel.search()
     if (!tournament) {
-      return res.status(404).json({ message: 'No se encontraron torneos vigentes' })
+      return res.status(404).json({message: 'No se encontraron torneos vigentes'})
     }
+
     const tournamentsWithCategories = await Promise.all(
       tournament.map(async (item) => {
         const categories = await getCatigoriesByTournament(item.id)
+        const inscription = user ? await TournamentModel.isUserInscribed(item.id, user.id) : false
+        item.inscription = inscription
         item.categories = categories
         return item
       }),
     )
-    res.status(200).json({ tournament: tournamentsWithCategories })
+    res.status(200).json({tournament: tournamentsWithCategories})
   } catch (error) {
     res.status(500).json(error.message)
   }
@@ -65,14 +68,14 @@ export const getTournaments = async (req, res) => {
 
 export const getAllTournaments = async (req, res) => {
   try {
-    const { user = false } = req.session
+    const {user = false} = req.session
     if (!isAcceptedUser(user)) {
       return res.status(401).message('Usuario invalido')
     }
 
     const tournament = await TournamentModel.searchAll()
     if (!tournament) {
-      return res.status(404).json({ message: 'No se encontraron torneos vigentes' })
+      return res.status(404).json({message: 'No se encontraron torneos vigentes'})
     }
     const tournamentsWithCategories = await Promise.all(
       tournament.map(async (item) => {
@@ -81,7 +84,7 @@ export const getAllTournaments = async (req, res) => {
         return item
       }),
     )
-    res.status(200).json({ tournament: tournamentsWithCategories })
+    res.status(200).json({tournament: tournamentsWithCategories})
   } catch (error) {
     res.status(500).json(error.message)
   }
@@ -101,23 +104,23 @@ const getCatigoriesByTournament = async (tournament_id) => {
 
 export const tournementAceptedByPlayer = async (req, res) => {
   try {
-    const { id_tournament = false } = req.body
-    const { user = null } = req.session
+    const {id_tournament = false} = req.body
+    const {user = null} = req.session
     if (!hasRole(user, ['player', 'admin', 'superAdmin'])) {
-      return res.status(403).json({ message: 'You do not have permission to perform this action' })
+      return res.status(403).json({message: 'You do not have permission to perform this action'})
     }
     if (!id_tournament) {
-      return res.status(400).json({ message: 'No se recibio el id del torneo.' })
+      return res.status(400).json({message: 'No se recibio el id del torneo.'})
     }
 
     if (!isPlayer(user)) {
-      return res.status(403).json({ message: 'El usuario debe ser un jugador para poder inscribirse' })
+      return res.status(403).json({message: 'El usuario debe ser un jugador para poder inscribirse'})
     }
 
     const player = await PlayerModel.searchByIdUser(user.id)
     const aceptedTournament = await TournamentModel.searchTournamentByCategoryPlayer(player.id_cat, id_tournament, user.gender)
     if (!aceptedTournament) {
-      return res.status(400).json({ message: 'El jugador no califica para ninguno de los torneos vigentes' })
+      return res.status(400).json({message: 'El jugador no califica para ninguno de los torneos vigentes'})
     }
     const inscriptionsGenerated = await InscriptionModel.searchInscriptionByCategoryAndTournament(aceptedTournament.id, aceptedTournament.id_category)
     aceptedTournament.couples_inscripted = inscriptionsGenerated.couples_inscripted
@@ -125,22 +128,22 @@ export const tournementAceptedByPlayer = async (req, res) => {
     return res.status(200).json(aceptedTournament)
   } catch (error) {
     console.log(error)
-    return res.status(500).json({ message: 'Ocurrio un error inesperado' })
+    return res.status(500).json({message: 'Ocurrio un error inesperado'})
   }
 }
 
 export const getTournamentsByPlayer = async (req, res) => {
   try {
-    const { user = false } = req.session
+    const {user = false} = req.session
     if (!isAcceptedUser(user)) {
       return res.status(401).message('Usuario invalido')
     }
 
     const tournament = await TournamentModel.searchByPlayer(user.id)
     if (!tournament) {
-      return res.status(404).json({ message: 'No se encontraron torneos vigentes' })
+      return res.status(404).json({message: 'No se encontraron torneos jugados'})
     }
-    res.status(200).json({ tournament })
+    res.status(200).json({tournament})
   } catch (error) {
     res.status(500).json(error.message)
   }
