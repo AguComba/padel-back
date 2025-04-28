@@ -38,6 +38,9 @@ app.use('/tournaments', tournamentRouter)
 app.use('/inscriptions', inscriptionsRouter)
 app.use('/users', userRoutes)
 app.use('/zones', zonesRouter)
+app.use('*', (req, res) => {
+    res.status(404).json({ message: 'Not found' }) 
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running on PORT: ${PORT}`)

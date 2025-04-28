@@ -1,11 +1,11 @@
-import { executeQuery } from '../../utils/executeQuery.js'
-import { handleTransaction } from '../../utils/transactions.js'
+import {executeQuery} from '../../utils/executeQuery.js'
+import {handleTransaction} from '../../utils/transactions.js'
 
 export class TournamentModel {
 	static async create(tournament) {
 		return await handleTransaction(async (connection) => {
 			// Desestructurar categorías del objeto torneo.
-			const { categories, clubs, ...tournamentData } = tournament
+			const {categories, clubs, ...tournamentData} = tournament
 
 			// Crear el torneo.
 			const [rows] = await connection.query(
@@ -57,7 +57,7 @@ export class TournamentModel {
 				throw new Error('No se pudieron crear los clubes del torneo')
 			}
 			// Retornar el torneo creado con sus categorías.
-			return { id: idTournament, ...tournament, categories, clubs }
+			return {id: idTournament, ...tournament, categories, clubs}
 		})
 	}
 
@@ -78,6 +78,28 @@ export class TournamentModel {
 			throw new Error(error)
 		}
 	}
+
+	static async isUserInscribed(tournamentId, userId) {
+		try {
+			const [result] = await executeQuery(
+				`SELECT i.id AS inscription_id
+         FROM inscriptions i
+         INNER JOIN couples c ON i.id_couple = c.id
+         INNER JOIN players p1 ON c.id_player1 = p1.id
+         LEFT JOIN players p2 ON c.id_player2 = p2.id
+         WHERE i.id_tournament = ?
+           AND (p1.id_user = ? OR p2.id_user = ?)
+           AND i.status_payment = 'PAID'`, // Puedes ajustar el estado si necesitas incluir inscripciones no pagas
+				[tournamentId, userId, userId]
+			);
+
+			return result ? result.inscription_id : false;
+		} catch (error) {
+			console.error('Error checking user inscription:', error);
+			throw new Error('Error checking user inscription');
+		}
+	}
+
 	static async searchAll() {
 		try {
 			const rows = await executeQuery(`SELECT t.id, t.name, date_start, date_end, date_inscription_start, date_inscription_end, t.max_couples,
@@ -89,6 +111,7 @@ export class TournamentModel {
                     INNER JOIN clubs club ON t_club.id_club = club.id
                     INNER JOIN cities c ON club.id_city = c.id
                     WHERE t.status = 1 AND t_club.main_club = 1
+					ORDER BY t.date_start DESC
                 `)
 			return rows
 		} catch (error) {
@@ -157,26 +180,29 @@ export class TournamentModel {
 	static async searchByPlayer(id_user) {
 		const rows = await executeQuery(
 			`SELECT 
+	t.id AS id_torneo,
     t.name AS torneo, 
     c2.name AS categoria, 
     t.date_end, 
     i.created_at AS "fecha inscripcion",
-    COALESCE(CONCAT(u_comp.name, ' ', u_comp.last_name), '') AS compañero
-FROM users u
-INNER JOIN players p ON p.id_user = u.id
-INNER JOIN couples c ON (c.id_player1 = p.id OR c.id_player2 = p.id)
-LEFT JOIN players p_comp ON (p_comp.id = c.id_player1 OR p_comp.id = c.id_player2) AND p_comp.id <> p.id
-LEFT JOIN users u_comp ON u_comp.id = p_comp.id_user
-INNER JOIN inscriptions i ON c.id = i.id_couple 
-INNER JOIN tournaments t ON t.id = i.id_tournament
-INNER JOIN tournament_categories tc ON tc.id_tournament = t.id 
-INNER JOIN category_restrictions cr ON tc.id_category = cr.id_category 
-INNER JOIN categories c2 ON cr.id_category = c2.id
-WHERE u.id = ?
-AND cr.id_authorized_category = p.id_category 
-AND cr.category_gender = t.gender 
-AND cr.authorized_category_gender = u.gender
-AND i.status_payment = 'PAID';`,
+    COALESCE(CONCAT(u_comp.name, ' ', u_comp.last_name), '') AS compañero,
+	c.points as "puntos obtenidos"
+	FROM users u
+	INNER JOIN players p ON p.id_user = u.id
+	INNER JOIN couples c ON (c.id_player1 = p.id OR c.id_player2 = p.id)
+	LEFT JOIN players p_comp ON (p_comp.id = c.id_player1 OR p_comp.id = c.id_player2) AND p_comp.id <> p.id
+	LEFT JOIN users u_comp ON u_comp.id = p_comp.id_user
+	INNER JOIN inscriptions i ON c.id = i.id_couple 
+	INNER JOIN tournaments t ON t.id = i.id_tournament
+	INNER JOIN tournament_categories tc ON tc.id_tournament = t.id 
+	INNER JOIN category_restrictions cr ON tc.id_category = cr.id_category 
+	INNER JOIN categories c2 ON cr.id_category = c2.id
+	WHERE u.id = ?
+	AND cr.id_authorized_category = p.id_category 
+	AND cr.category_gender = t.gender 
+	AND cr.authorized_category_gender = u.gender
+	AND i.status_payment = 'PAID'
+	ORDER BY t.date_end DESC`,
 			[id_user]
 		)
 		return rows

@@ -30,6 +30,7 @@ export class InscriptionModel {
         )
         return inscriptions
     }
+
     static async searchInscriptionByPlayerId(id_player, id_tournament) {
         const player = await executeQuery(
             `

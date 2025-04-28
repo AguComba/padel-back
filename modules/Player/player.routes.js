@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { validateToken } from '../../middlewares/validateToken.js'
 import {
+    approveAffiliationPlayer,
     createPlayer,
     getPlayerByDni,
     getPlayers,
@@ -17,3 +18,4 @@ playersRouter.get('/dni/:dni', validateToken, getPlayerByDni)
 playersRouter.get('/user', validateToken, getPlayersByIdUser)
 playersRouter.get('/:id', validateToken, getPlayersById)
 playersRouter.post('/', validateToken, createPlayer)
+playersRouter.put('/:id', validateToken, approveAffiliationPlayer)
