@@ -1,5 +1,5 @@
-import { executeQuery } from '../../utils/executeQuery.js'
-import { handleTransaction } from '../../utils/transactions.js'
+import {executeQuery} from '../../utils/executeQuery.js'
+import {handleTransaction} from '../../utils/transactions.js'
 
 export class InscriptionModel {
     static async search(id_tournament) {
@@ -29,6 +29,23 @@ export class InscriptionModel {
             [id_tournament]
         )
         return inscriptions
+    }
+
+    static async searchById(id) {
+        try {
+            const [inscriptions] = await executeQuery(
+                `SELECT i.*, t.date_inscription_end, c.id as id_couple FROM inscriptions i 
+            inner join tournaments t on t.id = i.id_tournament
+            inner join couples c on c.id = i.id_couple
+            WHERE i.id =?`,
+                [id]
+            )
+
+            return inscriptions
+        } catch (error) {
+            throw new Error(error);
+        }
+
     }
 
     static async searchInscriptionByPlayerId(id_player, id_tournament) {
@@ -113,7 +130,7 @@ export class InscriptionModel {
             if (rowsCoupleGameDays.affectedRows === 0) {
                 throw new Error('No se pudo crar los dias de la parjea')
             }
-            return { id_inscription: inscriptionId, id_couple: idCouple }
+            return {id_inscription: inscriptionId, id_couple: idCouple}
         })
     }
 }

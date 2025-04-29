@@ -1,4 +1,4 @@
-import { hasRole, isPlayer } from '../../middlewares/permisions.js'
+import { hasRole, isAcceptedUser, isPlayer } from '../../middlewares/permisions.js'
 import { InscriptionSchema } from '../../schemas/Inscription.schema.js'
 import { PlayerModel } from '../Player/player.model.js'
 import { TournamentModel } from '../Tournaments/tournament.model.js'
@@ -103,6 +103,30 @@ export const createInscriptionCouple = async (req, res) => {
         console.error(error)
         return res.status(500).json({ message: 'Ocurrio un error inesperado' })
     }
+}
+
+export const updateInscription = async (req, res) => {
+   try {
+        const { id_inscription = false } = req.params
+        const { user = false } = req.session
+        const inscriptionData = req.body
+        
+        if (!isAcceptedUser(user)) {
+            return res.status(401).json({
+                message: 'El usuario no tiene permisos para acceder a este recurso'
+            }) 
+        }
+
+        const inscription = await InscriptionModel.searchById(id_inscription)
+
+        return res.status(200).json({
+            inscription,
+            inscriptionData
+        })
+   } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Ocurrio un error inesperado' })
+   } 
 }
 
 export const getInscriptions = async (req, res) => {
