@@ -7,7 +7,7 @@ export class RankingModel {
             const currentYear = new Date().getFullYear()
             const queryParams = []
             let query = `
-            SELECT r.id_player, r.points, u.name, u.last_name, cat.name as category, c.name as club, r.status, r.gender
+            SELECT r.id_player, r.points, u.name, u.last_name, cat.name as category, c.name as club, r.status, r.gender, r.id_category
             FROM ranking r
             INNER JOIN players p ON r.id_player = p.id
             INNER JOIN clubs c ON p.id_club = c.id
