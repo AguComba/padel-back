@@ -1,5 +1,5 @@
-import {executeQuery} from '../../utils/executeQuery.js'
-import {handleTransaction} from '../../utils/transactions.js'
+import { executeQuery } from '../../utils/executeQuery.js'
+import { handleTransaction } from '../../utils/transactions.js'
 
 export class RankingModel {
     static async search(cat, gen, year) {
@@ -45,29 +45,49 @@ export class RankingModel {
         try {
             const currentYear = new Date().getFullYear()
             const yearParam = year || currentYear
-            const params = [cat, id, id, gen, yearParam, cat]
-            let query = `SELECT 
+            const params = [
+                cat, // Para subquery puntos (i2)
+                id, // Para subquery puntos (jugador)
+                id, // Para subquery puntos (jugador)
+                cat, // Para subquery participated (i3)
+                id, // Para subquery participated (jugador)
+                id, // Para subquery participated (jugador)
+                gen, // Filtro principal
+                yearParam, // Año
+                cat // EXISTS final
+            ]
+
+            let query = `
+            SELECT 
                 t.id AS tournament_id,
                 t.name AS tournament_name,
                 t.date_start,
-                COALESCE(MAX(CASE 
-                    WHEN c.id IS NOT NULL THEN c.points
-                    ELSE 0 
-                END), 0) AS player_points,
-                MAX(CASE 
-                    WHEN c.id IS NOT NULL THEN true 
-                    ELSE false 
-                END) AS participated
-                FROM tournaments t
-                LEFT JOIN inscriptions i 
-                ON i.id_tournament = t.id 
-                AND i.status = 1
-                AND i.status_payment = 'paid'
-                AND i.id_category = ?
-                LEFT JOIN couples c 
-                ON c.id = i.id_couple 
-                AND (c.id_player1 = ? OR c.id_player2 = ?)
-                WHERE t.gender = ? 
+                COALESCE((
+                    SELECT MAX(c.points)
+                    FROM inscriptions i2
+                    JOIN couples c ON c.id = i2.id_couple
+                    WHERE 
+                        i2.id_tournament = t.id
+                        AND i2.id_category = ?
+                        AND (c.id_player1 = ? OR c.id_player2 = ?)
+                ), 0) AS player_points,
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM inscriptions i3
+                        JOIN couples c3 ON c3.id = i3.id_couple
+                        WHERE 
+                            i3.id_tournament = t.id
+                            AND i3.id_category = ?
+                            AND i3.status_payment = 'PAID'
+                            AND (c3.id_player1 = ? OR c3.id_player2 = ?)
+                    )
+                    THEN TRUE
+                    ELSE FALSE
+                END AS participated
+            FROM tournaments t
+            WHERE 
+                t.gender = ?
                 AND t.ranked = 1
                 AND YEAR(t.date_start) = ?
                 AND EXISTS (
@@ -76,7 +96,8 @@ export class RankingModel {
                     WHERE ix.id_tournament = t.id 
                     AND ix.id_category = ?
                 )
-                GROUP BY t.id, t.name, t.date_start;`
+        `
+
             const rows = await executeQuery(query, params)
             return rows
         } catch (error) {
@@ -100,7 +121,6 @@ export class RankingModel {
 
                     if (existing.length > 0) {
                         const points = existing[0].points + rank.points
-                        console.log(points, rank.id_player)
                         // Si el registro ya existe, lo actualizamos
                         await connection.query(`UPDATE ranking SET points = ?, user_updated = ? WHERE id = ?`, [
                             points,
@@ -133,6 +153,7 @@ export class RankingModel {
                      JOIN couples c ON c.id = i.id_couple
                      WHERE i.id_category = ? AND i.id_tournament = ? 
                      AND (c.id_player1 = ? OR c.id_player2 = ?) 
+                     AND i.status_payment = 'PAID' AND i.status = 1
                      LIMIT 1`,
                         [rank.id_category, rank.id_tournament, rank.id_player, rank.id_player]
                     )
