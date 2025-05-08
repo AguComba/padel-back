@@ -50,7 +50,7 @@ export const importRanking = async (req, res) => {
         }
 
         const __dirname = path.resolve()
-        const excel = await XlsxPopulate.fromFileAsync(`${__dirname}/archivos/7ma cab 2da fecha.xlsx`)
+        const excel = await XlsxPopulate.fromFileAsync(`${__dirname}/archivos/.xlsx`)
         const values = excel.sheet('Jugadores').usedRange().value()
         const {id = false, puntos = false, estado = false} = getIndexColumns(values[0])
         const {gender = false, year = false, categoria = false, id_tournament = false} = req.body
