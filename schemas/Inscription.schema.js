@@ -31,7 +31,7 @@ export const InscriptionSchema = z.object({
         .positive({ message: 'El ID de la categoría debe ser positivo' }),
 
     observation: z.string()
-        .max(250, { message: 'La observación no puede tener más de 250 caracteres' })
+        .max(500, { message: 'La observación no puede tener más de 250 caracteres' })
         .optional(),
 
     availablity_days: z.array(availablityDaysEnum, {
