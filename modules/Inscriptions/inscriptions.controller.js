@@ -225,3 +225,30 @@ export const getInscriptions = async (req, res) => {
         })
     }
 }
+
+export const getInscriptionById = async (req, res) => {
+    try{
+        const {user = false} = req.session
+        const {id_inscription = false} = req.params
+
+        if (!isAcceptedUser(user)) {
+            return res.status(401).json({
+                message: 'El usuario no tiene permisos para acceder a este recurso'
+            })
+        }
+
+        const inscription = await InscriptionModel.searchById(id_inscription)
+        if (!inscription) {
+            return res.status(404).json({
+                message: 'No se encontro la inscripcion'
+            })
+        }
+
+        return res.status(200).json(inscription)
+    }catch(error){
+        console.error(error)
+        return res.status(500).json({
+            message: 'Ocurrio un error en el sistema'
+        })
+    }
+}
