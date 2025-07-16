@@ -1,14 +1,14 @@
-import ResultMatch from "../Domain/ResultMatch"
+import ResultMatch from "../Domain/ResultMatch.js" 
 
-class RegisterResultMatch {
+export default class RegisterResultMatch {
     constructor(resultMatchRepository){
         this.resultMatchRepository = resultMatchRepository
     }
     async execute(data){
-        const ResultMatch = new ResultMatch(data)
+        const resultMatch = new ResultMatch(data)
 
-        await this.resultMatchRepository.save(ResultMatch)
+        await this.resultMatchRepository.save(resultMatch)
         
-        return ResultMatch
+        return resultMatch
     }
 }
