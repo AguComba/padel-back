@@ -129,7 +129,7 @@ export class TournamentModel {
                     INNER JOIN clubs club ON t_club.id_club = club.id
                     INNER JOIN cities c ON club.id_city = c.id
                     WHERE t.status = 1 AND t_club.main_club = 1 AND t.id = ?
-                    `)
+                    `, [id_tournament])
 			return tournament.shift()
 		} catch (error) {
 			throw new Error()
@@ -181,7 +181,9 @@ export class TournamentModel {
 		const rows = await executeQuery(
 			`SELECT 
 	t.id AS id_torneo,
-    t.name AS torneo, 
+	i.id AS id_inscripcion,
+    t.name AS torneo,
+	t.gender, 
     c2.name AS categoria, 
     t.date_end, 
     i.created_at AS "fecha inscripcion",
