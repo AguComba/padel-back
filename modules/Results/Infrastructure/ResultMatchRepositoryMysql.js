@@ -45,8 +45,11 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
     return results[0]
   }
 
-  async findByZone(zone, category, id_tournament){
-    const results = await executeQuery('SELECT * FROM result_match WHERE zone = ? AND category = ? AND id_tournament = ?', [zone, category, id_tournament])
+  async findAllMatchsByZone({zone, category, id_tournament}){
+    const results = await executeQuery(`select r.* from zones_matches z
+        inner join result_match r on z.id = r.id_match
+        where r.match_type = 'zona' and z.zone = ? and z.id_category = ? and z.id_tournament = ?;`,
+        [zone, category, id_tournament])
     return results
   }
 }

@@ -18,11 +18,12 @@ import { zonesRouter } from './modules/Zones/zone.routes.js'
 // MATCH ROUTER
 import ResultMatchRepositoryMysql from './modules/Results/Infrastructure/ResultMatchRepositoryMysql.js'
 import createResultMatchRoutes from './modules/Results/Infrastructure/ResultMatchRoutes.js'
-import RegisterResultMatch from './modules/Results/Application/RegisterResultMatch.js'
+
+import {createResultMatchService} from './modules/Results/Application/services/resultMatchService.js'
 
 // INYECCION DE DEPENDENCIAS
 const resultMatchRepository = new ResultMatchRepositoryMysql()
-const registerResultMatchUseCase = new RegisterResultMatch(resultMatchRepository)
+const resultMatchService = new createResultMatchService(resultMatchRepository)
 
 
 const app = express()
@@ -47,7 +48,7 @@ app.use('/tournaments', tournamentRouter)
 app.use('/inscriptions', inscriptionsRouter)
 app.use('/users', userRoutes)
 app.use('/zones', zonesRouter)
-app.use('/result-match', createResultMatchRoutes(registerResultMatchUseCase))
+app.use('/result-match', createResultMatchRoutes(resultMatchService))
 app.use('*', (req, res) => {
     res.status(404).json({ message: 'Not found' }) 
 })

@@ -1,4 +1,4 @@
-import ResultMatch from "../Domain/ResultMatch.js" 
+import ResultMatch from "../../Domain/ResultMatch.js" 
 
 export default class RegisterResultMatch {
     constructor(resultMatchRepository){

@@ -8,7 +8,7 @@ export default class ResultMatchRepository {
     async findByMatchId(id_match){
         throw new Error('Metodo no implementado')
     }
-    async findByZone(zone, category, id_tournament){
+    async findAllMatchsByZone({zone, category, id_tournament}){
         throw new Error('Metodo no implementado')
     }
 }
