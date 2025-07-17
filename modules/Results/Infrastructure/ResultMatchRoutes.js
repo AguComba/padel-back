@@ -42,6 +42,20 @@ export default function createResultMatchRoutes(resultMatchService) {
         }
     })
 
+    router.get('/largador', async (req, res) => {
+        try {
+            const {user, tournament} = req.query
+
+            const result = await resultMatchService.getMatchsByUserLargador.execute({
+                id_user: Number(user),
+                id_tournament: Number(tournament)
+            })
+
+            res.json({success: true, data:result})
+        } catch (error) {
+            res.status(500).json({success: false, error: error.message})
+        }
+    })
 
     return router
 }

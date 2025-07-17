@@ -52,6 +52,16 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
         [zone, category, id_tournament])
     return results
   }
+
+  async findMatchsByUserLargador({id_user, id_tournament}){
+    const results = await executeQuery(`select z.* from users u  
+      inner join user_club uc on u.id = uc.id_user
+      inner join zones_matches z on uc.id_club = z.id_club
+      where u.id = ? and z.id_tournament = ?;
+    `, [id_user, id_tournament])  
+
+    return results
+  }
 }
 
 export default ResultMatchRepositoryMysql
