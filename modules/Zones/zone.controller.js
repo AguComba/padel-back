@@ -166,60 +166,6 @@ async function ordenarZonasGeneradas(generateds, inscriptions) {
     return Object.values(zones)
 }
 
-//! SIN MODIFICACIONES
-// async function generarZonas(parejas) {
-//     const zonas = []
-//     const zonasPermitidas = 'ABCDEFGHIJKLMNOP'.split('')
-
-//     const { zonasDe3, zonasDe4, totalZonas } = calcularZonas(parejas.length)
-
-//     orderCouples(parejas)
-//     // Separo las parejas cabeza de serie
-//     const cabezaDeSerie = searchTopCouples(parejas, totalZonas)
-//     const segundasParejas = searchSecondCouples(parejas, totalZonas)
-//     const tercerasParejas = searchThirdCouples(parejas, totalZonas)
-
-//     let cuartasParejas = []
-//     if (zonasDe4 > 0) {
-//         cuartasParejas = searchFourthCouples(parejas, totalZonas, zonasDe4)
-//     }
-
-//     // Genero todas las zonas
-//     for (let i = 0; i < totalZonas; i++) {
-//         const segundaPareja = segundasParejas.length - 1 - i
-
-//         const zona = {
-//             nombre: zonasPermitidas[i],
-//             parejas: [cabezaDeSerie[i], segundasParejas[segundaPareja], tercerasParejas[i]],
-//             partidos: []
-//         }
-
-//         // Si hay una cuarta pareja para esta zona, la agregamos
-//         if (i < zonasDe4) {
-//             zona.parejas.push(cuartasParejas[i])
-//         }
-
-//         zonas.push(zona)
-//     }
-
-//     console.log(JSON.stringify(zonas, null, 2))
-//     return zonas
-// }
-
-// Generar enfrentamientos entre cada pareja en la zona
-function generateMatches(zone) {
-    const matches = []
-    for (let i = 0; i < zone.parejas.length; i++) {
-        for (let j = i + 1; j < zone.parejas.length; j++) {
-            matches.push({
-                pareja1: zone.parejas[i],
-                pareja2: zone.parejas[j]
-            })
-        }
-    }
-    return matches
-}
-
 export const generateByCategory = async (req, res) => {
     try {
         const { user = false } = req.session
@@ -229,7 +175,6 @@ export const generateByCategory = async (req, res) => {
 
         const { id_tournament, id_category, gender } = req.body
         const inscriptions = await CouplesModel.searchCouplesByTournamentAndCategory(id_tournament, id_category, gender)
-        console.log(inscriptions)
         const generateds = await ZonesModel.searchGeneratedZones(id_tournament, id_category)
         const zones =
             generateds.length > 0

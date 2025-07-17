@@ -15,6 +15,16 @@ import { inscriptionsRouter } from './modules/Inscriptions/inscriptions.routes.j
 import { userRoutes } from './modules/Users/user.routes.js'
 import { paymentRouter } from './modules/Payment/payment.routes.js'
 import { zonesRouter } from './modules/Zones/zone.routes.js'
+// MATCH ROUTER
+import ResultMatchRepositoryMysql from './modules/Results/Infrastructure/ResultMatchRepositoryMysql.js'
+import createResultMatchRoutes from './modules/Results/Infrastructure/ResultMatchRoutes.js'
+
+import {createResultMatchService} from './modules/Results/Application/services/resultMatchService.js'
+
+// INYECCION DE DEPENDENCIAS
+const resultMatchRepository = new ResultMatchRepositoryMysql()
+const resultMatchService = new createResultMatchService(resultMatchRepository)
+
 
 const app = express()
 
@@ -38,6 +48,7 @@ app.use('/tournaments', tournamentRouter)
 app.use('/inscriptions', inscriptionsRouter)
 app.use('/users', userRoutes)
 app.use('/zones', zonesRouter)
+app.use('/result-match', createResultMatchRoutes(resultMatchService))
 app.use('*', (req, res) => {
     res.status(404).json({ message: 'Not found' }) 
 })
