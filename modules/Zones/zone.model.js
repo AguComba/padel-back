@@ -5,8 +5,10 @@ export class ZonesModel {
     const query = `SELECT zm.*, 
         IFNULL(CONCAT(u1.name, " ", u1.last_name, " - ", u2.name, " ", u2.last_name), 'SIN PAREJA') AS pareja1, 
         IFNULL(CONCAT(u3.name, " ", u3.last_name, " - ", u4.name, " ", u4.last_name), 'SIN PAREJA') AS pareja2,
-        cl.name AS club_name
+        cl.name AS club_name, rm.first_set_couple1, rm.first_set_couple2, rm.second_set_couple1, rm.second_set_couple2,
+        rm.third_set_couple1, rm.third_set_couple2, rm.winner_couple, rm.wo
         FROM zones_matches zm
+        LEFT JOIN result_match rm ON rm.id_match = zm.id
         LEFT JOIN clubs cl ON zm.id_club = cl.id
 
         LEFT JOIN couples c1 ON zm.id_couple1 = c1.id
