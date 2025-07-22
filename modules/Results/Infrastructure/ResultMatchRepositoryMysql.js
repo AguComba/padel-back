@@ -63,7 +63,15 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
 
   async findMatchsByUserLargador({ id_user, id_tournament }) {
     const results = await executeQuery(
-      `select z.*, 
+      `select z.*,
+      r.first_set_couple1,
+      r.first_set_couple2,
+      r.second_set_couple1,
+      r.second_set_couple2,
+      r.third_set_couple1,
+      r.third_set_couple2,
+      r.winner_couple,
+      r.wo,
     CONCAT_WS(" - ",
       IFNULL(CONCAT(u1.name, " ", u1.last_name), 'SIN PAREJA'),
       IFNULL(CONCAT(u2.name, " ", u2.last_name), 'SIN PAREJA')
@@ -74,6 +82,8 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
     ) AS pareja2, c.name as categoria from users u  
       inner join user_club uc on u.id = uc.id_user
       inner join zones_matches z on uc.id_club = z.id_club
+      left join result_match r on z.id = r.id_match
+
 
       LEFT JOIN couples c1 ON z.id_couple1 = c1.id
       LEFT JOIN players p1 ON c1.id_player1 = p1.id
