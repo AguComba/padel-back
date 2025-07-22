@@ -1,5 +1,5 @@
-import { executeQuery } from '../../../utils/executeQuery.js' 
-import ResultMatchRepository from '../Domain/ResultMatchRepository.js' 
+import { executeQuery } from "../../../utils/executeQuery.js"
+import ResultMatchRepository from "../Domain/ResultMatchRepository.js"
 
 class ResultMatchRepositoryMysql extends ResultMatchRepository {
   async save(resultMatch) {
@@ -36,29 +36,60 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
   }
 
   async findById(id) {
-    const results = await executeQuery('SELECT * FROM result_match WHERE id = ?', [id])
+    const results = await executeQuery(
+      "SELECT * FROM result_match WHERE id = ?",
+      [id]
+    )
     return results[0]
   }
 
   async findByMatchId(id_match) {
-    const results = await executeQuery('SELECT * FROM result_match WHERE id_match = ?', [id_match])
+    const results = await executeQuery(
+      "SELECT * FROM result_match WHERE id_match = ?",
+      [id_match]
+    )
     return results[0]
   }
 
-  async findAllMatchsByZone({zone, category, id_tournament}){
-    const results = await executeQuery(`select r.* from zones_matches z
+  async findAllMatchsByZone({ zone, category, id_tournament }) {
+    const results = await executeQuery(
+      `select r.* from zones_matches z
         inner join result_match r on z.id = r.id_match
         where r.match_type = 'zona' and z.zone = ? and z.id_category = ? and z.id_tournament = ?;`,
-        [zone, category, id_tournament])
+      [zone, category, id_tournament]
+    )
     return results
   }
 
-  async findMatchsByUserLargador({id_user, id_tournament}){
-    const results = await executeQuery(`select z.* from users u  
+  async findMatchsByUserLargador({ id_user, id_tournament }) {
+    const results = await executeQuery(
+      `select z.*, 
+    CONCAT_WS(" - ",
+      IFNULL(CONCAT(u1.name, " ", u1.last_name), 'SIN PAREJA'),
+      IFNULL(CONCAT(u2.name, " ", u2.last_name), 'SIN PAREJA')
+    ) AS pareja1,
+    CONCAT_WS(" - ",
+      IFNULL(CONCAT(u3.name, " ", u3.last_name), 'SIN PAREJA'),
+      IFNULL(CONCAT(u4.name, " ", u4.last_name), 'SIN PAREJA')
+    ) AS pareja2 from users u  
       inner join user_club uc on u.id = uc.id_user
       inner join zones_matches z on uc.id_club = z.id_club
+
+      LEFT JOIN couples c1 ON z.id_couple1 = c1.id
+      LEFT JOIN players p1 ON c1.id_player1 = p1.id
+      LEFT JOIN players p2 ON c1.id_player2 = p2.id
+      LEFT JOIN users u1 ON p1.id_user = u1.id
+      LEFT JOIN users u2 ON p2.id_user = u2.id
+
+      LEFT JOIN couples c2 ON z.id_couple2 = c2.id
+      LEFT JOIN players p3 ON c2.id_player1 = p3.id
+      LEFT JOIN players p4 ON c2.id_player2 = p4.id
+      LEFT JOIN users u3 ON p3.id_user = u3.id
+      LEFT JOIN users u4 ON p4.id_user = u4.id
       where u.id = ? and z.id_tournament = ?;
-    `, [id_user, id_tournament])  
+    `,
+      [id_user, id_tournament]
+    )
 
     return results
   }
