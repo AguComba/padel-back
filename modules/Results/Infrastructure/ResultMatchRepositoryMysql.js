@@ -71,7 +71,7 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
     CONCAT_WS(" - ",
       IFNULL(CONCAT(u3.name, " ", u3.last_name), 'SIN PAREJA'),
       IFNULL(CONCAT(u4.name, " ", u4.last_name), 'SIN PAREJA')
-    ) AS pareja2 from users u  
+    ) AS pareja2, c.name as categoria from users u  
       inner join user_club uc on u.id = uc.id_user
       inner join zones_matches z on uc.id_club = z.id_club
 
@@ -86,6 +86,7 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
       LEFT JOIN players p4 ON c2.id_player2 = p4.id
       LEFT JOIN users u3 ON p3.id_user = u3.id
       LEFT JOIN users u4 ON p4.id_user = u4.id
+      LEFT JOIN categories c ON z.id_category = c.id
       where u.id = ? and z.id_tournament = ?;
     `,
       [id_user, id_tournament]
