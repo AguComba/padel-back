@@ -12,7 +12,7 @@
  * - player: 1
  * - admin: 2
  * - fiscal: 3
- * - dropper: 4
+ * - largador: 4
  * - superAdmin: 5
  */
 const hasRole = (user, roles) => {
@@ -20,7 +20,7 @@ const hasRole = (user, roles) => {
     player: 1,
     admin: 2,
     fiscal: 3,
-    dropper: 4,
+    largador: 4,
     superAdmin: 5,
   }
   const requiredRoles = roles.map((role) => dictionary[role])

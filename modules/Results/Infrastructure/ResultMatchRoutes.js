@@ -1,11 +1,23 @@
 import express from 'express'
 import {resultMatchSchema} from './resultMatchSchema.js'
+import {validateToken} from '../../../middlewares/validateToken.js'
+import {hasRole} from '../../../middlewares/permisions.js'
 
 export default function createResultMatchRoutes(resultMatchService) {
     const router = express.Router()
 
-    router.post('/', async (req, res) => {
+    router.post('/', validateToken, async (req, res) => {
         try {
+            const {user} = req.session
+
+            if(!hasRole(user, ['admin', 'superAdmin', 'largador'])){
+                return res.status(403).json({success: false, error: 'No tienes permiso para realizar esta acción'})
+            }
+
+            //INYECTO EL USER CREATED Y USER UPDATED EN EL BODY
+            req.body.user_created = user.id
+            req.body.user_updated = user.id
+            
             const parsed = resultMatchSchema.parse(req.body)
             // Si no viene created_at / updated_at, se los seteamos ahora
             parsed.created_at ??= new Date()
@@ -42,12 +54,18 @@ export default function createResultMatchRoutes(resultMatchService) {
         }
     })
 
-    router.get('/largador', async (req, res) => {
+    router.get('/largador', validateToken, async (req, res) => {
         try {
-            const {user, tournament} = req.query
+            const {tournament} = req.query
+            const {user} = req.session
+
+            if(!hasRole(user, ['admin', 'superAdmin', 'largador'])){
+                return res.status(403).json({success: false, error: 'No tienes permiso para realizar esta acción'})
+            }
+
 
             const result = await resultMatchService.getMatchsByUserLargador.execute({
-                id_user: Number(user),
+                id_user: Number(user.id),
                 id_tournament: Number(tournament)
             })
 
