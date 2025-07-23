@@ -2,6 +2,7 @@ import express from 'express'
 import {resultMatchSchema} from './resultMatchSchema.js'
 import {validateToken} from '../../../middlewares/validateToken.js'
 import {hasRole} from '../../../middlewares/permisions.js'
+import {TournamentModel} from '../../Tournaments/tournament.model.js'
 
 export default function createResultMatchRoutes(resultMatchService) {
     const router = express.Router()
@@ -62,11 +63,14 @@ export default function createResultMatchRoutes(resultMatchService) {
             if(!hasRole(user, ['admin', 'superAdmin', 'largador'])){
                 return res.status(403).json({success: false, error: 'No tienes permiso para realizar esta acción'})
             }
+            
+            const isCreator = await TournamentModel.isMainClubUser(Number(tournament), Number(user.id))
 
 
             const result = await resultMatchService.getMatchsByUserLargador.execute({
                 id_user: Number(user.id),
-                id_tournament: Number(tournament)
+                id_tournament: Number(tournament),
+                is_creator_or_admin: isCreator || hasRole(user, ['admin', 'superAdmin'])
             })
 
             res.json({success: true, data:result})

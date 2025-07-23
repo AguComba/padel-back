@@ -1,4 +1,4 @@
-import { executeQuery } from "../../../utils/executeQuery.js"
+import {executeQuery} from "../../../utils/executeQuery.js"
 import ResultMatchRepository from "../Domain/ResultMatchRepository.js"
 
 class ResultMatchRepositoryMysql extends ResultMatchRepository {
@@ -51,7 +51,7 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
     return results[0]
   }
 
-  async findAllMatchsByZone({ zone, category, id_tournament }) {
+  async findAllMatchsByZone({zone, category, id_tournament}) {
     const results = await executeQuery(
       `select r.* from zones_matches z
         inner join result_match r on z.id = r.id_match
@@ -61,8 +61,40 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
     return results
   }
 
-  async findMatchsByUserLargador({ id_user, id_tournament }) {
-    const results = await executeQuery(
+  async findMatchsByUserLargador({id_user, id_tournament, is_creator_or_admin}) {
+
+    const query = is_creator_or_admin ? `select z.*,
+      r.first_set_couple1,
+      r.first_set_couple2,
+      r.second_set_couple1,
+      r.second_set_couple2,
+      r.third_set_couple1,
+      r.third_set_couple2,
+      r.winner_couple,
+      r.wo,
+    CONCAT_WS(" - ",
+      IFNULL(CONCAT(u1.name, " ", u1.last_name), 'SIN PAREJA'),
+      IFNULL(CONCAT(u2.name, " ", u2.last_name), 'SIN PAREJA')
+    ) AS pareja1,
+    CONCAT_WS(" - ",
+      IFNULL(CONCAT(u3.name, " ", u3.last_name), 'SIN PAREJA'),
+      IFNULL(CONCAT(u4.name, " ", u4.last_name), 'SIN PAREJA')
+    ) AS pareja2 from zones_matches z 
+     left join result_match r on z.id = r.id_match
+
+      LEFT JOIN couples c1 ON z.id_couple1 = c1.id
+      LEFT JOIN players p1 ON c1.id_player1 = p1.id
+      LEFT JOIN players p2 ON c1.id_player2 = p2.id
+      LEFT JOIN users u1 ON p1.id_user = u1.id
+      LEFT JOIN users u2 ON p2.id_user = u2.id
+
+      LEFT JOIN couples c2 ON z.id_couple2 = c2.id
+      LEFT JOIN players p3 ON c2.id_player1 = p3.id
+      LEFT JOIN players p4 ON c2.id_player2 = p4.id
+      LEFT JOIN users u3 ON p3.id_user = u3.id
+      LEFT JOIN users u4 ON p4.id_user = u4.id
+      where z.id_tournament = ?` :
+
       `select z.*,
       r.first_set_couple1,
       r.first_set_couple2,
@@ -96,9 +128,11 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
       LEFT JOIN players p4 ON c2.id_player2 = p4.id
       LEFT JOIN users u3 ON p3.id_user = u3.id
       LEFT JOIN users u4 ON p4.id_user = u4.id
-      where u.id = ? and z.id_tournament = ?;
-    `,
-      [id_user, id_tournament]
+      where z.id_tournament = ? and u.id = ?;
+    `
+
+    const results = await executeQuery(query,
+      [id_tournament, id_user]
     )
 
     return results
