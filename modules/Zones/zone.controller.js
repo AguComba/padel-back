@@ -1,4 +1,4 @@
-import { isAdmin } from '../../middlewares/permisions.js'
+import { hasRole, isAdmin } from '../../middlewares/permisions.js'
 import { CouplesModel } from '../Couples/couples.model.js'
 import { ZonesModel } from './zone.model.js'
 // import { parejas, parejas4, parejasSuma6 } from './couples.js'
@@ -219,3 +219,143 @@ export const saveZones = async (req, res) => {
         })
     }
 }
+
+function calcularEstadisticasOrdenadas(matches) {
+    const statsByCouple = {};
+
+    function initCoupleStats(id) {
+        if (!statsByCouple[id]) {
+            statsByCouple[id] = {
+                id: id,
+                partidos: 0,
+                ganados: 0,
+                perdidos: 0,
+                wo: 0,
+                puntos: 0,
+                setsGanados: 0,
+                setsPerdidos: 0,
+                gamesAFavor: 0,
+                gamesEnContra: 0,
+                diferenciaGames: 0
+            };
+        }
+    }
+
+    for (const match of matches) {
+        const {
+            id_couple1,
+            id_couple2,
+            first_set_couple1,
+            first_set_couple2,
+            second_set_couple1,
+            second_set_couple2,
+            third_set_couple1,
+            third_set_couple2,
+            winner_couple,
+            wo
+        } = match;
+
+        initCoupleStats(id_couple1);
+        initCoupleStats(id_couple2);
+
+        statsByCouple[id_couple1].partidos += 1;
+        statsByCouple[id_couple2].partidos += 1;
+
+        const loser = winner_couple === id_couple1 ? id_couple2 : id_couple1;
+
+        if (wo) {
+            statsByCouple[loser].wo += 1;
+        }
+
+        statsByCouple[winner_couple].ganados += 1;
+        statsByCouple[loser].perdidos += 1;
+
+        statsByCouple[winner_couple].puntos += 2;
+        statsByCouple[loser].puntos += wo ? 0 : 1;
+
+        const sets = [
+            [first_set_couple1, first_set_couple2],
+            [second_set_couple1, second_set_couple2],
+            [third_set_couple1, third_set_couple2],
+        ];
+
+        for (const [set1, set2] of sets) {
+            if (set1 !== null && set2 !== null) {
+                if (set1 > set2) {
+                    statsByCouple[id_couple1].setsGanados += 1;
+                    statsByCouple[id_couple2].setsPerdidos += 1;
+                } else {
+                    statsByCouple[id_couple2].setsGanados += 1;
+                    statsByCouple[id_couple1].setsPerdidos += 1;
+                }
+
+                statsByCouple[id_couple1].gamesAFavor += set1;
+                statsByCouple[id_couple1].gamesEnContra += set2;
+
+                statsByCouple[id_couple2].gamesAFavor += set2;
+                statsByCouple[id_couple2].gamesEnContra += set1;
+            }
+        }
+    }
+
+    // Calculamos diferencia de games
+    const result = Object.values(statsByCouple).map(stats => {
+        stats.diferenciaGames = stats.gamesAFavor - stats.gamesEnContra;
+        return stats;
+    });
+
+    // Ordenamos de mejor a peor
+    result.sort((a, b) => {
+        return (
+            b.puntos - a.puntos ||
+            b.diferenciaGames - a.diferenciaGames ||
+            b.setsGanados - a.setsGanados ||
+            b.gamesAFavor - a.gamesAFavor
+        );
+    });
+
+    return result;
+}
+
+
+
+export const endZone = async (req, res) => {
+  try {
+    const { user } = req.session;
+    if (!hasRole(user, ['admin', 'largador', 'superAdmin'])) {
+      return res.status(403).json({ message: 'No tiene permisos para acceder a este recurso' });
+    }
+
+    const { id_matchs } = req.body;
+    if (!id_matchs) {
+      return res.status(400).json({ message: 'Faltan parámetros obligatorios' });
+    }
+
+    const matchs = await ZonesModel.getMatchsByZone(id_matchs);
+    if (matchs.length === 0) {
+      return res.status(400).json({ message: 'No se encontraron partidos' });
+    }
+
+    // Mapear nombres por pareja
+    const coupleNamesMap = {};
+    for (const match of matchs) {
+      if (!coupleNamesMap[match.id_couple1]) {
+        coupleNamesMap[match.id_couple1] = match.pareja1;
+      }
+      if (!coupleNamesMap[match.id_couple2]) {
+        coupleNamesMap[match.id_couple2] = match.pareja2;
+      }
+    }
+
+    const estadisticas = calcularEstadisticasOrdenadas(matchs).map(stat => ({
+      ...stat,
+      nombre: coupleNamesMap[stat.id] || 'SIN NOMBRE'
+    }));
+
+    return res.status(200).json({ estadisticas });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
