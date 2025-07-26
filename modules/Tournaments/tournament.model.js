@@ -122,7 +122,7 @@ export class TournamentModel {
 	static async searchById(id_tournament) {
 		try {
 			const tournament = await executeQuery(`SELECT t.id, t.name, date_start, date_end, date_inscription_start, date_inscription_end, t.max_couples,
-                    t.gender, club.name as club, c.name as ciudad, a.amount, t.afiliation_required
+                    t.gender, club.id as id_club ,club.name as club, c.name as ciudad, a.amount, t.afiliation_required
                     FROM tournaments t
                     INNER JOIN amounts a ON a.id_tournament = t.id
                     INNER JOIN tournament_clubs t_club ON t_club.id_tournament = t.id
@@ -208,5 +208,20 @@ export class TournamentModel {
 			[id_user]
 		)
 		return rows
+	}
+
+	static async isMainClubUser(id_tournament, id_user) {
+		const result = await executeQuery(
+			`SELECT EXISTS (
+    			SELECT 1
+    			FROM users u 
+    			INNER JOIN user_club uc ON u.id = uc.id_user
+    			INNER JOIN tournament_clubs t ON t.id_club = uc.id_club
+   		 		WHERE t.id_tournament = ? AND u.id = ? AND t.main_club
+ 		 	) AS is_creator;`,
+			[id_tournament, id_user]
+		);
+
+		return !!result[0].is_creator;
 	}
 }

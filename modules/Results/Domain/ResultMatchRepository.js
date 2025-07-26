@@ -11,7 +11,7 @@ export default class ResultMatchRepository {
     async findAllMatchsByZone({zone, category, id_tournament}){
         throw new Error('Metodo no implementado')
     }
-    async findMatchsByUserLargador({id_user, id_tournament}){
+    async findMatchsByUserLargador({id_user, id_tournament, is_creator_or_admin}){
         throw new Error('Metodo no implementado')
     }
 }
