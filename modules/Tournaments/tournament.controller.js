@@ -148,3 +148,17 @@ export const getTournamentsByPlayer = async (req, res) => {
     res.status(500).json(error.message)
   }
 }
+
+export const visualizationTournament = async (req, res) => {
+  try{
+    const {user = false} = req.session
+    const tournament = req.body
+    if (!hasRole(user, ['admin', 'superAdmin'])) {
+      return res.status(401).json({message: 'No tienes permisos para acceder a este recurso'})
+    }
+    const updateData = await TournamentModel.changeVisualization(tournament)
+    res.status(200).json({updateData})
+  }catch(error){
+    res.status(500).json(error.message)
+  }
+}

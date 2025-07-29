@@ -5,8 +5,10 @@ export class ZonesModel {
     const query = `SELECT zm.*, 
         IFNULL(CONCAT(u1.name, " ", u1.last_name, " - ", u2.name, " ", u2.last_name), 'SIN PAREJA') AS pareja1, 
         IFNULL(CONCAT(u3.name, " ", u3.last_name, " - ", u4.name, " ", u4.last_name), 'SIN PAREJA') AS pareja2,
-        cl.name AS club_name
+        cl.name AS club_name, rm.first_set_couple1, rm.first_set_couple2, rm.second_set_couple1, rm.second_set_couple2,
+        rm.third_set_couple1, rm.third_set_couple2, rm.winner_couple, rm.wo
         FROM zones_matches zm
+        LEFT JOIN result_match rm ON rm.id_match = zm.id
         LEFT JOIN clubs cl ON zm.id_club = cl.id
 
         LEFT JOIN couples c1 ON zm.id_couple1 = c1.id
@@ -19,10 +21,12 @@ export class ZonesModel {
         LEFT JOIN players p3 ON c2.id_player1 = p3.id
         LEFT JOIN players p4 ON c2.id_player2 = p4.id
         LEFT JOIN users u3 ON p3.id_user = u3.id
-        LEFT JOIN users u4 ON p4.id_user = u4.id 
+        LEFT JOIN users u4 ON p4.id_user = u4.id
+        LEFT JOIN tournaments t ON zm.id_tournament = t.id
         
         WHERE zm.id_tournament = ?
         AND zm.id_category = ?
+        AND t.public = 1
         ORDER BY zm.zone, \`match\``
     const zones = await executeQuery(query, [id_tournament, id_category])
     return zones

@@ -103,7 +103,7 @@ export class TournamentModel {
 	static async searchAll() {
 		try {
 			const rows = await executeQuery(`SELECT t.id, t.name, date_start, date_end, date_inscription_start, date_inscription_end, t.max_couples,
-                    t.gender, club.name as club, c.name as ciudad, a.amount, t.ranked,
+                    t.gender, club.name as club, c.name as ciudad, a.amount, t.ranked, t.public,
                     CASE WHEN CURDATE() <= t.date_end THEN true ELSE false END as is_active
                     FROM tournaments t
                     INNER JOIN amounts a ON a.id_tournament = t.id
@@ -224,4 +224,15 @@ export class TournamentModel {
 
 		return !!result[0].is_creator;
 	}
+	
+	static async changeVisualization(data) {
+		const result = await executeQuery(
+			`UPDATE tournaments SET public = ? WHERE id = ?;`,
+			[data.public, data.id]
+		);
+
+		return result;
+	}
+
+
 }
