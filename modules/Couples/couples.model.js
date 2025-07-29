@@ -5,6 +5,7 @@ export class CouplesModel {
         const couples = await executeQuery(
             `SELECT 
             t.ranked,
+            t.public,
             id_couple,
             CONCAT(u1.name, " ", u1.last_name) AS jugador1, 
             CONCAT(u2.name, " ", u2.last_name) AS jugador2,
