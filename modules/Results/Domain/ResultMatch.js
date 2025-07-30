@@ -15,7 +15,9 @@ export default class ResultMatch {
     created_at,
     updated_at,
     user_created,
-    user_updated
+    user_updated,
+    winnerNextMatch,
+    loserNextMatch,
   }) {
     this.id = id;
     this.first_set_couple1 = first_set_couple1;
@@ -33,6 +35,8 @@ export default class ResultMatch {
     this.updated_at = updated_at;
     this.user_created = user_created;
     this.user_updated = user_updated;
+    this.winnerNextMatch = winnerNextMatch;
+    this.loserNextMatch = loserNextMatch;
   }
 }
 
