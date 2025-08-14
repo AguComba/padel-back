@@ -31,27 +31,78 @@ export class ZonesModel {
     const zones = await executeQuery(query, [id_tournament, id_category])
     return zones
   }
-  static async saveZones(zones) {
-    await this.deleteZones(zones[0].id_tournament, zones[0].id_category)
-    const query = `INSERT INTO zones_matches (id_tournament, id_category, id_couple1, points_couple1, id_couple2, points_couple2, \`match\`, rival1, rival2, zone, day, id_club, hour) VALUES ?`
-    const values = zones.map((zone) => [
-      zone.id_tournament,
-      zone.id_category,
-      zone.id_couple1,
-      zone.points_couple1,
-      zone.id_couple2,
-      zone.points_couple2,
-      zone.match,
-      zone.rival1 || null,
-      zone.rival2 || null,
-      zone.zone,
-      zone.day,
-      zone.id_club,
-      `${zone.hour}:00`,
-    ])
-    await executeQuery(query, [values])
-    return true
-  }
+    static async saveZones(zones) {
+      // Función para formatear los valores y evitar undefined
+      const formatZone = (zone) => [
+        zone.id_tournament ?? null,
+        zone.id_category ?? null,
+        zone.id_couple1 ?? null,
+        zone.points_couple1 ?? null,
+        zone.id_couple2 ?? null,
+        zone.points_couple2 ?? null,
+        zone.match ?? null,
+        zone.rival1 || null,
+        zone.rival2 || null,
+        zone.zone ?? null,
+        zone.day ?? null,
+        zone.id_club ?? null,
+        zone.hour ? `${zone.hour}:00` : null
+      ];
+    
+      const inserts = [];
+      const updatePromises = [];
+    
+      for (const zone of zones) {
+        if (zone.id && Number.isInteger(zone.id)) {
+          // UPDATE en paralelo
+          updatePromises.push(
+            executeQuery(
+              `
+              UPDATE zones_matches
+              SET 
+                id_tournament = ?, 
+                id_category = ?, 
+                id_couple1 = ?, 
+                points_couple1 = ?, 
+                id_couple2 = ?, 
+                points_couple2 = ?, 
+                \`match\` = ?, 
+                rival1 = ?, 
+                rival2 = ?, 
+                zone = ?, 
+                day = ?, 
+                id_club = ?, 
+                hour = ?
+              WHERE id = ?
+            `,
+              [...formatZone(zone), zone.id]
+            )
+          );
+        } else {
+          inserts.push(formatZone(zone));
+        }
+      }
+    
+      // Ejecutar todos los updates en paralelo
+      if (updatePromises.length > 0) {
+        await Promise.all(updatePromises);
+      }
+    
+      // INSERT masivo para nuevos registros
+      if (inserts.length > 0) {
+        await executeQuery(
+          `
+          INSERT INTO zones_matches 
+          (id_tournament, id_category, id_couple1, points_couple1, id_couple2, points_couple2, \`match\`, rival1, rival2, zone, day, id_club, hour)
+          VALUES ?
+        `,
+          [inserts]
+        );
+      }
+    
+      return true;
+    }
+  
   static async deleteZones(id_tournament, id_category) {
     const query = `DELETE FROM zones_matches WHERE id_tournament = ? AND id_category = ?`
     await executeQuery(query, [id_tournament, id_category])

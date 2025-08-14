@@ -133,6 +133,7 @@ async function ordenarZonasGeneradas(generateds, inscriptions) {
                 club: generateds[i].id_club,
                 hour: generateds[i].hour,
                 day: generateds[i].day,
+                idMain: generateds[i].id,
                 parejas: [],
                 partidos: []
             }
