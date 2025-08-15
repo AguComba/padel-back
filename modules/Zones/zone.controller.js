@@ -125,8 +125,13 @@ async function generarZonas(parejas) {
 
 async function ordenarZonasGeneradas(generateds, inscriptions) {
     const zones = {}
+    const zonesIgnored = []
     for (let i = 0; i < generateds.length; i++) {
         const zone = generateds[i].zone
+        if(generateds[i].idMatch !== null || zonesIgnored.includes(zone)){
+            zonesIgnored.push(zone)
+            continue
+        }
         if (!zones[zone]) {
             zones[zone] = {
                 nombre: zone,
