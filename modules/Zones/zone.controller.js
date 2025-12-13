@@ -1,7 +1,6 @@
 import { hasRole, isAdmin } from '../../middlewares/permisions.js'
 import { CouplesModel } from '../Couples/couples.model.js'
 import { ZonesModel } from './zone.model.js'
-// import { parejas, parejas4, parejasSuma6 } from './couples.js'
 
 function calcularZonas(parejas) {
     if (parejas < 3 || parejas > 64) {
