@@ -1,4 +1,4 @@
-export const drops = [
+export const templateDrops = [
     {
         couples: 6,
         round: 'semi',
@@ -13,6 +13,9 @@ export const drops = [
         round: '4to',
         matches: [
             {id: '4to-1', rival1: 'A3', rival2: 'B2'},
+            {id: '4to-2', rival1: null, rival2: null},
+            {id: '4to-3', rival1: null, rival2: null},
+            {id: '4to-4', rival1: null, rival2: null},
             {id: 'semi-1', rival1: 'A1', rival2: '4to-1'},
             {id: 'semi-2', rival1: 'A2', rival2: '1B'},
             {id: 'final',rival1: 'semi-1', rival2: 'semi-2'}
