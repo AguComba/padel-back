@@ -88,11 +88,6 @@ export const getPlayerByDni = async (req, res) => {
     }
 }
 
-const exisistPlayer = async (id_user) => {
-    const player = await PlayerModel.searchByIdUserAfiliated(id_user)
-    return !!player
-}
-
 export const createPlayer = async (req, res) => {
     try {
         const {user = false} = req.session
@@ -101,9 +96,15 @@ export const createPlayer = async (req, res) => {
             return res.status(401).json({message: 'No tienes permisos para acceder a este recurso'})
         }
 
-        if (await exisistPlayer(user.id)) {
-            return res.status(400).json({message: 'Ya eres jugador'})
+        const serachPlayer = await PlayerModel.searchByIdUser(user.id)
+        if (serachPlayer && !serachPlayer.afiliation) {
+            return res.status(200).json(serachPlayer)
         }
+
+        if (serachPlayer && serachPlayer.afiliation) {
+            return res.status(400).json({message: 'Ya eres jugador'})
+        }       
+
         player.id_user = user.id
 
         const validPlayer = PlayerSchema.safeParse(player)
