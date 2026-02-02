@@ -1,9 +1,10 @@
 import { executeQuery } from '../../utils/executeQuery.js'
 
 export class ClubModel {
-    static async getClubs() {
+    static async getClubs(afiliation = false) {
         try {
-            const rows = await executeQuery('SELECT * FROM clubs where status = 1')
+            const query = afiliation ? "SELECT * FROM clubs where status = 1 and afiliation = 1" : "SELECT * FROM clubs where status = 1"
+            const rows = await executeQuery(query)
             return rows
         } catch (error) {
             throw new Error('Error getting clubs: ' + error.message)

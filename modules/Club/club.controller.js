@@ -9,7 +9,8 @@ export const getAllClubs = async (req, res) => {
       throw new Error('No tienes permisos para acceder a esta ruta')
     }
 
-    const clubes = await ClubModel.getClubs()
+    const { afiliation = false } = req.query
+    const clubes = await ClubModel.getClubs(afiliation)
 
     res.status(200).json(clubes)
     // Logica para obtener todos los clubes
