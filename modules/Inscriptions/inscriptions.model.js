@@ -78,7 +78,6 @@ export class InscriptionModel {
     }
 
     static async searchInscriptionByCategoryAndTournament(id_tournament, id_category) {
-        console.log(id_tournament, id_category)
         const result = await executeQuery(
             `
         SELECT COUNT(*) AS couples_inscripted FROM inscriptions
@@ -87,7 +86,6 @@ export class InscriptionModel {
             [id_tournament, id_category]
         )
 
-        console.log(result)
         return result.shift()
     }
 

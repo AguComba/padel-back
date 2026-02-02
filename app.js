@@ -15,6 +15,7 @@ import { inscriptionsRouter } from './modules/Inscriptions/inscriptions.routes.j
 import { userRoutes } from './modules/Users/user.routes.js'
 import { paymentRouter } from './modules/Payment/payment.routes.js'
 import { zonesRouter } from './modules/Zones/zone.routes.js'
+import { drop } from './modules/Drops/drop.routes.js'
 // MATCH ROUTER
 import ResultMatchRepositoryMysql from './modules/Results/Infrastructure/ResultMatchRepositoryMysql.js'
 import createResultMatchRoutes from './modules/Results/Infrastructure/ResultMatchRoutes.js'
@@ -48,6 +49,7 @@ app.use('/tournaments', tournamentRouter)
 app.use('/inscriptions', inscriptionsRouter)
 app.use('/users', userRoutes)
 app.use('/zones', zonesRouter)
+app.use('/drops', drop)
 app.use('/result-match', createResultMatchRoutes(resultMatchService))
 app.use('*', (req, res) => {
     res.status(404).json({ message: 'Not found' }) 
