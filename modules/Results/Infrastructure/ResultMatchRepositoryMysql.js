@@ -38,7 +38,7 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
 
       if (resultMatch.winnerNextMatch) {
         const winnerQuery = `
-        UPDATE zones_matches 
+        UPDATE matches 
         SET id_couple1 = ?, points_couple1 = ?, 
             id_couple2 = ?, points_couple2 = ?,
             updated_at = NOW()
@@ -50,7 +50,7 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
 
       if (resultMatch.loserNextMatch) {
         const loserQuery = `
-        UPDATE zones_matches 
+        UPDATE matches 
         SET id_couple1 = ?, points_couple1 = ?, 
             id_couple2 = ?, points_couple2 = ?,
             updated_at = NOW()
@@ -82,9 +82,9 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
 
   async findAllMatchsByZone({zone, category, id_tournament}) {
     const results = await executeQuery(
-      `select r.* from zones_matches z
-        inner join result_match r on z.id = r.id_match
-        where r.match_type = 'zona' and z.zone = ? and z.id_category = ? and z.id_tournament = ?;`,
+      `select r.* from matches m
+        inner join result_match r on m.id = r.id_match
+        where r.match_type = 'zona' and m.zone = ? and m.id_category = ? and m.id_tournament = ?;`,
       [zone, category, id_tournament]
     )
     return results
@@ -92,7 +92,7 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
 
   async findMatchsByUserLargador({id_user, id_tournament, is_creator_or_admin}) {
 
-    const query = is_creator_or_admin ? `select z.*,
+    const query = is_creator_or_admin ? `select m.*,
       r.first_set_couple1,
       r.first_set_couple2,
       r.second_set_couple1,
@@ -108,24 +108,24 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
     CONCAT_WS(" - ",
       IFNULL(CONCAT(u3.name, " ", u3.last_name), 'SIN PAREJA'),
       IFNULL(CONCAT(u4.name, " ", u4.last_name), 'SIN PAREJA')
-    ) AS pareja2, c.name as categoria from zones_matches z 
-     left join result_match r on z.id = r.id_match
+    ) AS pareja2, c.name as categoria from matches m 
+     left join result_match r on m.id = r.id_match
 
-      LEFT JOIN couples c1 ON z.id_couple1 = c1.id
+      LEFT JOIN couples c1 ON m.id_couple1 = c1.id
       LEFT JOIN players p1 ON c1.id_player1 = p1.id
       LEFT JOIN players p2 ON c1.id_player2 = p2.id
       LEFT JOIN users u1 ON p1.id_user = u1.id
       LEFT JOIN users u2 ON p2.id_user = u2.id
 
-      LEFT JOIN couples c2 ON z.id_couple2 = c2.id
+      LEFT JOIN couples c2 ON m.id_couple2 = c2.id
       LEFT JOIN players p3 ON c2.id_player1 = p3.id
       LEFT JOIN players p4 ON c2.id_player2 = p4.id
       LEFT JOIN users u3 ON p3.id_user = u3.id
       LEFT JOIN users u4 ON p4.id_user = u4.id
-      LEFT JOIN categories c ON z.id_category = c.id
-      where z.id_tournament = ?` :
+      LEFT JOIN categories c ON m.id_category = c.id
+      where m.id_tournament = ?` :
 
-      `select z.*,
+      `select m.*,
       r.first_set_couple1,
       r.first_set_couple2,
       r.second_set_couple1,
@@ -143,23 +143,23 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
       IFNULL(CONCAT(u4.name, " ", u4.last_name), 'SIN PAREJA')
     ) AS pareja2, c.name as categoria from users u  
       inner join user_club uc on u.id = uc.id_user
-      inner join zones_matches z on uc.id_club = z.id_club
-      left join result_match r on z.id = r.id_match
+      inner join matches m on uc.id_club = m.id_club
+      left join result_match r on m.id = r.id_match
 
 
-      LEFT JOIN couples c1 ON z.id_couple1 = c1.id
+      LEFT JOIN couples c1 ON m.id_couple1 = c1.id
       LEFT JOIN players p1 ON c1.id_player1 = p1.id
       LEFT JOIN players p2 ON c1.id_player2 = p2.id
       LEFT JOIN users u1 ON p1.id_user = u1.id
       LEFT JOIN users u2 ON p2.id_user = u2.id
 
-      LEFT JOIN couples c2 ON z.id_couple2 = c2.id
+      LEFT JOIN couples c2 ON m.id_couple2 = c2.id
       LEFT JOIN players p3 ON c2.id_player1 = p3.id
       LEFT JOIN players p4 ON c2.id_player2 = p4.id
       LEFT JOIN users u3 ON p3.id_user = u3.id
       LEFT JOIN users u4 ON p4.id_user = u4.id
-      LEFT JOIN categories c ON z.id_category = c.id
-      where z.id_tournament = ? and u.id = ?;
+      LEFT JOIN categories c ON m.id_category = c.id
+      where m.id_tournament = ? and u.id = ?;
     `
 
     const results = await executeQuery(query,
