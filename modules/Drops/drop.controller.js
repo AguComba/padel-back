@@ -61,3 +61,29 @@ export const createDrops = async (req, res) => {
         res.status(400).json({message: error.message})
     }
 }
+
+export const updateDropsFromZones = async (stats, id_matchs) => {
+    try {
+        const {drops, zone}= await DropModel.findUpdateDrops(id_matchs)
+
+        // Agrego el id_couple a cada drop segun corresponda
+        drops.forEach((drop) => {
+            // Verifico a donde tengo que agregar el id_couple, saco la ultima letra del string para determinar cual stats usar
+            if(drop.rival1.includes(zone)) {
+                // Hago el slice para obtener el numero de la pareja a reemplazar y restarle 1 para obtener el indice correcto en stats
+                drop.id_couple1 = stats[drop.rival1.slice(-1) - 1].id
+            } else if(drop.rival2.includes(zone)) {
+                // Hago el slice para obtener el numero de la pareja a reemplazar y restarle 1 para obtener el indice correcto en stats
+                drop.id_couple2 = stats[drop.rival2.slice(-1) - 1].id
+            }
+        })
+
+        const updatedDrops = await DropModel.updateDrops(drops)
+
+        if(!updatedDrops) throw new Error('Error al actualizar los drops')
+
+        return drops
+    } catch (error) {
+        throw new Error(error.message)
+    }
+}

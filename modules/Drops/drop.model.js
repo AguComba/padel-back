@@ -50,6 +50,41 @@ export class DropModel {
 
         return true;
     }
+
+    static async findUpdateDrops(id_matchs) {
+        const [matchs] = await executeQuery(
+            `
+                SELECT id, id_tournament, id_category, zone 
+                FROM matches
+                WHERE id IN (?)
+                LIMIT 1
+            `,
+            [id_matchs]
+        )
+
+        const dropsToUpdate = await executeQuery(
+            `SELECT * FROM matches where id_tournament = ? and id_category = ? and is_drop = 1`,
+            [matchs.id_tournament, matchs.id_category]
+        )
+
+        // Filtro los drops en donde rival1 o rival2 coincidan con la zona
+        const dropsToUpdateFiltered = dropsToUpdate.filter((drop) => drop?.rival1?.includes(matchs.zone) || drop?.rival2?.includes(matchs.zone))
+        return {drops: dropsToUpdateFiltered, zone: matchs.zone}
+    }
+
+    static async updateDrops(drops) {
+        const updatePromises = drops.map((drop) => {
+            return executeQuery(
+                `
+                    UPDATE matches
+                    SET id_couple1 = ?, id_couple2 = ?
+                    WHERE id = ?
+                `,
+                [drop.id_couple1, drop.id_couple2, drop.id]
+            )
+        })
+
+        const results = await Promise.all(updatePromises)
+        return results.every((result) => result.affectedRows > 0)
+    }
 }
-
-

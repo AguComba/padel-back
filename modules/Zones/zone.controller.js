@@ -1,5 +1,6 @@
 import { hasRole, isAdmin } from '../../middlewares/permisions.js'
 import { CouplesModel } from '../Couples/couples.model.js'
+import {updateDropsFromZones} from '../Drops/drop.controller.js'
 import { ZonesModel } from './zone.model.js'
 
 function calcularZonas(parejas) {
@@ -356,6 +357,8 @@ export const endZone = async (req, res) => {
       ...stat,
       nombre: coupleNamesMap[stat.id] || 'SIN NOMBRE'
     }));
+
+    const updatedDrops = await updateDropsFromZones(estadisticas, id_matchs)
 
     return res.status(200).json({ estadisticas });
   } catch (error) {
