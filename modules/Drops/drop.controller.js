@@ -2,6 +2,13 @@ import { templateDrops } from './templatesDrops.js'
 import { InscriptionModel } from '../Inscriptions/inscriptions.model.js'
 import {ZonesModel} from '../Zones/zone.model.js'
 import {DropModel} from './drop.model.js'
+import {resultMatchSchema} from '../Results/Infrastructure/resultMatchSchema.js'
+import {hasRole} from '../../middlewares/permisions.js'
+import ResultMatchRepositoryMysql from '../Results/Infrastructure/ResultMatchRepositoryMysql.js'
+import { createResultMatchService } from '../Results/Application/services/resultMatchService.js'
+
+const resultMatchRepository = new ResultMatchRepositoryMysql()
+const resultMatchService = createResultMatchService(resultMatchRepository)
 
 export const getDrops = async (req, res) => {
     try {
@@ -25,8 +32,8 @@ export const getDrops = async (req, res) => {
 
                 return {
                     id: match.id, 
-                    rival1: currentMatch.pareja1 === 'SIN PAREJA' ? currentMatch.rival1 : currentMatch.pareja1, 
-                    rival2: currentMatch.pareja2 === 'SIN PAREJA' ? currentMatch.rival2 : currentMatch.pareja2, 
+                    rival1: currentMatch.pareja1 === 'SIN PAREJA' ? currentMatch.rival1 : currentMatch.pareja1_last_name, 
+                    rival2: currentMatch.pareja2 === 'SIN PAREJA' ? currentMatch.rival2 : currentMatch.pareja2_last_name,
                     club: currentMatch.club_name, 
                     hour: currentMatch.hour, 
                     day: currentMatch.day,
@@ -85,5 +92,36 @@ export const updateDropsFromZones = async (stats, id_matchs) => {
         return drops
     } catch (error) {
         throw new Error(error.message)
+    }
+}
+
+export const addResultDrop = async (req, res) => {
+    try {
+        const {user} = req.session
+
+        
+        if (!hasRole(user, ['admin', 'superAdmin', 'largador'])) {
+            return res.status(403).json({success: false, error: 'No tienes permiso para realizar esta acción'})
+        }
+
+        //INYECTO EL USER CREATED Y USER UPDATED EN EL BODY
+        req.body.user_created = user.id
+        req.body.user_updated = user.id
+
+        const parsed = resultMatchSchema.parse(req.body)
+        // Si no viene created_at / updated_at, se los seteamos ahora
+        parsed.created_at ??= new Date()
+        parsed.updated_at ??= new Date()
+
+        const result = await resultMatchService.register.execute(parsed)
+        res.status(201).json({success: true, data: result})
+    } catch (error) {
+        if (error.name === 'ZodError') {
+            return res.status(400).json({
+                success: false,
+                error: error.errors.map(e => `${e.path.join('.')}: ${e.message}`)
+            })
+        }
+        res.status(400).json({message: error.message})
     }
 }

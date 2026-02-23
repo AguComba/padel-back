@@ -123,7 +123,7 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
       LEFT JOIN users u3 ON p3.id_user = u3.id
       LEFT JOIN users u4 ON p4.id_user = u4.id
       LEFT JOIN categories c ON m.id_category = c.id
-      where m.id_tournament = ?` :
+      where m.id_tournament = ? and m.is_drop = 0` :
 
       `select m.*,
       r.first_set_couple1,
@@ -159,7 +159,7 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
       LEFT JOIN users u3 ON p3.id_user = u3.id
       LEFT JOIN users u4 ON p4.id_user = u4.id
       LEFT JOIN categories c ON m.id_category = c.id
-      where m.id_tournament = ? and u.id = ?;
+      where m.id_tournament = ? and u.id = ? and m.is_drop = 0;
     `
 
     const results = await executeQuery(query,
