@@ -55,7 +55,7 @@ export class PlayerModel {
          inner join categories cat on p.id_category = cat.id 
          inner join users u on p.id_user = u.id 
          inner join clubs c on p.id_club = c.id
-         where u.id = ? AND afiliation = 1`,
+         where u.id = ? AND p.afiliation = 1`,
                 [id]
             )
             return rows.shift()
