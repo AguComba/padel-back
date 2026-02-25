@@ -90,5 +90,19 @@ export class DropModel {
         return results.every((result) => result.affectedRows > 0)
     }
 
-    static
+    static async findDropByIdMatch(id_match) {
+        const [currentMatch] = await executeQuery(
+            `SELECT * FROM matches where id = ? and is_drop = 1`,
+            [id_match]
+        )
+
+        const rival = currentMatch ? `${currentMatch.zone}-${currentMatch.match}` : ""
+
+        const [drop] = await executeQuery(
+            `SELECT * FROM matches where id_tournament = ? and id_category = ? and rival1 = ? or rival2 = ? and is_drop = 1`,
+            [currentMatch.id_tournament, currentMatch.id_category, rival, rival]
+        )
+
+        return {drop, currentMatch} 
+    }
 }

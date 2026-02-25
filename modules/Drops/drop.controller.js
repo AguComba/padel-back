@@ -25,7 +25,8 @@ export const getDrops = async (req, res) => {
             const matches = await ZonesModel.getZones(tournament, cat, true);
             drop = drop.matches.map((match) => {
                 const [instance, matchNumber] = match.id.split('-')
-                const currentMatch = matches.find((item) => item.match == matchNumber && item.zone === instance)
+                const normalizedMatchNumber = instance === 'final' ? 1 :matchNumber
+                const currentMatch = matches.find((item) => item.match == normalizedMatchNumber && item.zone === instance)
                 if (!currentMatch) {
                     return match
                 }
@@ -138,12 +139,11 @@ export const addResultDrop = async (req, res) => {
     try {
         const {user} = req.session
 
-
         if (!hasRole(user, ['admin', 'superAdmin', 'largador'])) {
             return res.status(403).json({success: false, error: 'No tienes permiso para realizar esta acción'})
         }
 
-        const {id_match} = req.body
+        const {id_match, winner_couple} = req.body
 
         //INYECTO EL USER CREATED Y USER UPDATED EN EL BODY
         req.body.user_created = user.id
@@ -154,8 +154,19 @@ export const addResultDrop = async (req, res) => {
         parsed.created_at ??= new Date()
         parsed.updated_at ??= new Date()
 
+        const {drop, currentMatch} = await DropModel.findDropByIdMatch(id_match)
+        const id_couple_replace = currentMatch ? `${currentMatch.zone}-${currentMatch.match}` : ''
+
+        if (drop.rival1 === id_couple_replace) {
+            drop.id_couple1 = winner_couple
+        } else if (drop.rival2 === id_couple_replace) {
+            drop.id_couple2 = winner_couple
+        }
+
+        const updateDrop = await DropModel.updateDrops([drop])
+
         const result = await resultMatchService.register.execute(parsed)
-        res.status(201).json({success: true, data: result})
+        res.status(201).json({success: true, data: result, drop_updated: updateDrop})
     } catch (error) {
         if (error.name === 'ZodError') {
             return res.status(400).json({
