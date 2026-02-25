@@ -60,7 +60,21 @@ export const createDrops = async (req, res) => {
         const {tournament, category, matches} = req.body
         if (!tournament || !category || !matches) throw new Error('Faltan parametros')
 
-        const newDrops = await DropModel.createDrops(tournament, category, matches)
+        const {couples_inscripted} = await InscriptionModel.searchInscriptionByCategoryAndTournament(tournament, category)
+        const drop = couples_inscripted > 48 ? templateDrops.find((item) => item.couples === 48) : templateDrops.find((item) => item.couples === couples_inscripted)
+
+        // Busco el match en el template de drops, cuando rival1 o rival2 son diferentes en la request los reemplazo por los del template
+        const matchesWithReplace = matches.map((match) => {
+            const dropMatch = drop.matches.find((item) => item.id === match.id)
+            if (!dropMatch) return match
+            return {
+                ...match,
+                rival1: dropMatch.rival1,
+                rival2: dropMatch.rival2,
+            }
+        })
+
+        const newDrops = await DropModel.createDrops(tournament, category, matchesWithReplace)
 
         if (!newDrops) throw new Error('Error al crear los drops')
 

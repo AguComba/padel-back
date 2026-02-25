@@ -2,54 +2,41 @@ import {executeQuery} from "../../utils/executeQuery.js";
 
 export class DropModel {
     static async createDrops(tournament, category, matches) {
-        const parsedMatches = matches.map((match) => {
-            const [instance, matchNumber] = match.id.split('-')
-            const number = instance === 'final' ? 1 : matchNumber
-            return {
-                instance,
-                matchNumber,
-                values: [tournament, category, match.rival1, match.rival2, number, instance, match.day, match.id_club, `${match.hour}:00`, true]
-            }
+        const rows = matches.map((match) => {
+            const [zone, matchNumber] = match.id.split('-')
+            const number = zone === 'final' ? 1 : Number(matchNumber)
+
+            return [
+                tournament,
+                category,
+                match.rival1,         // solo se usa al INSERT
+                match.rival2,         // solo se usa al INSERT
+                number,               // `match`
+                zone,                 // zone
+                match.day,
+                match.id_club,
+                `${match.hour}:00`,
+                true                  // is_drop
+            ]
         })
 
-        if (parsedMatches.length === 0) return true
+        if (rows.length === 0) return true
 
-        const existingDropFilters = parsedMatches
-            .map(() => '(\`match\` = ? AND zone = ?)')
-            .join(' OR ')
-        const existingDropParams = parsedMatches.flatMap(({matchNumber, instance}) => [matchNumber, instance])
-
-        const existingDrops = await executeQuery(
+        await executeQuery(
             `
-                SELECT \`match\`, zone
-                FROM matches
-                WHERE id_tournament = ?
-                    AND id_category = ?
-                    AND (${existingDropFilters})
-            `,
-            [tournament, category, ...existingDropParams]
+        INSERT INTO matches
+            (id_tournament, id_category, rival1, rival2, \`match\`, zone, day, id_club, hour, is_drop)
+        VALUES ?
+        ON DUPLICATE KEY UPDATE
+            day = VALUES(day),
+            id_club = VALUES(id_club),
+            hour = VALUES(hour),
+            updated_at = CURRENT_TIMESTAMP
+        `,
+            [rows]
         )
 
-        const existingDropsSet = new Set(
-            existingDrops.map((drop) => `${drop.zone}-${drop.match}`)
-        )
-
-        const formattedMatches = parsedMatches
-            .filter(({instance, matchNumber}) => !existingDropsSet.has(`${instance}-${matchNumber}`))
-            .map(({values}) => values)
-
-        if (formattedMatches.length > 0) {
-            await executeQuery(
-                `
-          INSERT INTO matches 
-          (id_tournament, id_category, rival1, rival2, \`match\`, zone, day, id_club, hour, is_drop)
-          VALUES ?
-            `,
-                [formattedMatches]
-            );
-        }
-
-        return true;
+        return true
     }
 
     static async findUpdateDrops(id_matchs) {
@@ -103,6 +90,6 @@ export class DropModel {
             [currentMatch.id_tournament, currentMatch.id_category, rival, rival]
         )
 
-        return {drop, currentMatch} 
+        return {drop, currentMatch}
     }
 }
