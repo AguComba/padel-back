@@ -4,10 +4,11 @@ export class DropModel {
     static async createDrops(tournament, category, matches) {
         const parsedMatches = matches.map((match) => {
             const [instance, matchNumber] = match.id.split('-')
+            const number = instance === 'final' ? 1 : matchNumber
             return {
                 instance,
                 matchNumber,
-                values: [tournament, category, match.rival1, match.rival2, matchNumber, instance, match.day, match.id_club, `${match.hour}:00`, true]
+                values: [tournament, category, match.rival1, match.rival2, number, instance, match.day, match.id_club, `${match.hour}:00`, true]
             }
         })
 
@@ -16,7 +17,7 @@ export class DropModel {
         const existingDropFilters = parsedMatches
             .map(() => '(\`match\` = ? AND zone = ?)')
             .join(' OR ')
-        const existingDropParams = parsedMatches.flatMap(({ matchNumber, instance }) => [matchNumber, instance])
+        const existingDropParams = parsedMatches.flatMap(({matchNumber, instance}) => [matchNumber, instance])
 
         const existingDrops = await executeQuery(
             `
@@ -34,8 +35,8 @@ export class DropModel {
         )
 
         const formattedMatches = parsedMatches
-            .filter(({ instance, matchNumber }) => !existingDropsSet.has(`${instance}-${matchNumber}`))
-            .map(({ values }) => values)
+            .filter(({instance, matchNumber}) => !existingDropsSet.has(`${instance}-${matchNumber}`))
+            .map(({values}) => values)
 
         if (formattedMatches.length > 0) {
             await executeQuery(
@@ -69,8 +70,9 @@ export class DropModel {
 
         // Filtro los drops en donde rival1 o rival2 coincidan con la zona
         const dropsToUpdateFiltered = dropsToUpdate.filter((drop) => drop?.rival1?.includes(matchs.zone) || drop?.rival2?.includes(matchs.zone))
-        return {drops: dropsToUpdateFiltered, zone: matchs.zone}
+        return {drops: dropsToUpdateFiltered, zone: matchs.zone, allDrops: dropsToUpdate}
     }
+
 
     static async updateDrops(drops) {
         const updatePromises = drops.map((drop) => {
@@ -87,4 +89,6 @@ export class DropModel {
         const results = await Promise.all(updatePromises)
         return results.every((result) => result.affectedRows > 0)
     }
+
+    static
 }
