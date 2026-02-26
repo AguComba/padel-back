@@ -5,7 +5,9 @@ import ResultMatchRepository from "../Domain/ResultMatchRepository.js"
 class ResultMatchRepositoryMysql extends ResultMatchRepository {
   async save(resultMatch) {
     return await handleTransaction(async (connection) => {
-      const insertQuery = `
+      const now = new Date()
+
+      const upsertQuery = `
       INSERT INTO result_match (
         first_set_couple1, first_set_couple2,
         second_set_couple1, second_set_couple2,
@@ -14,9 +16,21 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
         match_type, created_at, updated_at,
         user_created, user_updated
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        first_set_couple1 = VALUES(first_set_couple1),
+        first_set_couple2 = VALUES(first_set_couple2),
+        second_set_couple1 = VALUES(second_set_couple1),
+        second_set_couple2 = VALUES(second_set_couple2),
+        third_set_couple1 = VALUES(third_set_couple1),
+        third_set_couple2 = VALUES(third_set_couple2),
+        winner_couple = VALUES(winner_couple),
+        result_string = VALUES(result_string),
+        wo = VALUES(wo),
+        updated_at = VALUES(updated_at),
+        user_updated = VALUES(user_updated)
     `
 
-      const insertValues = [
+      const values = [
         resultMatch.first_set_couple1,
         resultMatch.first_set_couple2,
         resultMatch.second_set_couple1,
@@ -28,37 +42,28 @@ class ResultMatchRepositoryMysql extends ResultMatchRepository {
         resultMatch.wo ?? 0,
         resultMatch.id_match,
         resultMatch.match_type,
-        resultMatch.created_at || new Date(),
-        resultMatch.updated_at || new Date(),
+        resultMatch.created_at || now,
+        resultMatch.updated_at || now,
         resultMatch.user_created,
         resultMatch.user_updated,
       ]
 
-      await connection.query(insertQuery, insertValues)
+      await connection.query(upsertQuery, values)
 
-      if (resultMatch.winnerNextMatch) {
-        const winnerQuery = `
-        UPDATE matches 
-        SET id_couple1 = ?, points_couple1 = ?, 
+      const updateNextMatch = async (next) => {
+        const q = `
+        UPDATE matches
+        SET id_couple1 = ?, points_couple1 = ?,
             id_couple2 = ?, points_couple2 = ?,
             updated_at = NOW()
         WHERE id = ?
       `
-        const {id, id_couple1, points_couple1, id_couple2, points_couple2} = resultMatch.winnerNextMatch
-        await connection.query(winnerQuery, [id_couple1, points_couple1, id_couple2, points_couple2, id])
+        const {id, id_couple1, points_couple1, id_couple2, points_couple2} = next
+        await connection.query(q, [id_couple1, points_couple1, id_couple2, points_couple2, id])
       }
 
-      if (resultMatch.loserNextMatch) {
-        const loserQuery = `
-        UPDATE matches 
-        SET id_couple1 = ?, points_couple1 = ?, 
-            id_couple2 = ?, points_couple2 = ?,
-            updated_at = NOW()
-        WHERE id = ?
-      `
-        const {id, id_couple1, points_couple1, id_couple2, points_couple2} = resultMatch.loserNextMatch
-        await connection.query(loserQuery, [id_couple1, points_couple1, id_couple2, points_couple2, id])
-      }
+      if (resultMatch.winnerNextMatch) await updateNextMatch(resultMatch.winnerNextMatch)
+      if (resultMatch.loserNextMatch) await updateNextMatch(resultMatch.loserNextMatch)
 
       return {success: true}
     })
