@@ -41,7 +41,10 @@ export const getDrops = async (req, res) => {
                     setCouple1: [currentMatch.first_set_couple1, currentMatch.second_set_couple1, currentMatch.third_set_couple1],
                     setCouple2: [currentMatch.first_set_couple2, currentMatch.second_set_couple2, currentMatch.third_set_couple2],
                     winner: currentMatch.winner_couple,
-                    wo: currentMatch.wo
+                    wo: currentMatch.wo,
+                    matchId: currentMatch.id,
+                    idCouple1: currentMatch.id_couple1,
+                    idCouple2: currentMatch.id_couple2,
                 }
             })
         }
