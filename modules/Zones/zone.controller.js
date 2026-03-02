@@ -358,6 +358,23 @@ export const endZone = async (req, res) => {
       nombre: coupleNamesMap[stat.id] || 'SIN NOMBRE'
     }));
 
+    // Si la zona es de 4, verifico los partidos entre si para ver quien pasa segundo y tercero
+    if(matchs.length === 4){
+        const secondCouple = estadisticas[1];
+        const thirdCouple = estadisticas[2];
+        // Verifico si el segundo perdio el partido contra el tercero
+        const matchBetweenSecondAndThird = matchs.find(match => 
+            (match.id_couple1 === secondCouple.id && match.id_couple2 === thirdCouple.id) ||
+            (match.id_couple1 === thirdCouple.id && match.id_couple2 === secondCouple.id)
+        );
+
+        if(matchBetweenSecondAndThird && matchBetweenSecondAndThird.winner_couple === thirdCouple.id){
+            // Si el segundo perdio, el tercero pasa a segundo
+            estadisticas[1] = thirdCouple;
+            estadisticas[2] = secondCouple;
+        }
+    }
+
     const updatedDrops = await updateDropsFromZones(estadisticas, id_matchs)
 
     return res.status(200).json({ estadisticas });
