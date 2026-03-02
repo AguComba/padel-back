@@ -113,7 +113,7 @@ export class ZonesModel {
     return true
   }
   static async searchGeneratedZones(id_tournament, id_category) {
-    const query = `SELECT m.*, rm.id as idMatch FROM matches m LEFT JOIN result_match rm ON m.id = rm.id_match WHERE m.id_tournament = ? AND m.id_category = ?`
+    const query = `SELECT m.*, rm.id as idMatch FROM matches m LEFT JOIN result_match rm ON m.id = rm.id_match WHERE m.id_tournament = ? AND m.id_category = ? AND m.is_drop = 0`
     const zones = await executeQuery(query, [id_tournament, id_category])
     return zones
   }
