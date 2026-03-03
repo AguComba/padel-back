@@ -28,7 +28,7 @@ export class ZonesModel {
         
         WHERE m.id_tournament = ?
         AND m.id_category = ?
-        AND t.public = 1
+        AND t.public IN (1,2)
         AND m.is_drop = ?
         ORDER BY m.zone, \`match\``
     const zones = await executeQuery(query, [id_tournament, id_category, isDrop])

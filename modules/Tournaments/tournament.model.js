@@ -63,7 +63,7 @@ export class TournamentModel {
 
 	static async search() {
 		try {
-			const rows = await executeQuery(`SELECT t.id, t.name, date_start, date_end, date_inscription_start, date_inscription_end, t.max_couples, t.ranked,
+			const rows = await executeQuery(`SELECT t.id, t.name, date_start, date_end, date_inscription_start, date_inscription_end, t.max_couples, t.ranked, t.public,
                     t.gender, club.name as club, c.name as ciudad, a.amount
                     FROM tournaments t
                     INNER JOIN amounts a ON a.id_tournament = t.id
