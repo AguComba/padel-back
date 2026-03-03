@@ -136,7 +136,7 @@ export const approveAffiliationPlayer = async (req, res) => {
             return res.status(400).json({message: 'El jugador ya esta afiliado'})
         }
 
-        player.afiliation = false
+        player.afiliation = true
         const updatedPlayer = await PlayerModel.update(id, player)
         if (!updatedPlayer) {
             return res.status(400).json({message: 'No se pudo actualizar el jugador'})

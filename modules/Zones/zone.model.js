@@ -4,7 +4,9 @@ export class ZonesModel {
   static async getZones(id_tournament, id_category, isDrop = false) {
     const query = `SELECT m.*, 
         IFNULL(CONCAT(u1.name, " ", u1.last_name, " - ", u2.name, " ", u2.last_name), 'SIN PAREJA') AS pareja1, 
+        IFNULL(CONCAT(u1.last_name, " - ", u2.last_name), 'SIN PAREJA') AS pareja1_last_name, 
         IFNULL(CONCAT(u3.name, " ", u3.last_name, " - ", u4.name, " ", u4.last_name), 'SIN PAREJA') AS pareja2,
+        IFNULL(CONCAT(u3.last_name, " - ", u4.last_name), 'SIN PAREJA') AS pareja2_last_name,
         cl.name AS club_name, rm.first_set_couple1, rm.first_set_couple2, rm.second_set_couple1, rm.second_set_couple2,
         rm.third_set_couple1, rm.third_set_couple2, rm.winner_couple, rm.wo
         FROM matches m
@@ -111,7 +113,7 @@ export class ZonesModel {
     return true
   }
   static async searchGeneratedZones(id_tournament, id_category) {
-    const query = `SELECT m.*, rm.id as idMatch FROM matches m LEFT JOIN result_match rm ON m.id = rm.id_match WHERE m.id_tournament = ? AND m.id_category = ?`
+    const query = `SELECT m.*, rm.id as idMatch FROM matches m LEFT JOIN result_match rm ON m.id = rm.id_match WHERE m.id_tournament = ? AND m.id_category = ? AND m.is_drop = 0`
     const zones = await executeQuery(query, [id_tournament, id_category])
     return zones
   }

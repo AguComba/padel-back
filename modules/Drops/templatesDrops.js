@@ -40,7 +40,7 @@ export const templateDrops = [
 		matches: [
 			{ id: '4to-1', rival1: 'A1', rival2: null },
 			{ id: '4to-2', rival1: 'B2', rival2: 'C2' },
-			{ id: '4to-3', rival1: '1C', rival2: 'A2' },
+			{ id: '4to-3', rival1: 'C1', rival2: 'A2' },
 			{ id: '4to-4', rival1: 'B1', rival2: null },
 			{ id: 'semi-1', rival1: '4to-1', rival2: '4to-2' },
 			{ id: 'semi-2', rival1: '4to-3', rival2: '4to-4' },
@@ -53,7 +53,7 @@ export const templateDrops = [
 		matches: [
 			{ id: '4to-1', rival1: 'A1', rival2: null },
 			{ id: '4to-2', rival1: 'B2', rival2: 'C2' },
-			{ id: '4to-3', rival1: '1C', rival2: 'A2' },
+			{ id: '4to-3', rival1: 'C1', rival2: 'A2' },
 			{ id: '4to-4', rival1: 'A3', rival2: 'B1' },
 			{ id: 'semi-1', rival1: '4to-1', rival2: '4to-2' },
 			{ id: 'semi-2', rival1: '4to-3', rival2: '4to-4' },
