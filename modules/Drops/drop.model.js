@@ -5,6 +5,7 @@ export class DropModel {
         const rows = matches.map((match) => {
             const [zone, matchNumber] = match.id.split('-')
             const number = zone === 'final' ? 1 : Number(matchNumber)
+            const hora = match.hour ? `${match.hour}:00` : null
 
             return [
                 tournament,
@@ -15,7 +16,7 @@ export class DropModel {
                 zone,                 // zone
                 match.day,
                 match.id_club,
-                `${match.hour}:00`,
+                hora,
                 true                  // is_drop
             ]
         })
