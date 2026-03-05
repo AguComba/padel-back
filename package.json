@@ -9,7 +9,10 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:cov": "vitest --coverage",
+    "test:run": "vitest run",
     "migrations": "node scripts/init-db.js",
     "seeders": "node scripts/seeders.js"
   },
