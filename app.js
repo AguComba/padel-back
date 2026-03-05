@@ -33,6 +33,7 @@ export function createApp() {
     app.use(json())
     app.use(cookieParser())
 
+    app.get("/health", (req, res) => res.json({ ok: true }));
     app.use('/auth', authRoutes)
     app.use('/payments', paymentRouter)
 
