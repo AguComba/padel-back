@@ -1,5 +1,4 @@
 import express, { json } from 'express'
-import { PORT } from './config/app.config.js'
 import cookieParser from 'cookie-parser'
 import { corsMiddleware } from './middlewares/cors.js'
 import { authRoutes } from './modules/Auth/auth.routes.js'
@@ -26,35 +25,34 @@ import {createResultMatchService} from './modules/Results/Application/services/r
 const resultMatchRepository = new ResultMatchRepositoryMysql()
 const resultMatchService = new createResultMatchService(resultMatchRepository)
 
+export function createApp() {
+    const app = express()
 
-const app = express()
+    app.use(corsMiddleware())
+    app.disable('x-powered-by')
+    app.use(json())
+    app.use(cookieParser())
 
-app.use(corsMiddleware())
-app.disable('x-powered-by')
-app.use(json())
-app.use(cookieParser())
+    app.use('/auth', authRoutes)
+    app.use('/payments', paymentRouter)
 
-app.use('/auth', authRoutes)
-app.use('/payments', paymentRouter)
+    // De aca para abajo, todas las rutas necesitan un token valido
+    app.use('/provinces', provincesRoutes)
+    app.use('/cities', citiesRoutes)
+    app.use('/federations', federationsRoutes)
+    app.use('/clubs', clubsRoutes)
+    app.use('/categories', categoriesRoutes)
+    app.use('/players', playersRouter)
+    app.use('/ranking', rankingRouter)
+    app.use('/tournaments', tournamentRouter)
+    app.use('/inscriptions', inscriptionsRouter)
+    app.use('/users', userRoutes)
+    app.use('/zones', zonesRouter)
+    app.use('/drops', drop)
+    app.use('/result-match', createResultMatchRoutes(resultMatchService))
+    app.use('*', (req, res) => {
+        res.status(404).json({message: 'Not found'})
+    })
 
-// De aca para abajo, todas las rutas necesitan un token valido
-app.use('/provinces', provincesRoutes)
-app.use('/cities', citiesRoutes)
-app.use('/federations', federationsRoutes)
-app.use('/clubs', clubsRoutes)
-app.use('/categories', categoriesRoutes)
-app.use('/players', playersRouter)
-app.use('/ranking', rankingRouter)
-app.use('/tournaments', tournamentRouter)
-app.use('/inscriptions', inscriptionsRouter)
-app.use('/users', userRoutes)
-app.use('/zones', zonesRouter)
-app.use('/drops', drop)
-app.use('/result-match', createResultMatchRoutes(resultMatchService))
-app.use('*', (req, res) => {
-    res.status(404).json({ message: 'Not found' }) 
-})
-
-app.listen(PORT, () => {
-    console.log(`Server is running on PORT: ${PORT}`)
-})
+    return app
+}
