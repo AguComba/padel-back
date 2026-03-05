@@ -19,7 +19,7 @@
   "dependencies": {
     "@formkit/tempo": "^0.1.2",
     "axios": "^1.7.9",
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^4.21.1",
