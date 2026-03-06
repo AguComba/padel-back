@@ -1,4 +1,4 @@
-import { pool } from '../config/db.config.js'
+import { getPool } from '../config/db.config.js'
 /**
  * Maneja una transacción de manera genérica.
  * @param {Function} callback - La función que contiene la lógica de negocio. Recibe como argumento la conexión activa de la transacción.
@@ -6,8 +6,11 @@ import { pool } from '../config/db.config.js'
  * @throws {Error} - Propaga errores ocurridos dentro de la transacción.
  */
 export const handleTransaction = async (callback) => {
-  const connection = await pool.getConnection() // Obtén una conexión del pool.
+  let connection 
   try {
+    const pool = await getPool()
+    const connection = await pool.getConnection() // Obtén una conexión del pool.
+
     await connection.beginTransaction() // Inicia la transacción.
 
     const result = await callback(connection) // Ejecuta la lógica de negocio con la conexión.

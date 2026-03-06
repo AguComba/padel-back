@@ -1,20 +1,31 @@
 import mysql from 'mysql2/promise'
-import { ENVAIROMENT, DB_HOST, DB_PASS, DB_PORT, DB_SCHEMA, DB_USER } from './app.config.js'
-
-const config = {
-    host: ENVAIROMENT === 'produccion' ? DB_HOST : DB_HOST,
-    port: DB_PORT,
-    user: DB_USER,
-    password: DB_PASS,
-    database: DB_SCHEMA
-}
 
 let pool
-try {
-    pool = mysql.createPool(config) // Crea un pool de conexiones
-    console.log('Conexión a la base de datos establecida')
-} catch (error) {
-    console.error('Error al conectar con la base de datos', error)
+
+export const getPool = async () => {
+  if (pool) return pool
+
+  const config = {
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT || 3306),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_SCHEMA
+  }
+
+  pool = mysql.createPool({
+    ...config,
+    connectionLimit: 10
+  })
+
+  await pool.query('SELECT 1')
+  console.log('Conexión a la base de datos establecida')
+
+  return pool
 }
 
-export { pool }
+export const closePool = async () => {
+  if (!pool) return
+  await pool.end()
+  pool = null
+}

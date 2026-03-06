@@ -1,4 +1,4 @@
-import { pool } from '../config/db.config.js'
+import { getPool } from '../config/db.config.js'
 
 /**
  * Función genérica para ejecutar consultas con el pool de conexiones
@@ -9,6 +9,7 @@ import { pool } from '../config/db.config.js'
 export const executeQuery = async (query, params = []) => {
     let connection
     try {
+        const pool = await getPool()
         connection = await pool.getConnection() // Obtener conexión del pool
         const [results] = await connection.query(query, params)
         return results
