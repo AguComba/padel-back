@@ -36,7 +36,7 @@ export const getDrops = async (req, res) => {
                     rival1: currentMatch.pareja1 === 'SIN PAREJA' ? currentMatch.rival1 : currentMatch.pareja1_last_name,
                     rival2: currentMatch.pareja2 === 'SIN PAREJA' ? currentMatch.rival2 : currentMatch.pareja2_last_name,
                     club: currentMatch.club_name,
-                    hour: currentMatch.hour,
+                    hour: currentMatch.hour?.slice(0, 5),
                     day: currentMatch.day,
                     setCouple1: [currentMatch.first_set_couple1, currentMatch.second_set_couple1, currentMatch.third_set_couple1],
                     setCouple2: [currentMatch.first_set_couple2, currentMatch.second_set_couple2, currentMatch.third_set_couple2],
