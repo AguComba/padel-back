@@ -87,7 +87,7 @@ export class DropModel {
         const rival = currentMatch ? `${currentMatch.zone}-${currentMatch.match}` : ""
 
         const [drop] = await executeQuery(
-            `SELECT * FROM matches where id_tournament = ? and id_category = ? and rival1 = ? or rival2 = ? and is_drop = 1`,
+            `SELECT * FROM matches where id_tournament = ? and id_category = ? and (rival1 = ? or rival2 = ?) and is_drop = 1`,
             [currentMatch.id_tournament, currentMatch.id_category, rival, rival]
         )
 
