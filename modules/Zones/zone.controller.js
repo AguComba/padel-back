@@ -307,6 +307,7 @@ function calcularEstadisticasOrdenadas(matches) {
     // Calculamos diferencia de games
     const result = Object.values(statsByCouple).map(stats => {
         stats.diferenciaGames = stats.gamesAFavor - stats.gamesEnContra;
+        stats.diferenciaSets = stats.setsGanados - stats.setsPerdidos;
         return stats;
     });
 
@@ -314,7 +315,7 @@ function calcularEstadisticasOrdenadas(matches) {
     result.sort((a, b) => {
         return (
             b.puntos - a.puntos ||
-            b.setsGanados - a.setsGanados ||
+            b.diferenciaSets - a.diferenciaSets ||
             b.diferenciaGames - a.diferenciaGames ||
             b.gamesAFavor - a.gamesAFavor
         );
