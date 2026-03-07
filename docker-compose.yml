@@ -11,7 +11,7 @@ services:
             - ./mysql:/var/lib/mysql
             - ./database/db.sql:/docker-entrypoint-initdb.d/db.sql
         ports:
-            - '3306:3306'
+            - '3307:3306'
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
         # restart: always
