@@ -314,8 +314,8 @@ function calcularEstadisticasOrdenadas(matches) {
     result.sort((a, b) => {
         return (
             b.puntos - a.puntos ||
-            b.diferenciaGames - a.diferenciaGames ||
             b.setsGanados - a.setsGanados ||
+            b.diferenciaGames - a.diferenciaGames ||
             b.gamesAFavor - a.gamesAFavor
         );
     });
