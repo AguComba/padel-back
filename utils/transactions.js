@@ -21,6 +21,6 @@ export const handleTransaction = async (callback) => {
     await connection.rollback() // Revierte la transacción en caso de error.
     throw error // Propaga el error.
   } finally {
-    connection.release() // Libera la conexión al pool.
+    if (connection) connection.release() // Libera la conexión al pool.
   }
 }
