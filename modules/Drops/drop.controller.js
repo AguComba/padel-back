@@ -36,7 +36,7 @@ export const getDrops = async (req, res) => {
                     rival1: currentMatch.pareja1 === 'SIN PAREJA' ? currentMatch.rival1 : currentMatch.pareja1_last_name,
                     rival2: currentMatch.pareja2 === 'SIN PAREJA' ? currentMatch.rival2 : currentMatch.pareja2_last_name,
                     club: currentMatch.club_name,
-                    hour: currentMatch.hour,
+                    hour: currentMatch.hour?.slice(0, 5),
                     day: currentMatch.day,
                     setCouple1: [currentMatch.first_set_couple1, currentMatch.second_set_couple1, currentMatch.third_set_couple1],
                     setCouple2: [currentMatch.first_set_couple2, currentMatch.second_set_couple2, currentMatch.third_set_couple2],
@@ -174,13 +174,16 @@ export const addResultDrop = async (req, res) => {
         const {drop, currentMatch} = await DropModel.findDropByIdMatch(id_match)
         const id_couple_replace = currentMatch ? `${currentMatch.zone}-${currentMatch.match}` : ''
 
-        if (drop.rival1 === id_couple_replace) {
+        if (drop && drop.rival1 === id_couple_replace) {
             drop.id_couple1 = winner_couple
-        } else if (drop.rival2 === id_couple_replace) {
+        } else if (drop && drop.rival2 === id_couple_replace) {
             drop.id_couple2 = winner_couple
         }
 
-        const updateDrop = await DropModel.updateDrops([drop])
+        let updateDrop
+        if(drop){
+            updateDrop = await DropModel.updateDrops([drop])
+        }
 
         const result = await resultMatchService.register.execute(parsed)
         res.status(201).json({success: true, data: result, drop_updated: updateDrop})
