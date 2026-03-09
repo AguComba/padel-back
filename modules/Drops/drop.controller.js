@@ -174,13 +174,16 @@ export const addResultDrop = async (req, res) => {
         const {drop, currentMatch} = await DropModel.findDropByIdMatch(id_match)
         const id_couple_replace = currentMatch ? `${currentMatch.zone}-${currentMatch.match}` : ''
 
-        if (drop.rival1 === id_couple_replace) {
+        if (drop && drop.rival1 === id_couple_replace) {
             drop.id_couple1 = winner_couple
-        } else if (drop.rival2 === id_couple_replace) {
+        } else if (drop && drop.rival2 === id_couple_replace) {
             drop.id_couple2 = winner_couple
         }
 
-        const updateDrop = await DropModel.updateDrops([drop])
+        let updateDrop
+        if(drop){
+            updateDrop = await DropModel.updateDrops([drop])
+        }
 
         const result = await resultMatchService.register.execute(parsed)
         res.status(201).json({success: true, data: result, drop_updated: updateDrop})

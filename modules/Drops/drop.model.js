@@ -84,6 +84,9 @@ export class DropModel {
             [id_match]
         )
 
+        if(currentMatch.zone === 'final'){
+            return {drop: null, currentMatch}
+        }
         const rival = currentMatch ? `${currentMatch.zone}-${currentMatch.match}` : ""
 
         const [drop] = await executeQuery(
