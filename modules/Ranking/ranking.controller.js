@@ -98,3 +98,36 @@ export const importRanking = async (req, res) => {
         return res.status(400).json({message: error.message})
     }
 }
+
+export const importRankingFromResults = async (req, res) => {
+    try {
+        const {user = false} = req.session
+        if (!isAdmin(user)) {
+            return res.status(403).json('No esta autorizado para esto.')
+        }
+
+        const {year = Date.now().getFullYear(), categoria = false, id_tournament = false} = req.body
+
+        if (!categoria) {
+            return res.status(400).json('Debe enviar la categoria')
+        }
+
+        if (!id_tournament) {
+            return res.status(400).json('Debe pasar el torneo')
+        }
+
+        const result = await RankingModel.importFromResults({
+            id_tournament,
+            id_category: categoria,
+            year,
+            user_updated: user.id
+        })
+
+        return res.status(200).json({
+            message: 'Ranking actualizado con resultados de zonas/cuadro',
+            ...result
+        })
+    } catch (error) {
+        return res.status(400).json({message: error.message})
+    }
+}

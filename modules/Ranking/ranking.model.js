@@ -2,6 +2,16 @@ import { executeQuery } from '../../utils/executeQuery.js'
 import { handleTransaction } from '../../utils/transactions.js'
 
 export class RankingModel {
+    static ROUND_POINTS = {
+        final: 80,
+        semi: 60,
+        '4to': 40,
+        '8vo': 30,
+        '16vo': 20,
+    }
+    static CHAMPION_POINTS = 100
+    static ZONE_POINTS = 10
+
     static async search(cat, gen, year) {
         try {
             const currentYear = new Date().getFullYear()
@@ -170,5 +180,129 @@ export class RankingModel {
         } catch (error) {
             throw new Error(error.message)
         }
+    }
+
+    static async importFromResults({id_tournament, id_category, year, user_updated, id_federation = 1}) {
+        try {
+            return await handleTransaction(async (connection) => {
+                const [tournament] = await connection.query(
+                    `SELECT t.gender, tc.status as category_status FROM tournaments t
+                     INNER JOIN tournament_categories tc ON tc.id_tournament = t.id
+                     WHERE t.id = ? and tc.id_category = ? FOR UPDATE`,
+                    [id_tournament, id_category]
+                )
+
+                if (!tournament.length) {
+                    throw new Error('No se encontro ningun torneo para la categoria y torneo especificados')
+                }
+
+                let {gender, category_status} = tournament[0]
+
+                if (category_status === 2) {
+                    throw new Error('El ranking de esta categoria ya fue actualizado. No se puede actualizar de nuevo, usa el modulo de correcciones por pareja.')
+                }
+
+                gender = gender === 'M' ? 'X' : 'F'
+
+                const [inscriptions] = await connection.query(
+                    `SELECT i.id_couple, c.id_player1, c.id_player2
+                     FROM inscriptions i
+                     INNER JOIN couples c ON c.id = i.id_couple
+                     INNER JOIN tournament_categories tc ON tc.id_category = i.id_category AND tc.id_tournament = i.id_tournament
+                     WHERE i.id_tournament = ?
+                       AND i.id_category = ?
+                       AND i.status_payment = 'PAID'
+                       AND i.status = 1
+                       AND tc.status = 1`,
+                    [id_tournament, id_category]
+                )
+
+                if (!inscriptions.length) {
+                    return {updated: 0, added: 0, couples_updated: 0}
+                }
+
+                const couplePoints = new Map(inscriptions.map((inscription) => [inscription.id_couple, this.ZONE_POINTS]))
+
+                const [dropMatches] = await connection.query(
+                    `SELECT m.zone, m.id_couple1, m.id_couple2, rm.winner_couple
+                     FROM matches m
+                     INNER JOIN result_match rm ON rm.id_match = m.id
+                     WHERE m.id_tournament = ?
+                       AND m.id_category = ?
+                       AND m.is_drop = 1
+                       AND rm.match_type = 'cuadro'
+                       AND rm.winner_couple IS NOT NULL`,
+                    [id_tournament, id_category]
+                )
+
+                let championCouple = null
+
+                for (const match of dropMatches) {
+                    const loserCouple = match.winner_couple === match.id_couple1 ? match.id_couple2 : match.id_couple1
+                    if (loserCouple && this.ROUND_POINTS[match.zone]) {
+                        couplePoints.set(loserCouple, Math.max(couplePoints.get(loserCouple) ?? this.ZONE_POINTS, this.ROUND_POINTS[match.zone]))
+                    }
+
+                    if (match.zone === 'final') {
+                        championCouple = match.winner_couple
+                    }
+                }
+
+                if (championCouple) {
+                    couplePoints.set(championCouple, this.CHAMPION_POINTS)
+                }
+
+                let couplesUpdated = 0
+                for (const [coupleId, points] of couplePoints.entries()) {
+                    const [result] = await connection.query(`UPDATE couples SET points = ? WHERE id = ?`, [points, coupleId])
+                    couplesUpdated += result.affectedRows
+                }
+
+                const playerPoints = new Map()
+                for (const inscription of inscriptions) {
+                    const points = couplePoints.get(inscription.id_couple) ?? this.ZONE_POINTS
+                    playerPoints.set(inscription.id_player1, points)
+                    playerPoints.set(inscription.id_player2, points)
+                }
+
+                let updated = 0
+                let added = 0
+
+                for (const [id_player, points] of playerPoints.entries()) {
+                    const [existing] = await connection.query(
+                        `SELECT id, points FROM ranking
+                         WHERE id_player = ? AND id_category = ? AND gender = ? AND year = ?
+                         LIMIT 1`,
+                        [id_player, id_category, gender, year]
+                    )
+
+                    if (existing.length > 0) {
+                        await connection.query(`UPDATE ranking SET points = ?, user_updated = ? WHERE id = ?`, [
+                            existing[0].points + points,
+                            user_updated,
+                            existing[0].id
+                        ])
+                        updated++
+                    } else {
+                        await connection.query(
+                            `INSERT INTO ranking (id_player, points, id_federation, id_category, status, year, gender, user_updated)
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                            [id_player, points, id_federation, id_category, 1, year, gender, user_updated]
+                        )
+                        added++
+                    }
+                }
+
+                await connection.query(
+                    `UPDATE tournament_categories SET status = 2 WHERE id_tournament = ? AND id_category = ?`,
+                    [id_tournament, id_category]
+                )
+
+                return {updated, added, couples_updated: couplesUpdated}
+            })
+        } catch (error) {
+            throw new Error(error.message)
+        }
+
     }
 }
