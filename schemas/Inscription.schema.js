@@ -34,6 +34,9 @@ export const InscriptionSchema = z.object({
         .max(500, { message: 'La observación no puede tener más de 250 caracteres' })
         .optional(),
 
+    available_hour: z.string()
+        .optional(),
+
     availablity_days: z.array(availablityDaysEnum, {
         required_error: 'Debes indicar los días de disponibilidad',
         invalid_type_error: 'Los días deben ser una lista con valores válidos (L, M, X, J, V, S, D)',

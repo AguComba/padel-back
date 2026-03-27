@@ -78,6 +78,7 @@ export class InscriptionModel {
     }
 
     static async searchInscriptionByCategoryAndTournament(id_tournament, id_category) {
+        console.log(id_tournament, id_category)
         const result = await executeQuery(
             `
         SELECT COUNT(*) AS couples_inscripted FROM inscriptions
@@ -86,6 +87,7 @@ export class InscriptionModel {
             [id_tournament, id_category]
         )
 
+        console.log(result)
         return result.shift()
     }
 
@@ -100,7 +102,8 @@ export class InscriptionModel {
                 user_created,
                 status,
                 id_category,
-                observation
+                observation,
+                available_hour
             } = inscription
             const [rowsCouple] = await connection.query(
                 `
@@ -117,10 +120,10 @@ export class InscriptionModel {
             const [rowsInscription] = await connection.query(
                 `
                 INSERT INTO inscriptions (id_tournament, id_couple, id_category, status, 
-                status_payment, user_created, user_updated, observation)
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+                status_payment, user_created, user_updated, observation, available_hour)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `,
-                [id_tournament, idCouple, id_category, status, 'PENDING', user_created, user_created, observation]
+                [id_tournament, idCouple, id_category, status, 'PENDING', user_created, user_created, observation, available_hour]
             )
 
             if (rowsInscription.affectedRows === 0) {
@@ -176,10 +179,10 @@ export class InscriptionModel {
             const [updateInscription] = await connection.query(
                 `
             UPDATE inscriptions 
-            SET observation = ?, user_updated = ?, updated_at = NOW()
+            SET observation = ?, available_hour = ?, user_updated = ?, updated_at = NOW()
             WHERE id = ?
             `,
-                [data.observation || null, data.user_updated, id_inscription]
+                [data.observation || null, data.available_hour, data.user_updated, id_inscription]
             )
 
             if (updateInscription.affectedRows === 0) {
