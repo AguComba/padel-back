@@ -13,6 +13,7 @@ export class CouplesModel {
             p2.id AS id_jugador2,
             COALESCE(r1.points, 0) + COALESCE(r2.points, 0) AS puntos_totales,
             i.observation,
+            i.available_hour,
                 (SELECT GROUP_CONCAT(d.availablity_days ORDER BY d.availablity_days SEPARATOR ', ')
                 FROM couple_game_days d 
                 WHERE d.id_inscription = i.id) AS dias

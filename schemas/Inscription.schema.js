@@ -32,6 +32,7 @@ export const InscriptionSchema = z.object({
 
     observation: z.string()
         .max(500, { message: 'La observación no puede tener más de 250 caracteres' })
+        .nullable()
         .optional(),
 
     available_hour: z.string()
