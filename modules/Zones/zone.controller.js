@@ -136,13 +136,14 @@ async function ordenarZonasGeneradas(generateds, inscriptions) {
             zones[zone] = {
                 nombre: zone,
                 club: generateds[i].id_club,
-                hour: generateds[i].hour,
+                hour: [],
                 day: generateds[i].day,
                 idMain: generateds[i].id,
                 parejas: [],
                 partidos: []
             }
         }
+        zones[zone].hour.push(generateds[i].hour)
         const couple1 = inscriptions.find(
             (couple) => couple.id_couple === generateds[i].id_couple1 && generateds[i].match === 1
         )
