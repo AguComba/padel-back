@@ -50,7 +50,7 @@ export class ZonesModel {
         zone.zone ?? null,
         zone.day ?? null,
         zone.id_club ?? null,
-        zone.hour ? `${zone.hour}:00` : null
+        zone.hour ? zone.hour.length === 8 ? zone.hour : `${zone.hour}:00` : null
       ];
     
       const inserts = [];
