@@ -5,9 +5,10 @@ export class UserModel {
   static async searchAllUsers() {
     try {
       const users = await executeQuery(
-        `SELECT DISTINCT u.name, last_name, cell_phone, email, number_document, gender, type_user, afiliation, id_category, u.id, c.name as category FROM users u
+        `SELECT DISTINCT u.name, last_name, cell_phone, email, number_document, gender, type_user, afiliation, id_category, u.id, c.name as category, ci.name as city FROM users u
                 LEFT JOIN players p ON p.id_user = u.id
                 LEFT JOIN categories c ON c.id = p.id_category
+                LEFT JOIN cities ci ON ci.id = u.id_city
                 WHERE u.status = 1`,
       )
       return users
