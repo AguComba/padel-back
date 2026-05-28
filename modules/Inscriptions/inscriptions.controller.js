@@ -226,6 +226,39 @@ export const getInscriptions = async (req, res) => {
     }
 }
 
+export const toggleInscriptionStatus = async (req, res) => {
+    try {
+        const {user = false} = req.session
+        const {id_inscription = false} = req.params
+        const {enabled} = req.body
+
+        if (!hasRole(user, ['admin', 'superAdmin'])) {
+            return res.status(403).json({message: 'El usuario no tiene permisos para acceder a este recurso'})
+        }
+
+        if (typeof enabled !== 'boolean') {
+            return res.status(400).json({message: 'El campo "enabled" debe ser un booleano'})
+        }
+
+        const inscription = await InscriptionModel.searchById(id_inscription)
+        if (!inscription) {
+            return res.status(404).json({message: 'No se encontro la inscripcion'})
+        }
+
+        await InscriptionModel.toggleStatus(id_inscription, enabled)
+
+        return res.status(200).json({
+            message: `Pareja ${enabled ? 'habilitada' : 'deshabilitada'} correctamente`,
+            id_inscription,
+            status: enabled ? 1 : 0,
+            status_payment: enabled ? 'PAID' : 'PENDING'
+        })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({message: 'Ocurrio un error inesperado'})
+    }
+}
+
 export const getInscriptionById = async (req, res) => {
     try{
         const {user = false} = req.session

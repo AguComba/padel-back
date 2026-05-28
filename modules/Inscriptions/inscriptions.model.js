@@ -4,28 +4,39 @@ import {handleTransaction} from '../../utils/transactions.js'
 export class InscriptionModel {
     static async search(id_tournament) {
         const inscriptions = executeQuery(
-            `SELECT 
-            i.id,
-            cat.id AS id_category,
-            cat.name AS categoria,
-            CONCAT(u1.name, " ", u1.last_name) AS jugador1, 
-            p1.id AS id_player1,
-            CONCAT(u2.name, " ", u2.last_name) AS jugador2,
-            p2.id AS id_player2,
-            i.status, 
-            i.status_payment,
-            GROUP_CONCAT(d.availablity_days ORDER BY d.availablity_days SEPARATOR ', ') AS dias_seleccionados,
-            observation
-            FROM inscriptions i
-            INNER JOIN couples c ON i.id_couple = c.id
+            `WITH RankedInscriptions AS (
+                SELECT i.*,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY i.id_couple
+                        ORDER BY
+                            CASE WHEN i.status_payment = 'PAID' THEN 0 ELSE 1 END,
+                            i.id DESC
+                    ) AS rn
+                FROM inscriptions i
+                WHERE i.id_tournament = ?
+            )
+            SELECT
+                ri.id,
+                cat.id AS id_category,
+                cat.name AS categoria,
+                CONCAT(u1.name, " ", u1.last_name) AS jugador1,
+                p1.id AS id_player1,
+                CONCAT(u2.name, " ", u2.last_name) AS jugador2,
+                p2.id AS id_player2,
+                ri.status,
+                ri.status_payment,
+                GROUP_CONCAT(d.availablity_days ORDER BY d.availablity_days SEPARATOR ', ') AS dias_seleccionados,
+                ri.observation
+            FROM RankedInscriptions ri
+            INNER JOIN couples c ON ri.id_couple = c.id
             INNER JOIN players p1 ON c.id_player1 = p1.id
             INNER JOIN players p2 ON c.id_player2 = p2.id
             INNER JOIN users u1 ON p1.id_user = u1.id
-            INNER JOIN users u2 ON p2.id_user = u2.id           
-            INNER JOIN categories cat ON i.id_category = cat.id
-            LEFT JOIN couple_game_days d ON d.id_inscription = i.id
-            WHERE i.id_tournament = ? 
-            GROUP BY i.id, cat.id, cat.name, jugador1, jugador2, i.status, i.status_payment;`,
+            INNER JOIN users u2 ON p2.id_user = u2.id
+            INNER JOIN categories cat ON ri.id_category = cat.id
+            LEFT JOIN couple_game_days d ON d.id_inscription = ri.id
+            WHERE ri.rn = 1
+            GROUP BY ri.id, cat.id, cat.name, jugador1, jugador2, ri.status, ri.status_payment, ri.observation;`,
             [id_tournament]
         )
         return inscriptions
@@ -142,6 +153,16 @@ export class InscriptionModel {
             }
             return {id_inscription: inscriptionId, id_couple: idCouple}
         })
+    }
+
+    static async toggleStatus(id_inscription, enable) {
+        const status = enable ? 1 : 0
+        const status_payment = enable ? 'PAID' : 'PENDING'
+        const result = await executeQuery(
+            `UPDATE inscriptions SET status = ?, status_payment = ?, updated_at = NOW() WHERE id = ?`,
+            [status, status_payment, id_inscription]
+        )
+        return result
     }
 
     static async update(id_inscription, data) {
