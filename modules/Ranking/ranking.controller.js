@@ -42,63 +42,6 @@ const getIndexColumns = (columns) => {
     }
 }
 
-export const importRanking = async (req, res) => {
-    try {
-        const {user = false} = req.session
-        if (!isAdmin(user)) {
-            return res.status(403).json('No esta autorizado para esto.')
-        }
-
-        const __dirname = path.resolve()
-        const excel = await XlsxPopulate.fromFileAsync(`${__dirname}/archivos/.xlsx`)
-        const values = excel.sheet('Jugadores').usedRange().value()
-        const {id = false, puntos = false, estado = false} = getIndexColumns(values[0])
-        const {gender = false, year = false, categoria = false, id_tournament = false} = req.body
-
-        if (id === false || !puntos || !estado) {
-            return res
-                .status(400)
-                .json(
-                    "Ocurrio un error al leer el nombre de las columnas. Se espera 'id', 'categoria', 'puntos', 'estado'"
-                )
-        }
-        if (!['F', 'X'].includes(gender)) {
-            return res.status(400).json('Genero invalido')
-        }
-        if (!categoria) {
-            return res.status(400).json('Debe enviar la categoria')
-        }
-
-        if (!year) {
-            return res.status(400).json('Debe pasar el año')
-        }
-
-        if (!id_tournament) {
-            return res.status(400).json('Debe pasar el torneo')
-        }
-        // Comienzo a recorrer values despues de la primer fila
-        // id player, puntos, federacion, categoria, estado, año, genero
-        const dataToInsert = values.slice(1).map((row) => ({
-            id_player: row[id],
-            points: row[puntos],
-            id_federation: 1,
-            id_category: categoria,
-            status: row[estado] === 'ASCENDIDO' ? 2 : 1,
-            year: year,
-            gender: gender,
-            user_updated: user.id,
-            id_tournament: id_tournament
-        }))
-
-        const resultDB = await RankingModel.import(dataToInsert)
-
-        console.log(resultDB)
-        return res.status(200).json({message: 'Ranking importado con exito'})
-    } catch (error) {
-        return res.status(400).json({message: error.message})
-    }
-}
-
 export const importRankingFromResults = async (req, res) => {
     try {
         const {user = false} = req.session
