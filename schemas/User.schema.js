@@ -47,7 +47,9 @@ export const UserPlayerUpdate = z.object({
   name: z.string({ message: 'Se debe enviar un nombre' }).min(2, { message: 'El nombre debe tener al menos 2 caracteres' }).optional(),
   last_name: z.string({ message: 'Se debe enviar un apellido' }).min(2, { message: 'El apellido debe tener al menos 2 caracteres' }).optional(),
   cell_phone: z.string({ message: 'Se debe enviar un número de celular' }).min(10, { message: 'El número de celular debe tener al menos 10 caracteres' }).optional(),
+  id_category: z.number({ message: 'Se debe enviar ID de categoría' }).positive({ message: 'El ID de categoría debe ser positivo' }).int({ message: 'El ID de categoría debe ser un número entero' }).optional(),
   id_club: z.number({ message: 'Se debe enviar ID de club' }).positive({ message: 'El ID de club debe ser positivo' }).int({ message: 'El ID de club debe ser un número entero' }).optional(),
   possition: z.enum(['DRIVE', 'REVES']).optional(),
   hand: z.enum(['DERECHA', 'IZQUIERDA']).optional(),
+  skipRankingUpdate: z.boolean().optional(),
 })

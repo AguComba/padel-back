@@ -46,8 +46,8 @@ export const getUserByDni = async (req, res) => {
 export const updateUser = async (req, res) => {
     try {
         const userData = req.body
-        userData.name = userData.name.toUpperCase()
-        userData.last_name = userData.last_name.toUpperCase()
+        if (userData.name) userData.name = userData.name.toUpperCase()
+        if (userData.last_name) userData.last_name = userData.last_name.toUpperCase()
         const { user = null } = req.session
         if (!isPlayer(user) && !isAdmin(user)) {
             return res.status(403).json({ message: 'You do not have permission to perform this action' })
@@ -64,7 +64,36 @@ export const updateUser = async (req, res) => {
             return res.status(400).json({ message: validUser.error.errors })
         }
 
+        const { skipRankingUpdate, id_category } = userData
+
+        // Obtener la categoría anterior ANTES de actualizar
+        let oldCategoryId = null
+        if (!skipRankingUpdate && id_category && isAdmin(user)) {
+            const playerBefore = await UserModel.getPlayerCategory(userData.id)
+            oldCategoryId = playerBefore?.id_category
+        }
+
         const userUpdated = await UserModel.updateUserAndPlayer(userData)
+
+        // Por defecto actualiza automáticamente el status del jugador si cambió de categoría
+        // y estaba en el ranking de la categoría anterior. Solo salta si skipRankingUpdate es true
+        if (!skipRankingUpdate && id_category && oldCategoryId && isAdmin(user)) {
+            try {
+                await UserModel.updatePlayerStatusByCategory(
+                    userData.id,
+                    id_category,
+                    oldCategoryId,
+                    user.gender
+                )
+            } catch (error) {
+                console.error('Error actualizando status del jugador:', error)
+                // No fallar la actualización del usuario si falla la del ranking
+            }
+        }
+
         return res.status(200).json(userUpdated)
-    } catch (error) {}
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ message: 'Ocurrio un error inesperado' })
+    }
 }
