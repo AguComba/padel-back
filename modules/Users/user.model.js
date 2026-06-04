@@ -57,4 +57,66 @@ export class UserModel {
       return userUpdated || playerUpdated
     })
   }
+
+  static async getPlayerCategory(idUser) {
+    try {
+      const playerData = await executeQuery(
+        `SELECT p.id, p.id_category FROM players p WHERE p.id_user = ?`,
+        [idUser]
+      )
+      return playerData.length > 0 ? playerData[0] : null
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  static async updatePlayerStatusByCategory(idUser, newCategoryId, oldCategoryId, userGender) {
+    return await handleTransaction(async (connection) => {
+      const currentYear = new Date().getFullYear()
+
+      // Obtener el ID del jugador
+      const [playerData] = await connection.query(
+        `SELECT p.id FROM players p WHERE p.id_user = ?`,
+        [idUser]
+      )
+
+      if (!playerData.length) {
+        throw new Error('Jugador no encontrado')
+      }
+
+      const playerId = playerData[0].id
+
+      // Si la categoría no cambió, no hacer nada
+      if (oldCategoryId === newCategoryId) {
+        return false
+      }
+
+      // Convertir género a formato de ranking (M -> X, F -> F)
+      const rankingGender = userGender === 'M' ? 'X' : 'F'
+
+      // Determinar si es ascenso o descenso y qué categoría buscar
+      // Categorías van de peor a mejor: 8,7,6,5,4,3,2,1
+      const isAscenso = newCategoryId < oldCategoryId
+      const rankingStatus = isAscenso ? 2 : 1
+      const categoryToSearch = isAscenso ? oldCategoryId : newCategoryId
+
+      // Buscar en el ranking de la categoría correspondiente
+      const [rankingRecord] = await connection.query(
+        `SELECT id FROM ranking
+         WHERE id_player = ? AND id_category = ? AND year = ? AND gender = ?`,
+        [playerId, categoryToSearch, currentYear, rankingGender]
+      )
+
+      if (rankingRecord.length > 0) {
+        const rankingId = rankingRecord[0].id
+        await connection.query(
+          `UPDATE ranking SET status = ? WHERE id = ?`,
+          [rankingStatus, rankingId]
+        )
+        return true
+      }
+
+      return false
+    })
+  }
 }
