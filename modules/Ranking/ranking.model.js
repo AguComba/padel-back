@@ -11,6 +11,7 @@ export class RankingModel {
     }
     static CHAMPION_POINTS = 100
     static ZONE_POINTS = 10
+    static MIN_COUPLES_FOR_RANKING = 6
 
     static async search(cat, gen, year) {
         try {
@@ -115,73 +116,6 @@ export class RankingModel {
         }
     }
 
-    static async import(data) {
-        try {
-            return await handleTransaction(async (connection) => {
-                let updated = 0
-                let added = 0
-                for (const rank of data) {
-                    // Buscar si ya existe un registro con los criterios especificados
-                    const [existing] = await connection.query(
-                        `SELECT id, points FROM ranking 
-                         WHERE id_player = ? AND id_category = ? AND gender = ? AND year = ? 
-                         LIMIT 1`,
-                        [rank.id_player, rank.id_category, rank.gender, rank.year]
-                    )
-
-                    if (existing.length > 0) {
-                        const points = existing[0].points + rank.points
-                        // Si el registro ya existe, lo actualizamos
-                        await connection.query(`UPDATE ranking SET points = ?, user_updated = ? WHERE id = ?`, [
-                            points,
-                            rank.user_updated,
-                            existing[0].id
-                        ])
-                        updated++
-                    } else {
-                        // Si no existe, insertamos un nuevo registro
-                        console.log(rank.points, rank.id_player)
-                        await connection.query(
-                            `INSERT INTO ranking (id_player, points, id_federation, id_category, status, year, gender, user_updated)
-                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                            [
-                                rank.id_player,
-                                rank.points,
-                                rank.id_federation,
-                                rank.id_category,
-                                rank.status,
-                                rank.year,
-                                rank.gender,
-                                rank.user_updated
-                            ]
-                        )
-                        added++
-                    }
-                    // 🔄 ACTUALIZAR PUNTOS EN LA PAREJA
-                    const [parejas] = await connection.query(
-                        `SELECT c.id FROM inscriptions i
-                     JOIN couples c ON c.id = i.id_couple
-                     WHERE i.id_category = ? AND i.id_tournament = ? 
-                     AND (c.id_player1 = ? OR c.id_player2 = ?) 
-                     AND i.status_payment = 'PAID' AND i.status = 1
-                     LIMIT 1`,
-                        [rank.id_category, rank.id_tournament, rank.id_player, rank.id_player]
-                    )
-
-                    if (parejas.length > 0) {
-                        const parejaId = parejas[0].id
-
-                        // Solo actualizamos con los puntos actuales del jugador en este torneo
-                        await connection.query(`UPDATE couples SET points = ? WHERE id = ?`, [rank.points, parejaId])
-                    }
-                    console.log(updated, added)
-                }
-            })
-        } catch (error) {
-            throw new Error(error.message)
-        }
-    }
-
     static async importFromResults({id_tournament, id_category, year, user_updated, id_federation = 1}) {
         try {
             return await handleTransaction(async (connection) => {
@@ -217,8 +151,10 @@ export class RankingModel {
                     [id_tournament, id_category]
                 )
 
-                if (!inscriptions.length) {
-                    return {updated: 0, added: 0, couples_updated: 0}
+                if (inscriptions.length < this.MIN_COUPLES_FOR_RANKING) {
+                    throw new Error(
+                        `La categoría no alcanza el mínimo de ${this.MIN_COUPLES_FOR_RANKING} parejas inscriptas para cargar puntos al ranking (tiene ${inscriptions.length}).`
+                    )
                 }
 
                 const couplePoints = new Map(inscriptions.map((inscription) => [inscription.id_couple, this.ZONE_POINTS]))
