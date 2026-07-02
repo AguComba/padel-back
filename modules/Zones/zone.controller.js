@@ -227,6 +227,13 @@ export const saveZones = async (req, res) => {
     }
 }
 
+function buscarPartidoEntreParejas(matches, idA, idB) {
+    return matches.find(m =>
+        (m.id_couple1 === idA && m.id_couple2 === idB) ||
+        (m.id_couple1 === idB && m.id_couple2 === idA)
+    ) || null;
+}
+
 function calcularEstadisticasOrdenadas(matches) {
     const statsByCouple = {};
 
@@ -312,13 +319,24 @@ function calcularEstadisticasOrdenadas(matches) {
         return stats;
     });
 
+    // Desempate por resultado entre si: si dos parejas empatan en todos los
+    // criterios anteriores, queda mejor la que gano el partido entre ambas.
+    function compararEnfrentamientoDirecto(idA, idB) {
+        const match = buscarPartidoEntreParejas(matches, idA, idB);
+        if (!match) return 0;
+        if (match.winner_couple === idA) return -1; // A queda mejor
+        if (match.winner_couple === idB) return 1; // B queda mejor
+        return 0;
+    }
+
     // Ordenamos de mejor a peor
     result.sort((a, b) => {
         return (
             b.puntos - a.puntos ||
             b.diferenciaSets - a.diferenciaSets ||
             b.diferenciaGames - a.diferenciaGames ||
-            b.gamesAFavor - a.gamesAFavor
+            b.gamesAFavor - a.gamesAFavor ||
+            compararEnfrentamientoDirecto(a.id, b.id)
         );
     });
 
@@ -365,10 +383,7 @@ export const endZone = async (req, res) => {
         const secondCouple = estadisticas[1];
         const thirdCouple = estadisticas[2];
         // Verifico si el segundo perdio el partido contra el tercero
-        const matchBetweenSecondAndThird = matchs.find(match => 
-            (match.id_couple1 === secondCouple.id && match.id_couple2 === thirdCouple.id) ||
-            (match.id_couple1 === thirdCouple.id && match.id_couple2 === secondCouple.id)
-        );
+        const matchBetweenSecondAndThird = buscarPartidoEntreParejas(matchs, secondCouple.id, thirdCouple.id);
 
         if(matchBetweenSecondAndThird && matchBetweenSecondAndThird.winner_couple === thirdCouple.id){
             // Si el segundo perdio, el tercero pasa a segundo
