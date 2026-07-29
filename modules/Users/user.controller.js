@@ -82,8 +82,7 @@ export const updateUser = async (req, res) => {
                 await UserModel.updatePlayerStatusByCategory(
                     userData.id,
                     id_category,
-                    oldCategoryId,
-                    user.gender
+                    oldCategoryId
                 )
             } catch (error) {
                 console.error('Error actualizando status del jugador:', error)

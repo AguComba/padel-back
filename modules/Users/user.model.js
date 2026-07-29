@@ -70,13 +70,15 @@ export class UserModel {
     }
   }
 
-  static async updatePlayerStatusByCategory(idUser, newCategoryId, oldCategoryId, userGender) {
+  static async updatePlayerStatusByCategory(idUser, newCategoryId, oldCategoryId) {
     return await handleTransaction(async (connection) => {
       const currentYear = new Date().getFullYear()
 
-      // Obtener el ID del jugador
+      // Obtener el ID y el género del jugador que se esta actualizando
       const [playerData] = await connection.query(
-        `SELECT p.id FROM players p WHERE p.id_user = ?`,
+        `SELECT p.id, u.gender FROM players p
+         INNER JOIN users u ON u.id = p.id_user
+         WHERE p.id_user = ?`,
         [idUser]
       )
 
@@ -84,7 +86,7 @@ export class UserModel {
         throw new Error('Jugador no encontrado')
       }
 
-      const playerId = playerData[0].id
+      const { id: playerId, gender } = playerData[0]
 
       // Si la categoría no cambió, no hacer nada
       if (oldCategoryId === newCategoryId) {
@@ -92,7 +94,7 @@ export class UserModel {
       }
 
       // Convertir género a formato de ranking (M -> X, F -> F)
-      const rankingGender = userGender === 'M' ? 'X' : 'F'
+      const rankingGender = gender === 'M' ? 'X' : 'F'
 
       // Determinar si es ascenso o descenso y qué categoría buscar
       // Categorías van de peor a mejor: 8,7,6,5,4,3,2,1
