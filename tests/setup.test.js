@@ -3,8 +3,7 @@ import { describe, it, expect } from 'vitest'
 /**
  * Smoke test del entorno de testing.
  * Verifica que vitest.config.js este cargando las variables de entorno
- * ANTES de que cualquier modulo lea process.env. Si esto falla, todos
- * los tests que dependan de config/app.config.js van a fallar raro.
+ * ANTES de que cualquier modulo lea process.env.
  */
 describe('setup del entorno de tests', () => {
     it('carga las variables de entorno definidas en vitest.config.js', () => {
