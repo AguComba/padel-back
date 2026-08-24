@@ -46,5 +46,3 @@ describe('hasRole', () => {
         expect(hasRole(userWithUnknownRole, ['admin'])).toBe(false)
     })
 })
-
-describe('')
