@@ -1,6 +1,90 @@
 import {executeQuery} from '../../utils/executeQuery.js'
 import {handleTransaction} from '../../utils/transactions.js'
 
+// Permite que el controlador responda con el codigo correcto (404, 409, ...) en vez del 400 generico.
+const buildError = (message, status) => {
+	const error = new Error(message)
+	error.status = status
+	return error
+}
+
+/**
+ * Sincroniza las categorias del torneo por diferencia en vez de borrar y reinsertar todo,
+ * para no perder el status = 2 (ranking aplicado) de las categorias que sobreviven a la edicion.
+ */
+const syncCategories = async (connection, id_tournament, categories, user_updated) => {
+	if (categories.length === 0) {
+		throw buildError('El torneo debe tener al menos una categoria', 400)
+	}
+
+	const [current] = await connection.query(`SELECT id_category, status FROM tournament_categories WHERE id_tournament = ?`, [id_tournament])
+	const currentIds = current.map((category) => category.id_category)
+	const newIds = [...new Set(categories.map((category) => category.id_category))]
+
+	const toRemove = current.filter((category) => !newIds.includes(category.id_category))
+	const toAdd = newIds.filter((id_category) => !currentIds.includes(id_category))
+
+	if (toRemove.length > 0) {
+		// Quitar una categoria con inscripciones o con el ranking ya aplicado dejaria
+		// inscripciones apuntando a una categoria que el torneo ya no tiene.
+		const blocked = []
+		for (const category of toRemove) {
+			if (category.status === 2) {
+				blocked.push(category.id_category)
+				continue
+			}
+
+			const [inscriptions] = await connection.query(`SELECT 1 FROM inscriptions WHERE id_tournament = ? AND id_category = ? LIMIT 1`, [id_tournament, category.id_category])
+			if (inscriptions.length > 0) {
+				blocked.push(category.id_category)
+			}
+		}
+
+		if (blocked.length > 0) {
+			throw buildError(`No se pueden quitar las categorias ${blocked.join(', ')} porque ya tienen inscripciones o el ranking aplicado`, 409)
+		}
+
+		await connection.query(`DELETE FROM tournament_categories WHERE id_tournament = ? AND id_category IN (?)`, [id_tournament, toRemove.map((category) => category.id_category)])
+	}
+
+	if (toAdd.length > 0) {
+		const categoriesData = toAdd.map((id_category) => [id_tournament, id_category, user_updated])
+		await connection.query(`INSERT INTO tournament_categories(id_tournament, id_category, user_created) VALUES ?`, [categoriesData])
+	}
+}
+
+const syncClubs = async (connection, id_tournament, clubs, user_updated) => {
+	const uniqueIds = new Set(clubs.map((club) => club.id_club))
+	if (uniqueIds.size !== clubs.length) {
+		throw buildError('No se puede repetir un club en el torneo', 400)
+	}
+
+	if (clubs.filter((club) => Number(club.main_club) === 1).length !== 1) {
+		throw buildError('Se debe enviar exactamente un club sede', 400)
+	}
+
+	const [current] = await connection.query(`SELECT id_club, main_club FROM tournament_clubs WHERE id_tournament = ?`, [id_tournament])
+	const toRemove = current.map((club) => club.id_club).filter((id_club) => !uniqueIds.has(id_club))
+
+	if (toRemove.length > 0) {
+		await connection.query(`DELETE FROM tournament_clubs WHERE id_tournament = ? AND id_club IN (?)`, [id_tournament, toRemove])
+	}
+
+	for (const club of clubs) {
+		const currentClub = current.find((item) => item.id_club === club.id_club)
+
+		if (!currentClub) {
+			await connection.query(`INSERT INTO tournament_clubs(id_tournament, id_club, main_club, user_created) VALUES (?,?,?,?)`, [id_tournament, club.id_club, club.main_club, user_updated])
+			continue
+		}
+
+		// El admin puede mover la sede a otro de los clubes ya asociados.
+		if (currentClub.main_club !== Number(club.main_club)) {
+			await connection.query(`UPDATE tournament_clubs SET main_club = ?, user_updated = ?, updated_at = NOW() WHERE id_tournament = ? AND id_club = ?`, [club.main_club, user_updated, id_tournament, club.id_club])
+		}
+	}
+}
+
 export class TournamentModel {
 	static async create(tournament) {
 		return await handleTransaction(async (connection) => {
@@ -58,6 +142,54 @@ export class TournamentModel {
 			}
 			// Retornar el torneo creado con sus categorías.
 			return {id: idTournament, ...tournament, categories, clubs}
+		})
+	}
+
+	static async update(id, tournament) {
+		return await handleTransaction(async (connection) => {
+			const {categories, clubs, ...tournamentData} = tournament
+
+			const [existing] = await connection.query(`SELECT id FROM tournaments WHERE id = ? AND status = 1`, [id])
+			if (existing.length === 0) {
+				throw buildError('No se encontro el torneo', 404)
+			}
+
+			const [rows] = await connection.query(
+				`UPDATE tournaments SET
+        name = ?, id_federation = ?, date_start = ?, date_end = ?, date_inscription_start = ?, date_inscription_end = ?,
+        max_couples = ?, gender = ?, afiliation_required = ?, type_tournament = ?, user_updated = ?, updated_at = NOW()
+        WHERE id = ?`,
+				[
+					tournamentData.name,
+					tournamentData.id_federation,
+					tournamentData.date_start,
+					tournamentData.date_end,
+					tournamentData.date_inscription_start,
+					tournamentData.date_inscription_end,
+					tournamentData.max_couples,
+					tournamentData.gender,
+					tournamentData.afiliation_required,
+					tournamentData.type_tournament,
+					tournamentData.user_updated,
+					id,
+				]
+			)
+
+			if (rows.affectedRows === 0) {
+				throw new Error('No se pudo actualizar el torneo')
+			}
+
+			// El torneo tiene una unica fila de monto. Si no existe (torneos viejos) se crea.
+			const [rowsAmount] = await connection.query(`UPDATE amounts SET type_amount = ?, amount = ? WHERE id_tournament = ?`, [tournamentData.type_amount, tournamentData.amount, id])
+
+			if (rowsAmount.affectedRows === 0) {
+				await connection.query(`INSERT INTO amounts(type_amount, amount, id_tournament) VALUES (?,?,?)`, [tournamentData.type_amount, tournamentData.amount, id])
+			}
+
+			await syncCategories(connection, id, categories, tournamentData.user_updated)
+			await syncClubs(connection, id, clubs, tournamentData.user_updated)
+
+			return true
 		})
 	}
 
@@ -121,18 +253,49 @@ export class TournamentModel {
 
 	static async searchById(id_tournament) {
 		try {
-			const tournament = await executeQuery(`SELECT t.id, t.name, date_start, date_end, date_inscription_start, date_inscription_end, t.max_couples,
-                    t.gender, club.id as id_club ,club.name as club, c.name as ciudad, a.amount, t.afiliation_required
+			// Las fechas se formatean en SQL para devolver el valor crudo guardado, sin conversion de zona horaria.
+			const tournament = await executeQuery(`SELECT t.id, t.name, t.id_federation, t.max_couples, t.gender,
+                    t.type_tournament, t.afiliation_required,
+                    DATE_FORMAT(t.date_start, '%d/%m/%Y') AS date_start,
+                    DATE_FORMAT(t.date_end, '%d/%m/%Y') AS date_end,
+                    DATE_FORMAT(t.date_inscription_start, '%d/%m/%Y %H:%i:%s') AS date_inscription_start,
+                    DATE_FORMAT(t.date_inscription_end, '%d/%m/%Y %H:%i:%s') AS date_inscription_end,
+                    a.type_amount, a.amount
                     FROM tournaments t
                     INNER JOIN amounts a ON a.id_tournament = t.id
-                    INNER JOIN tournament_clubs t_club ON t_club.id_tournament = t.id
-                    INNER JOIN clubs club ON t_club.id_club = club.id
-                    INNER JOIN cities c ON club.id_city = c.id
-                    WHERE t.status = 1 AND t_club.main_club = 1 AND t.id = ?
+                    WHERE t.status = 1 AND t.id = ?
                     `, [id_tournament])
 			return tournament.shift()
 		} catch (error) {
-			throw new Error()
+			throw new Error(error.message)
+		}
+	}
+
+	static async searchCategoryIds(id_tournament) {
+		try {
+			const rows = await executeQuery(
+				`SELECT id_category FROM tournament_categories
+                WHERE id_tournament = ? AND status <> 0
+                ORDER BY id_category`,
+				[id_tournament]
+			)
+			return rows
+		} catch (error) {
+			throw new Error(error.message)
+		}
+	}
+
+	static async searchClubs(id_tournament) {
+		try {
+			const rows = await executeQuery(
+				`SELECT id_club, main_club FROM tournament_clubs
+                WHERE id_tournament = ? AND status <> 0
+                ORDER BY main_club DESC`,
+				[id_tournament]
+			)
+			return rows
+		} catch (error) {
+			throw new Error(error.message)
 		}
 	}
 
