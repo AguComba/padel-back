@@ -16,35 +16,35 @@
  * - superAdmin: 5
  */
 const hasRole = (user, roles) => {
-  const dictionary = {
-    player: 1,
-    admin: 2,
-    fiscal: 3,
-    largador: 4,
-    superAdmin: 5,
-  }
-  const requiredRoles = roles.map((role) => dictionary[role])
-  return requiredRoles.includes(user?.typeUser)
+    const dictionary = {
+        player: 1,
+        admin: 2,
+        fiscal: 3,
+        largador: 4,
+        superAdmin: 5
+    }
+    const requiredRoles = roles.map((role) => dictionary[role])
+    return requiredRoles.includes(user?.typeUser)
 }
 
 const isPlayer = (user) => {
-  return user?.typeUser === 1
+    return user?.typeUser === 1
 }
 
 const isAdmin = (user) => {
-  return user?.typeUser === 2
+    return user?.typeUser === 2
 }
 
 const isFiscal = (user) => {
-  return user?.typeUser === 3
+    return user?.typeUser === 3
 }
 
 const isDropper = (user) => {
-  return user?.typeUser === 4
+    return user?.typeUser === 4
 }
 
 const isAcceptedUser = (user) => {
-  return user?.typeUser === 1 || user?.typeUser === 2 || user?.typeUser === 3 || user?.typeUser === 4 || user?.typeUser === 5
+    return user?.typeUser === 1 || user?.typeUser === 2 || user?.typeUser === 3 || user?.typeUser === 4 || user?.typeUser === 5
 }
 
 export { isPlayer, isAdmin, isFiscal, isDropper, isAcceptedUser, hasRole }

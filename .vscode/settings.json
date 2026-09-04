@@ -1,12 +1,13 @@
 {
-    "prettier.semi": false,
-    "javascript.format.insertSpaceBeforeFunctionParenthesis": false,
-    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces": false,
-    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
-    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": false,
-    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingJsxExpressionBraces": false,
-    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
-    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+    "javascript.format.enable": false,
+    "eslint.format.enable": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "[javascript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
     "workbench.colorCustomizations": {
         "activityBar.activeBackground": "#7e84f6",
         "activityBar.background": "#7e84f6",
@@ -27,4 +28,7 @@
         "titleBar.inactiveForeground": "#e7e7e799"
     },
     "peacock.color": "#4e56f3",
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
 }
