@@ -40,7 +40,7 @@ export const InscriptionSchema = z.object({
 
     availablity_days: z.array(availablityDaysEnum, {
         required_error: 'Debes indicar los días de disponibilidad',
-        invalid_type_error: 'Los días deben ser una lista con valores válidos (L, M, X, J, V, S, D)',
+        invalid_type_error: 'Los días deben ser una lista con valores válidos (L, M, X, J, V, S, D)'
     }),
 
     user_created: z.number()
@@ -58,7 +58,7 @@ export const InscriptionSchema = z.object({
  */
 export const baseInscriptionSchema = InscriptionSchema.omit({
     user_created: true,
-    status: true,
+    status: true
 })
 
 /**
