@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
-import { UpdatePassword, UserEmail, UserLogin, UserRegister } from '../../schemas/User.schema.js'
+import { UpdatePassword, UpdatePasswordByToken, UserEmail, UserLogin, UserRegister } from '../../schemas/User.schema.js'
 import { AuthModel } from './auth.model.js'
 import { sendEmailRecovery } from '../Mails/mails.controller.js'
+import { hasRole } from '../../middlewares/permisions.js'
 
 const createToken = (user) => {
     return jwt.sign(user, process.env.SECRET_JWT_KEY, {
@@ -141,22 +142,59 @@ export const restorePassword = async (req, res) => {
     }
 }
 
+// Ruta pública: es el último paso de la recuperación por email, donde el usuario no tiene sesión.
+// La única prueba de identidad es el token, así que el id sale de la consulta y no del body.
 export const updatePassword = async (req, res) => {
     try {
+        const updateData = req.body
+        const validData = UpdatePasswordByToken.safeParse(updateData)
+        if (!validData.success) {
+            return res.status(400).json(validData.error.errors)
+        }
+
+        const user = await AuthModel.searchUserByToken(validData.data.token)
+        if (!user) {
+            return res.status(403).json({ message: 'Token invalido o expirado' })
+        }
+
+        const password = await AuthModel.hashPassword(validData.data.password)
+
+        // El update limpia reset_token, así que el token queda de un solo uso.
+        const result = await AuthModel.updatePassword({ id: user.id, password })
+        if (!result.affectedRows) {
+            return res.status(500).json({ message: 'Ocurrio un error al actualizar la contraseña' })
+        }
+
+        return res.status(200).json({ message: 'Se actualizo la contraseña' })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json(error.message)
+    }
+}
+
+// Ruta protegida: la usa el panel de admin para resetearle la clave a un usuario que la olvidó.
+export const adminUpdatePassword = async (req, res) => {
+    try {
+        const { user = false } = req.session
         const updateData = req.body
         const validData = UpdatePassword.safeParse(updateData)
         if (!validData.success) {
             return res.status(400).json(validData.error.errors)
         }
 
+        const isOwner = validData.data.id === user.id
+        if (!hasRole(user, ['admin', 'superAdmin']) && !isOwner) {
+            return res.status(403).json({ message: 'No tienes permisos para realizar esta accion' })
+        }
+
         validData.data.password = await AuthModel.hashPassword(validData.data.password)
 
         const result = await AuthModel.updatePassword(validData.data)
         if (!result.affectedRows) {
-            return res.status(500).json({ message: 'Ocurrio un error al actaulizar la contraseña' })
+            return res.status(500).json({ message: 'Ocurrio un error al actualizar la contraseña' })
         }
 
-        return res.status(200).json(result)
+        return res.status(200).json({ message: 'Se actualizo la contraseña' })
     } catch (error) {
         console.error(error)
         return res.status(500).json(error.message)

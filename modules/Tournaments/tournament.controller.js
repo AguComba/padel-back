@@ -39,6 +39,78 @@ export const createTournament = async (req, res) => {
   }
 }
 
+// Devuelve el torneo con la misma estructura que recibe el POST, mas el id.
+const buildTournamentDetail = async (id) => {
+  const tournament = await TournamentModel.searchById(id)
+  if (!tournament) {
+    return null
+  }
+
+  const [categories, clubs] = await Promise.all([TournamentModel.searchCategoryIds(id), TournamentModel.searchClubs(id)])
+
+  return {
+    ...tournament,
+    amount: Number(tournament.amount), // amount es DECIMAL, mysql2 lo devuelve como string.
+    categories,
+    clubs,
+  }
+}
+
+export const getTournamentById = async (req, res) => {
+  try {
+    const {user = false} = req.session
+    const {id} = req.params
+    if (!hasRole(user, ['admin', 'superAdmin'])) {
+      return res.status(401).json({message: 'No tienes permisos para acceder a este recurso'})
+    }
+
+    if (!Number(id)) {
+      return res.status(400).json({message: 'El id del torneo no es valido'})
+    }
+
+    const tournament = await buildTournamentDetail(id)
+    if (!tournament) {
+      return res.status(404).json({message: 'No se encontro el torneo'})
+    }
+
+    res.status(200).json(tournament)
+  } catch (error) {
+    console.log(error)
+    return res.status(error.status || 500).json({message: error.message})
+  }
+}
+
+export const updateTournament = async (req, res) => {
+  try {
+    const {user = false} = req.session
+    const {id} = req.params
+    const tournament = req.body
+    if (!hasRole(user, ['admin', 'superAdmin'])) {
+      return res.status(401).json({message: 'No tienes permisos para acceder a este recurso'})
+    }
+
+    if (!Number(id)) {
+      return res.status(400).json({message: 'El id del torneo no es valido'})
+    }
+
+    tournament.date_start = parseDateTempo(tournament.date_start)
+    tournament.date_end = parseDateTempo(tournament.date_end)
+    tournament.date_inscription_start = parseDateTempo(tournament.date_inscription_start, true)
+    tournament.date_inscription_end = parseDateTempo(tournament.date_inscription_end, true)
+
+    const validTournament = TournamentSchema.parse(tournament)
+    validTournament.user_updated = user.id
+
+    await TournamentModel.update(id, validTournament)
+
+    const tournamentUpdated = await buildTournamentDetail(id)
+    res.status(200).json(tournamentUpdated)
+  } catch (error) {
+    console.log(error)
+    return res.status(error.status || 400).json({message: error.message})
+  }
+}
+
 export const getTournaments = async (req, res) => {
   try {
     const {user = false} = req.session

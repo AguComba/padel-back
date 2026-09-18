@@ -82,7 +82,7 @@ export class AuthModel {
         try {
             const user = await executeQuery(
                 "SELECT * FROM users WHERE reset_token = ? AND reset_token_expires > CONVERT_TZ(NOW(), '+00:00', '-03:00')",
-                token
+                [token]
             )
             return user.shift()
         } catch (error) {

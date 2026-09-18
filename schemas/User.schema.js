@@ -30,6 +30,12 @@ export const UpdatePassword = z.object({
     password: z.string({ message: 'Se debe enviar una contraseña' }).min(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
 })
 
+// Recuperación por email: el id se resuelve a partir del token, nunca se acepta del body.
+export const UpdatePasswordByToken = z.object({
+  token: z.string({ message: 'Se debe enviar el token' }).min(1, { message: 'Se debe enviar el token' }),
+  password: z.string({ message: 'Se debe enviar una contraseña' }).min(8, { message: 'La contraseña debe tener al menos 8 caracteres' }),
+})
+
 export const UserPlayerUpdate = z.object({
     id: z.number({ message: 'Se debe enviar ID' }).positive({ message: 'El ID debe ser positivo' }).int({ message: 'El ID debe ser un número entero' }).optional(),
     name: z.string({ message: 'Se debe enviar un nombre' }).min(2, { message: 'El nombre debe tener al menos 2 caracteres' }).optional(),
