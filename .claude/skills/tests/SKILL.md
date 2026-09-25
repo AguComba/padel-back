@@ -82,6 +82,9 @@ it('dado un pago de INSCRIPCION, arma el transaction_id con el sufijo I', async(
 - Hay que reutilizar los helpers en lugar de armar objetos a mano:
   - `tests/helpers/auth.js`: `buildUser({ role })`, `signToken`, `authCookie`, `ROLES`.
   - `tests/helpers/http.js`: `mockReq({ body, query, params, user })` y `mockRes()`.
+  - `tests/helpers/zones.js`: `crearParejas(cantidad)` (parejas con id 1..n ordenadas por puntaje) e `ids(parejas)`.
+- **Los helpers nuevos van siempre en `tests/helpers/`**, nunca definidos adentro de un archivo de test. Una funcion que arma datos o transforma resultados para los tests es un helper, aunque por ahora la use un solo archivo. Se agrega al archivo del dominio que corresponda (`auth.js`, `http.js`, `zones.js`), o a uno nuevo si no encaja en ninguno, con un comentario JSDoc arriba de cada funcion, y se suma a la lista de arriba.
+- Lo que no es una funcion (constantes de datos como `basePayment` o `MENSAJE_FUERA_DE_RANGO`) puede quedar al principio del archivo de test.
 - Los datos base que se repiten en varios tests van en una constante al principio del archivo (por ejemplo, `basePayment`), y cada test los ajusta con spread.
 
 ## 4. Bugs que aparecen al testear
