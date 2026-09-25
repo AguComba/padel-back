@@ -1,31 +1,22 @@
+const MIN_PAREJAS = 6
+const MAX_PAREJAS = 64
+const MAX_ZONAS = 16
+
 export function calcularZonas(parejas) {
-    if (parejas < 3 || parejas > 64) {
-        return 'El numero de parejas debe estar entre 3 y 64.'
+    if (parejas < MIN_PAREJAS) {
+        throw new Error(`No se alcanzó el mínimo de ${MIN_PAREJAS} parejas para disputar el torneo (hay ${parejas} inscriptas).`)
     }
 
-    const maxZonas = 16
-    const parejasPorZona3 = 3
-    const parejasPorZona4 = 4
-
-    // Número ideal de zonas de 3
-    let zonasDe3 = Math.min(Math.floor(parejas / parejasPorZona3), maxZonas)
-    const parejasUsadas = zonasDe3 * 3
-    let parejasRestantes = parejas - parejasUsadas
-
-    // Si hay restantes, intentamos convertirlos en zonas de 4
-    let zonasDe4 = 0
-    while (parejasRestantes > 0 && zonasDe3 > 0) {
-        zonasDe3--
-        zonasDe4++
-        parejasRestantes--
+    if (parejas > MAX_PAREJAS) {
+        throw new Error(`No se puede armar un torneo con más de ${MAX_PAREJAS} parejas (hay ${parejas} inscriptas).`)
     }
 
-    // Ajustar a no más de 16 zonas
-    const totalZonas = zonasDe3 + zonasDe4
-
-    if (totalZonas > maxZonas) {
-        throw new Error('No es posible organizar las parejas en un máximo de 16 zonas.')
-    }
+    // Se arman todas las zonas de 3 posibles, con un tope de 16 zonas.
+    // Cada pareja que sobra convierte una zona de 3 en una de 4.
+    // Con 6 a 64 parejas siempre hay zonas de 3 suficientes para absorber las que sobran.
+    const totalZonas = Math.min(Math.floor(parejas / 3), MAX_ZONAS)
+    const zonasDe4 = parejas - totalZonas * 3
+    const zonasDe3 = totalZonas - zonasDe4
 
     return {
         zonasDe3,

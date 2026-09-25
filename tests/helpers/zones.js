@@ -12,3 +12,15 @@ export const crearParejas = (cantidad) => Array.from({ length: cantidad }, (_, i
  * sin tener que escribir los objetos completos en el esperado.
  */
 export const ids = (parejas) => parejas.map(pareja => pareja.id)
+
+/**
+ * Resume las zonas que devuelve generarZonas como { A: [ids], B: [ids], ... },
+ * respetando el orden de las parejas dentro de cada zona.
+ */
+export const idsPorZona = (zonas) => Object.fromEntries(zonas.map(zona => [zona.nombre, ids(zona.parejas)]))
+
+/**
+ * Todos los ids de todas las zonas en una sola lista ordenada de menor a mayor.
+ * Sirve para verificar que cada pareja aparece una sola vez.
+ */
+export const idsEnZonas = (zonas) => zonas.flatMap(zona => ids(zona.parejas)).sort((a, b) => a - b)

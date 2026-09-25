@@ -67,6 +67,29 @@ it('dado un pago de INSCRIPCION, arma el transaction_id con el sufijo I', async(
 })
 ```
 
+### Con errores
+
+Para no llamar a la funcion adentro del `expect`, el Act guarda la llamada:
+en una funcion si es sincronica, o en la promesa (sin `await`) si es async.
+
+```js
+it('dado 5 parejas (menos del minimo), lanza un error', () => {
+    const mensaje = 'No se alcanzó el mínimo de 6 parejas para disputar el torneo (hay 5 inscriptas).'
+
+    const calcular = () => calcularZonas(5)
+
+    expect(calcular).toThrow(mensaje)
+})
+
+it('dado 5 parejas, rechaza con el error de minimo', async() => {
+    const parejas = crearParejas(5)
+
+    const resultado = generarZonas(parejas)
+
+    await expect(resultado).rejects.toThrow(mensaje)
+})
+```
+
 ## 2. Nombres
 
 - `describe('<Modulo> - <funcion>', ...)`, por ejemplo `'Zone logic - calcularZonas'`.
@@ -82,7 +105,7 @@ it('dado un pago de INSCRIPCION, arma el transaction_id con el sufijo I', async(
 - Hay que reutilizar los helpers en lugar de armar objetos a mano:
   - `tests/helpers/auth.js`: `buildUser({ role })`, `signToken`, `authCookie`, `ROLES`.
   - `tests/helpers/http.js`: `mockReq({ body, query, params, user })` y `mockRes()`.
-  - `tests/helpers/zones.js`: `crearParejas(cantidad)` (parejas con id 1..n ordenadas por puntaje) e `ids(parejas)`.
+  - `tests/helpers/zones.js`: `crearParejas(cantidad)` (parejas con id 1..n ordenadas por puntaje), `ids(parejas)`, `idsPorZona(zonas)` (`{ A: [ids], ... }`) e `idsEnZonas(zonas)` (todos los ids ordenados).
 - **Los helpers nuevos van siempre en `tests/helpers/`**, nunca definidos adentro de un archivo de test. Una funcion que arma datos o transforma resultados para los tests es un helper, aunque por ahora la use un solo archivo. Se agrega al archivo del dominio que corresponda (`auth.js`, `http.js`, `zones.js`), o a uno nuevo si no encaja en ninguno, con un comentario JSDoc arriba de cada funcion, y se suma a la lista de arriba.
 - Lo que no es una funcion (constantes de datos como `basePayment` o `MENSAJE_FUERA_DE_RANGO`) puede quedar al principio del archivo de test.
 - Los datos base que se repiten en varios tests van en una constante al principio del archivo (por ejemplo, `basePayment`), y cada test los ajusta con spread.
